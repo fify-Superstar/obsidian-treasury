@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obsidian Treasury — Executive Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+            <path d="M8 20L16 8L24 20H19L16 15L13 20H8Z" fill="#0A0A0F"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                <stop stop-color="#00F5A0"/>
+                <stop offset="1" stop-color="#7000FF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="sidebar__name">Obsidian Treasury</span>
+      </div>
+
+      <nav class="sidebar__nav">
+        <a href="#" class="nav-item nav-item--active" aria-current="page">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
+          Command Center
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Analytics
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+          Teams
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.885-.06 1.947-1.272 2.13-1.44.21-1.832 1.953-1.093 2.91l1.952 2.503a1.532 1.532 0 010 2.286l-1.952 2.503c-.739.957-.347 2.7 1.093 2.91 1.212.183 1.812 1.245 1.272 2.13-0.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.286.948c.38 1.56 2.6 1.56 2.98 0a1.532 1.532 0 012.286-.948c1.372.836 2.942-.734 2.106-2.106-.54-.885.06-1.947 1.272-2.13 1.44-.21 1.832-1.953 1.093-2.91l-1.952-2.503a1.532 1.532 0 010-2.286l1.952-2.503c.739-.957.347-2.7-1.093-2.91-1.212-.183-1.812-1.245-1.272-2.13.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.286-.948zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="user-chip">
+          <div class="user-chip__avatar">AK</div>
+          <div class="user-chip__info">
+            <span class="user-chip__name">Alex Kim</span>
+            <span class="user-chip__role">CFO</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header__left">
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="header__title">Executive Command Center</h1>
+            <p class="header__subtitle">Real-time financial intelligence · Q3 FY2026</p>
+          </div>
+        </div>
+        <div class="header__actions">
+          <div class="live-indicator">
+            <span class="live-indicator__dot"></span>
+            Live
+          </div>
+          <button class="btn btn--ghost" id="exportBtn">Export</button>
+          <button class="btn btn--primary">New Report</button>
+        </div>
+      </header>
+
+      <!-- Metric Cards -->
+      <section class="metrics" aria-label="Key financial metrics">
+        <article class="metric-card" data-metric="cash">
+          <div class="metric-card__header">
+            <span class="metric-card__label">Total Cash Position</span>
+            <span class="metric-card__badge metric-card__badge--mint">+12.4%</span>
+          </div>
+          <div class="metric-card__value" id="metricCash">$24.8M</div>
+          <div class="metric-card__sparkline">
+            <canvas id="sparkCash" width="120" height="32" aria-hidden="true"></canvas>
+          </div>
+        </article>
+
+        <article class="metric-card" data-metric="runway">
+          <div class="metric-card__header">
+            <span class="metric-card__label">Runway</span>
+            <span class="metric-card__badge metric-card__badge--violet">Healthy</span>
+          </div>
+          <div class="metric-card__value" id="metricRunway">18.2 mo</div>
+          <div class="metric-card__sub">Burn rate: <span id="metricBurn">$1.36M/mo</span></div>
+        </article>
+
+        <article class="metric-card" data-metric="savings">
+          <div class="metric-card__header">
+            <span class="metric-card__label">AI-Optimized Savings</span>
+            <span class="metric-card__badge metric-card__badge--mint">YTD</span>
+          </div>
+          <div class="metric-card__value" id="metricSavings">$847K</div>
+          <div class="metric-card__sub"><span id="metricActions">142</span> autonomous actions</div>
+        </article>
+
+        <article class="metric-card" data-metric="compliance">
+          <div class="metric-card__header">
+            <span class="metric-card__label">Policy Compliance</span>
+            <span class="metric-card__badge metric-card__badge--violet">Enterprise</span>
+          </div>
+          <div class="metric-card__value" id="metricCompliance">96.8%</div>
+          <div class="metric-card__progress">
+            <div class="metric-card__progress-bar" id="complianceBar" style="width: 96.8%"></div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Primary Grid -->
+      <div class="dashboard-grid">
+        <!-- Liquidity Chart -->
+        <section class="panel panel--chart" aria-label="Predictive liquidity forecast">
+          <div class="panel__header">
+            <div>
+              <h2 class="panel__title">Predictive 12-Month Liquidity</h2>
+              <p class="panel__desc">AI-forecasted cash flow with confidence bands</p>
+            </div>
+            <div class="panel__controls">
+              <div class="segmented" role="group" aria-label="Chart view">
+                <button class="segmented__btn segmented__btn--active" data-range="12">12M</button>
+                <button class="segmented__btn" data-range="6">6M</button>
+                <button class="segmented__btn" data-range="3">3M</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="liquidityChart" aria-label="12-month liquidity forecast chart"></canvas>
+            <div class="chart-tooltip" id="chartTooltip" hidden>
+              <span class="chart-tooltip__month"></span>
+              <span class="chart-tooltip__value"></span>
+              <span class="chart-tooltip__confidence"></span>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot legend-dot--mint"></span> Projected Balance</span>
+            <span class="legend-item"><span class="legend-dot legend-dot--violet"></span> Confidence Band</span>
+            <span class="legend-item"><span class="legend-dot legend-dot--muted"></span> Historical</span>
+          </div>
+        </section>
+
+        <!-- AI Insights Stream -->
+        <section class="panel panel--insights" aria-label="Autonomous AI insights">
+          <div class="panel__header">
+            <div>
+              <h2 class="panel__title">Autonomous AI Insights</h2>
+              <p class="panel__desc">Real-time agent actions & recommendations</p>
+            </div>
+            <span class="panel__count" id="insightCount">0 events</span>
+          </div>
+          <div class="insights-stream" id="insightsStream" role="log" aria-live="polite" aria-relevant="additions">
+            <!-- Populated by script.js -->
+          </div>
+        </section>
+
+        <!-- Spend Guardrails -->
+        <section class="panel panel--guardrails" aria-label="B2B smart spend guardrails">
+          <div class="panel__header">
+            <div>
+              <h2 class="panel__title">B2B Smart Spend Guardrails</h2>
+              <p class="panel__desc">Active enterprise expense policies & compliance</p>
+            </div>
+            <button class="btn btn--ghost btn--sm" id="addPolicyBtn">+ Add Policy</button>
+          </div>
+          <div class="guardrails-grid" id="guardrailsGrid">
+            <!-- Populated by script.js -->
+          </div>
+        </section>
+      </div>
+
+      <!-- Founder's Circle Pre-Order -->
+      <section class="founders-cta" aria-label="Founder's Circle Pre-Order">
+        <div class="founders-cta__card">
+          <div class="founders-cta__glow" aria-hidden="true"></div>
+          <div class="founders-cta__inner">
+            <span class="founders-cta__eyebrow">Founder's Circle Pre-Order</span>
+            <h2 class="founders-cta__headline">
+              Join the Founder's Circle – Secure Lifetime Priority Access for $199 USD
+              <span class="founders-cta__compare">(Normally $99/mo)</span>
+            </h2>
+
+            <ul class="founders-cta__benefits">
+              <li class="founders-cta__benefit">
+                <span class="founders-cta__benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </span>
+                Priority Beta Pool
+              </li>
+              <li class="founders-cta__benefit">
+                <span class="founders-cta__benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </span>
+                Zero-Touch AI Feature Suite
+              </li>
+              <li class="founders-cta__benefit">
+                <span class="founders-cta__benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </span>
+                Lifetime Fixed Rate
+              </li>
+            </ul>
+
+            <div class="founders-cta__actions">
+              <!-- Stripe checkout: replace href below with your live Payment Link (e.g. https://buy.stripe.com/...) -->
+              <a
+                href="https://buy.stripe.com/test_5kQ6oJdBK19OgvLcz66EU00"
+                class="btn founders-cta__btn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Secure Priority Access Now</a>
+              <form class="founders-cta__waitlist" id="foundersWaitlist" action="#" method="post">
+                <label class="founders-cta__label" for="foundersEmail">Join the waitlist</label>
+                <div class="founders-cta__urgency">
+                  <p class="founders-cta__urgency-label">47 of 200 exclusive founder spots remaining</p>
+                  <div
+                    class="founders-cta__urgency-track"
+                    role="progressbar"
+                    aria-valuenow="153"
+                    aria-valuemin="0"
+                    aria-valuemax="200"
+                    aria-label="153 of 200 founder spots claimed"
+                  >
+                    <div class="founders-cta__urgency-fill" style="width: 76.5%"></div>
+                  </div>
+                </div>
+                <div class="founders-cta__input-row">
+                  <input
+                    type="email"
+                    id="foundersEmail"
+                    name="email"
+                    class="founders-cta__input"
+                    placeholder="you@company.com"
+                    autocomplete="email"
+                    required
+                  >
+                  <button type="submit" class="founders-cta__submit">Join</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Founder's Circle success modal -->
+  <div class="founder-modal" id="founderModal" hidden aria-hidden="true">
+    <div class="founder-modal__backdrop" id="founderModalBackdrop"></div>
+    <div
+      class="founder-modal__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="founderModalTitle"
+      aria-describedby="founderModalDesc"
+    >
+      <div class="founder-modal__card">
+        <div class="founder-modal__glow" aria-hidden="true"></div>
+        <div class="founder-modal__inner">
+          <button type="button" class="founder-modal__close" id="founderModalClose" aria-label="Close">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div class="founder-modal__check" aria-hidden="true">
+            <div class="founder-modal__check-ring"></div>
+            <svg class="founder-modal__check-icon" viewBox="0 0 52 52">
+              <circle class="founder-modal__check-circle" cx="26" cy="26" r="24" fill="none"/>
+              <path class="founder-modal__check-path" fill="none" d="M14 27l8 8 16-16"/>
+            </svg>
+          </div>
+          <h2 class="founder-modal__title" id="founderModalTitle">Welcome to the Founder's Circle!</h2>
+          <p class="founder-modal__desc" id="founderModalDesc">Your priority access has been secured.</p>
+          <button type="button" class="btn founder-modal__btn" id="founderModalDismiss">Continue to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
