@@ -571,14 +571,14 @@
         const submitBtn = waitlistForm.querySelector('.founders-cta__submit');
         if (!input?.value || !submitBtn || submitBtn.disabled) return;
 
-        const endpoint = waitlistForm.getAttribute('action') || 'https://formspree.io';
+        const FORMSPREE_ENDPOINT = 'https://formspree.io/f/maqrbkrz';
         const originalLabel = submitBtn.textContent;
 
         submitBtn.disabled = true;
         submitBtn.textContent = 'Joining…';
 
         try {
-          const response = await fetch(endpoint, {
+          const response = await fetch(FORMSPREE_ENDPOINT, {
             method: 'POST',
             body: new FormData(waitlistForm),
             headers: { Accept: 'application/json' },
