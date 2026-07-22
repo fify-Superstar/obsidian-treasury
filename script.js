@@ -564,15 +564,46 @@
 
     const waitlistForm = $('#foundersWaitlist');
     if (waitlistForm) {
-      waitlistForm.addEventListener('submit', (e) => {
+      waitlistForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         const input = $('#foundersEmail');
         const submitBtn = waitlistForm.querySelector('.founders-cta__submit');
-        if (!input?.value || !submitBtn) return;
-        submitBtn.textContent = 'Joined!';
+        if (!input?.value || !submitBtn || submitBtn.disabled) return;
+
+        const endpoint = waitlistForm.getAttribute('action') || 'https://formspree.io';
+        const originalLabel = submitBtn.textContent;
+
         submitBtn.disabled = true;
-        input.disabled = true;
-        openFounderModal();
+        submitBtn.textContent = 'Joining…';
+
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            body: new FormData(waitlistForm),
+            headers: { Accept: 'application/json' },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Formspree error (${response.status})`);
+          }
+
+          input.value = '';
+          submitBtn.textContent = 'Joined!';
+          openFounderModal();
+
+          setTimeout(() => {
+            submitBtn.textContent = originalLabel;
+            submitBtn.disabled = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Waitlist submission failed:', err);
+          submitBtn.textContent = 'Try again';
+          submitBtn.disabled = false;
+          setTimeout(() => {
+            submitBtn.textContent = originalLabel;
+          }, 2500);
+        }
       });
     }
 
