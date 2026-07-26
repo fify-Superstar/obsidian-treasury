@@ -1214,14 +1214,19 @@ body {
   background: var(--bg-elevated);
 }
 
-.founders-cta__legal {
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-subtle);
+/* Site legal footer — page bottom, outside Founder's Circle card */
+.site-legal-footer {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  margin: 0;
+  padding: 28px 24px 40px;
   text-align: center;
+  background: #0A0A0F;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.founders-cta__legal-nav {
+.site-legal-footer__nav {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1229,22 +1234,24 @@ body {
   gap: 10px 14px;
 }
 
-.founders-cta__legal-link {
-  font-size: 12px;
+.site-legal-footer__link {
+  font-size: 13px;
   font-weight: 500;
-  color: var(--text-tertiary);
-  text-decoration: none;
+  color: #666666;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   letter-spacing: 0.02em;
   transition: color var(--duration) var(--ease-out);
 }
 
-.founders-cta__legal-link:hover {
-  color: var(--text-secondary);
+.site-legal-footer__link:hover,
+.site-legal-footer__link:focus-visible {
+  color: #A1A1AA;
 }
 
-.founders-cta__legal-sep {
-  color: var(--text-muted);
-  font-size: 12px;
+.site-legal-footer__sep {
+  color: #666666;
+  font-size: 13px;
   line-height: 1;
 }
 
