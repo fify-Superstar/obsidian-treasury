@@ -1,0 +1,10 @@
+{
+  "name": "obsidian-treasury",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Obsidian Treasury storefront + Stripe confirmation webhook",
+  "dependencies": {
+    "resend": "^4.5.1",
+    "stripe": "^18.2.1"
+  }
+}
