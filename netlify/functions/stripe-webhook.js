@@ -96,6 +96,7 @@ exports.handler = async (event) => {
   const html = buildWelcomeToTheTreasuryEmail({
     customerName,
     amountTotal: session.amount_total,
+    currency: (session.currency || 'aud').toUpperCase(),
     sessionId: session.id,
   });
 
