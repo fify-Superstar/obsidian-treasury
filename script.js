@@ -511,6 +511,11 @@
   }
 
   // ─── Mobile Navigation ───────────────────────────────────
+  function closeMobileSidebar() {
+    $('.sidebar')?.classList.remove('sidebar--open');
+    $('#sidebarOverlay')?.classList.remove('sidebar-overlay--visible');
+  }
+
   function initMobileNav() {
     const sidebar = $('.sidebar');
     const overlay = $('#sidebarOverlay');
@@ -521,10 +526,94 @@
       overlay.classList.toggle('sidebar-overlay--visible');
     });
 
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('sidebar--open');
-      overlay.classList.remove('sidebar-overlay--visible');
+    overlay.addEventListener('click', closeMobileSidebar);
+  }
+
+  // ─── View Router (hash-based SPA navigation) ──────────────
+  const VIEW_META = {
+    'command-center': {
+      title: 'Executive Command Center',
+      subtitle: 'Real-time financial intelligence · Q3 FY2026',
+      showActions: true,
+    },
+    analytics: {
+      title: 'Analytics',
+      subtitle: 'Cohort trends, variance & board reporting',
+      showActions: false,
+    },
+    teams: {
+      title: 'Teams',
+      subtitle: 'Access control & department ownership',
+      showActions: false,
+    },
+    settings: {
+      title: 'Settings',
+      subtitle: 'Workspace, billing & integrations',
+      showActions: false,
+    },
+  };
+
+  function getViewFromHash() {
+    const hash = (window.location.hash || '').replace(/^#/, '');
+    return VIEW_META[hash] ? hash : 'command-center';
+  }
+
+  function setActiveView(viewId, { syncHash = true, chart } = {}) {
+    if (!VIEW_META[viewId]) viewId = 'command-center';
+    const meta = VIEW_META[viewId];
+
+    $$('[data-view-panel]').forEach((panel) => {
+      const active = panel.dataset.viewPanel === viewId;
+      panel.hidden = !active;
+      panel.classList.toggle('view-panel--active', active);
     });
+
+    $$('.nav-item[data-view]').forEach((link) => {
+      const active = link.dataset.view === viewId;
+      link.classList.toggle('nav-item--active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+
+    const title = $('#headerTitle');
+    const subtitle = $('#headerSubtitle');
+    const actions = $('#headerActions');
+    if (title) title.textContent = meta.title;
+    if (subtitle) subtitle.textContent = meta.subtitle;
+    if (actions) actions.hidden = !meta.showActions;
+
+    if (syncHash) {
+      const nextHash = `#${viewId}`;
+      if (window.location.hash !== nextHash) {
+        window.history.replaceState(null, '', nextHash);
+      }
+    }
+
+    if (viewId === 'command-center' && chart) {
+      requestAnimationFrame(() => {
+        chart.resize();
+        chart.animationProgress = 0;
+        chart.animate();
+      });
+    }
+
+    closeMobileSidebar();
+  }
+
+  function initViewRouter(chart) {
+    $$('.nav-item[data-view]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const viewId = link.dataset.view;
+        setActiveView(viewId, { chart });
+      });
+    });
+
+    window.addEventListener('hashchange', () => {
+      setActiveView(getViewFromHash(), { syncHash: false, chart });
+    });
+
+    setActiveView(getViewFromHash(), { syncHash: true, chart });
   }
 
   // ─── Chart Range Controls ────────────────────────────────
@@ -553,6 +642,7 @@
 
     new MetricSimulator();
     initMobileNav();
+    initViewRouter(chart);
 
     $('#exportBtn').addEventListener('click', () => {
       alert('Export queued — report will be delivered to your inbox.');
