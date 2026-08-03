@@ -333,21 +333,6 @@
   }
 
   // ─── AI Insights Stream ──────────────────────────────────
-  const INSIGHT_TEMPLATES = [
-    { type: 'save', icon: '💰', text: 'AI agent renegotiated <strong>SaaS bill</strong>: Saved <strong>$420/mo</strong>', tag: 'auto' },
-    { type: 'save', icon: '💰', text: 'Duplicate subscription detected & cancelled: <strong>$1,840/yr</strong> recovered', tag: 'auto' },
-    { type: 'action', icon: '⚡', text: 'Auto-approved vendor payment to <strong>Acme Corp</strong> within policy limits', tag: 'auto' },
-    { type: 'alert', icon: '⚠️', text: '<strong>{{cost1}}</strong> approaching <strong>85%</strong> of Q3 budget cap', tag: 'review' },
-    { type: 'optimize', icon: '📊', text: 'FX hedging opportunity identified: potential <strong>$12K</strong> savings', tag: 'review' },
-    { type: 'save', icon: '💰', text: 'Bulk license consolidation for <strong>{{cost0}}</strong>: Saved <strong>$2,100/mo</strong>', tag: 'auto' },
-    { type: 'action', icon: '⚡', text: 'Triggered early payment discount on <strong>{{cost2}}</strong> invoice: 2% saved', tag: 'auto' },
-    { type: 'alert', icon: '⚠️', text: 'Unusual expense pattern flagged in <strong>{{cost0}}</strong>', tag: 'review' },
-    { type: 'optimize', icon: '📊', text: 'Cash sweep executed: <strong>$3.2M</strong> moved to high-yield account', tag: 'auto' },
-    { type: 'save', icon: '💰', text: 'Travel policy violation blocked: <strong>$890</strong> non-compliant booking', tag: 'auto' },
-    { type: 'action', icon: '⚡', text: 'Invoice matched & scheduled: <strong>{{cost2}}</strong> $47,200 due Aug 1', tag: 'auto' },
-    { type: 'optimize', icon: '📊', text: 'Runway extended by <strong>0.4 months</strong> via burn optimization', tag: 'auto' },
-  ];
-
   class InsightsStream {
     constructor(container) {
       this.container = container;
@@ -355,38 +340,42 @@
       this.count = 0;
       this.maxItems = 20;
       this.templateIndex = 0;
-      this.costCenters = [
-        'Variable Software Stack',
-        'Marketing Automation',
-        'Cloud Hosting',
-      ];
+      this.templates = [];
+      this.costCenters = [];
+      this.vendors = [];
 
-      // Seed initial items
-      for (let i = 0; i < 5; i++) {
-        this.addInsight(false);
-      }
-
-      // Stream new insights periodically
       setInterval(() => this.addInsight(true), randomBetween(4000, 8000));
     }
 
-    setCostCenters(names) {
-      this.costCenters = names.slice(0, 3);
+    setIndustry(view) {
+      this.templates = (view.insights || []).slice();
+      this.costCenters = (view.costs || []).slice(0, 3);
+      this.vendors = (view.vendors || []).map((v) => v.vendor);
+      this.container.innerHTML = '';
+      this.count = 0;
+      this.templateIndex = 0;
+      const seed = Math.min(5, this.templates.length || 5);
+      for (let i = 0; i < seed; i++) this.addInsight(false);
     }
 
     fillTemplate(text) {
-      return text
-        .replace(/\{\{cost0\}\}/g, this.costCenters[0])
-        .replace(/\{\{cost1\}\}/g, this.costCenters[1])
-        .replace(/\{\{cost2\}\}/g, this.costCenters[2]);
+      let out = text;
+      (this.costCenters || []).forEach((name, i) => {
+        out = out.replace(new RegExp(`\\{\\{cost${i}\\}\\}`, 'g'), name);
+      });
+      (this.vendors || []).forEach((name, i) => {
+        out = out.replace(new RegExp(`\\{\\{vendor${i}\\}\\}`, 'g'), name);
+      });
+      return out;
     }
 
     addInsight(animate = true) {
-      const template = INSIGHT_TEMPLATES[this.templateIndex % INSIGHT_TEMPLATES.length];
+      if (!this.templates.length) return;
+      const template = this.templates[this.templateIndex % this.templates.length];
       this.templateIndex++;
 
       const elapsed = Math.floor(randomBetween(1, 59));
-      const timeStr = elapsed < 1 ? 'Just now' : `${elapsed}s ago`;
+      const timeStr = `${elapsed}s ago`;
 
       const item = document.createElement('article');
       item.className = 'insight-item';
@@ -405,7 +394,7 @@
 
       this.container.insertBefore(item, this.container.firstChild);
       this.count++;
-      this.countEl.textContent = `${this.count} events`;
+      if (this.countEl) this.countEl.textContent = `${this.count} events`;
 
       while (this.container.children.length > this.maxItems) {
         this.container.removeChild(this.container.lastChild);
@@ -414,31 +403,25 @@
   }
 
   // ─── Spend Guardrails ────────────────────────────────────
-  const GUARDRAIL_COST_INDEXES = [0, 2, 4]; // SaaS, Marketing, Cloud → industry cost centers
-
-  const GUARDRAIL_POLICIES = [
-    { name: 'Variable Software Stack', limit: '$50K/mo', spent: 38400, cap: 50000, compliance: 97.2, status: 'active' },
-    { name: 'Travel & Expenses', limit: '$25K/mo', spent: 21200, cap: 25000, compliance: 84.8, status: 'warning' },
-    { name: 'Marketing Automation', limit: '$120K/qtr', spent: 98400, cap: 120000, compliance: 82.0, status: 'warning' },
-    { name: 'Contractor Payments', limit: '$80K/mo', spent: 45200, cap: 80000, compliance: 99.1, status: 'active' },
-    { name: 'Cloud Hosting', limit: '$200K/mo', spent: 178400, cap: 200000, compliance: 89.2, status: 'active' },
-    { name: 'Office & Facilities', limit: '$15K/mo', spent: 12800, cap: 15000, compliance: 100, status: 'active' },
-  ];
+  const GUARDRAIL_POLICIES = [];
 
   class GuardrailsPanel {
     constructor(container) {
       this.container = container;
-      this.render();
-
-      // Simulate meter updates
       setInterval(() => this.updateMeters(), 5000);
     }
 
-    setCostCenters(names) {
-      GUARDRAIL_COST_INDEXES.forEach((policyIndex, i) => {
-        if (GUARDRAIL_POLICIES[policyIndex] && names[i]) {
-          GUARDRAIL_POLICIES[policyIndex].name = names[i];
-        }
+    setPolicies(policies) {
+      GUARDRAIL_POLICIES.length = 0;
+      (policies || []).forEach((p) => {
+        GUARDRAIL_POLICIES.push({
+          name: p.name,
+          limit: p.limit,
+          spent: p.spent,
+          cap: p.cap,
+          compliance: p.compliance,
+          status: p.status,
+        });
       });
       this.render();
       this.animateMeters();
@@ -503,16 +486,42 @@
         const nameEl = $('.guardrail-card__name', card);
 
         if (nameEl) nameEl.textContent = policy.name;
-        fill.style.width = `${pct}%`;
-        fill.className = `guardrail-meter__fill guardrail-meter__fill--${meterClass}`;
-        fill.dataset.target = pct;
-        valueEl.textContent = `${pct.toFixed(1)}%`;
-        complianceEl.textContent = `${policy.compliance.toFixed(1)}%`;
+        if (fill) {
+          fill.style.width = `${pct}%`;
+          fill.className = `guardrail-meter__fill guardrail-meter__fill--${meterClass}`;
+          fill.dataset.target = pct;
+        }
+        if (valueEl) valueEl.textContent = `${pct.toFixed(1)}%`;
+        if (complianceEl) complianceEl.textContent = `${policy.compliance.toFixed(1)}%`;
 
         const status = $('.guardrail-card__status', card);
-        status.className = `guardrail-card__status guardrail-card__status--${pct >= 90 ? 'warning' : 'active'}`;
+        if (status) {
+          status.className = `guardrail-card__status guardrail-card__status--${pct >= 90 ? 'warning' : 'active'}`;
+        }
       });
     }
+  }
+
+  // ─── Vendor Ledger ───────────────────────────────────────
+  function renderVendorLedger(vendors) {
+    const body = $('#vendorLedgerBody');
+    const count = $('#vendorCount');
+    if (!body) return;
+
+    body.innerHTML = (vendors || []).map((v) => `
+      <tr>
+        <td>
+          <div class="vendor-table__vendor">${v.vendor}</div>
+          <div class="vendor-table__system">${v.system}</div>
+        </td>
+        <td><code class="vendor-table__input">${v.input}</code></td>
+        <td>${v.costCenter}</td>
+        <td class="vendor-table__spend">${v.spend}</td>
+        <td><span class="vendor-status vendor-status--${v.statusTone || 'live'}">${v.status}</span></td>
+      </tr>
+    `).join('');
+
+    if (count) count.textContent = `${(vendors || []).length} systems`;
   }
 
   // ─── Live Metric Updates ─────────────────────────────────
@@ -662,73 +671,321 @@
 
   // ─── Industry View Selector ──────────────────────────────
   const INDUSTRY_VIEWS = {
-    default: {
-      hint: 'General · B2B SaaS',
-      desc: 'Active enterprise expense policies & compliance',
-      costs: [
-        'Variable Software Stack',
-        'Marketing Automation',
-        'Cloud Hosting',
-      ],
-    },
     logistics: {
       hint: 'Logistics & 3PL',
-      desc: 'Active logistics & 3PL expense policies & compliance',
-      costs: [
-        'WMS & Fleet Telematics',
-        'Route Optimization Tools',
-        'Cold-Chain Supply Tracking',
+      badge: 'Fleet Asset Cost Cap: Active',
+      costs: ['WMS & Fleet Telematics', 'Route Optimization Tools', 'Cold-Chain Supply Tracking'],
+      costEyebrows: ['Fleet systems', 'Network routing', 'Cold-chain'],
+      metrics: {
+        cash: 'Fleet Working Capital',
+        runway: 'Carrier Runway',
+        savings: 'Lane Optimization Savings',
+        compliance: 'Carrier Control Tower',
+        complianceLabel: 'Chain-of-Custody Compliance',
+        burnLabel: 'Fleet burn',
+        actionsLabel: 'dispatch actions',
+        deltas: { cash: '+9.8%', runway: 'On-time', savings: 'YTD', compliance: 'Live' },
+      },
+      panels: {
+        chartTitle: 'Predictive 12-Month Fleet Liquidity',
+        chartDesc: 'Carrier payout & fuel cash flow with confidence bands',
+        insightsTitle: 'Logistics Ops Insights',
+        insightsDesc: 'Telematics, WMS, and cold-chain agent actions',
+        guardrailsTitle: 'Logistics Spend Guardrails',
+        guardrailsDesc: 'Fleet, carrier, and warehouse expense policies',
+        vendorsTitle: 'Connected Logistics Vendors',
+        vendorsDesc: 'Live telematics, carrier TMS, and WMS system feeds',
+      },
+      vendors: [
+        { vendor: 'Teletrac Navman', system: 'Fleet Telematics', input: 'GPS ping · 4G uplink', costCenter: 'WMS & Fleet Telematics', spend: '$18.4K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Linfox Carrier Stack', system: 'Carrier TMS', input: 'EDI 214 status', costCenter: 'Route Optimization Tools', spend: '$42.1K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Manhattan Associates WMS', system: 'Warehouse WMS', input: 'ASN / inventory feed', costCenter: 'WMS & Fleet Telematics', spend: '$67.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Thermo King Cold Chain', system: 'Reefer Monitoring', input: 'Temp sensor stream', costCenter: 'Cold-Chain Supply Tracking', spend: '$11.2K', status: 'Alert', statusTone: 'warn' },
+        { vendor: 'WiseTech CargoWise', system: 'Freight Forwarding', input: 'Customs declaration API', costCenter: 'Route Optimization Tools', spend: '$29.6K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Samsara Fleet OS', system: 'ELDs & Safety', input: 'CAN-bus / camera events', costCenter: 'WMS & Fleet Telematics', spend: '$15.9K', status: 'Live', statusTone: 'live' },
+      ],
+      policies: [
+        { name: 'WMS & Fleet Telematics', limit: '$75K/mo', spent: 58400, cap: 75000, compliance: 96.4, status: 'active' },
+        { name: 'Carrier Spot Rates', limit: '$220K/mo', spent: 198400, cap: 220000, compliance: 88.1, status: 'warning' },
+        { name: 'Route Optimization Tools', limit: '$40K/mo', spent: 31200, cap: 40000, compliance: 97.8, status: 'active' },
+        { name: 'Owner-Operator Settlements', limit: '$160K/mo', spent: 142800, cap: 160000, compliance: 91.2, status: 'active' },
+        { name: 'Cold-Chain Supply Tracking', limit: '$28K/mo', spent: 24600, cap: 28000, compliance: 94.5, status: 'warning' },
+        { name: 'Depot & Yard Ops', limit: '$35K/mo', spent: 22100, cap: 35000, compliance: 99.0, status: 'active' },
+      ],
+      insights: [
+        { type: 'save', icon: '💰', text: 'Renegotiated <strong>{{vendor0}}</strong> telematics seats: Saved <strong>$2,400/mo</strong>', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Auto-approved <strong>{{vendor1}}</strong> carrier settlement within Fleet Asset Cap', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor3}}</strong> cold-chain breach risk — reefer unit spend +12% WoW', tag: 'review' },
+        { type: 'optimize', icon: '📊', text: 'Lane consolidation via <strong>{{cost1}}</strong>: projected <strong>$18K</strong> monthly savings', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Idle tractor detected by <strong>{{vendor5}}</strong> — fuel burn cut <strong>$640</strong>', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Matched ASN from <strong>{{vendor2}}</strong> to PO #LFX-8841', tag: 'auto' },
       ],
     },
     healthcare: {
       hint: 'Healthcare & Care Ops',
-      desc: 'Active healthcare & care-ops expense policies & compliance',
-      costs: [
-        'NDIS Compliance Software',
-        'Roster & Care Platforms',
-        'Patient Data Management',
+      badge: 'NDIS Compliance Billing Guardrails: Verified',
+      costs: ['NDIS Compliance Software', 'Roster & Care Platforms', 'Patient Data Management'],
+      costEyebrows: ['Billing compliance', 'Care workforce', 'Clinical data'],
+      metrics: {
+        cash: 'Provider Cash Position',
+        runway: 'Care Delivery Runway',
+        savings: 'Claim Recovery Savings',
+        compliance: 'NDIS Control Plane',
+        complianceLabel: 'Plan Management Compliance',
+        burnLabel: 'Care burn',
+        actionsLabel: 'roster actions',
+        deltas: { cash: '+6.2%', runway: 'Stable', savings: 'YTD', compliance: 'Verified' },
+      },
+      panels: {
+        chartTitle: 'Predictive 12-Month Provider Liquidity',
+        chartDesc: 'NDIS claim cycles & payroll cash flow forecast',
+        insightsTitle: 'Care Ops Insights',
+        insightsDesc: 'Roster, claims, and clinical systems agent actions',
+        guardrailsTitle: 'Healthcare Spend Guardrails',
+        guardrailsDesc: 'NDIS, rostering, and clinical data expense policies',
+        vendorsTitle: 'Connected Care Vendors',
+        vendorsDesc: 'Live NDIS, rostering, and patient-data system feeds',
+      },
+      vendors: [
+        { vendor: 'ShiftCare Roster OS', system: 'Care Rostering', input: 'Award / shift feed', costCenter: 'Roster & Care Platforms', spend: '$22.7K', status: 'Live', statusTone: 'live' },
+        { vendor: 'SupportAbility NDIS', system: 'Plan Management', input: 'PRODA claim API', costCenter: 'NDIS Compliance Software', spend: '$31.4K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Cliniko PMS', system: 'Patient Records', input: 'FHIR R4 events', costCenter: 'Patient Data Management', spend: '$14.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Mable Marketplace', system: 'Support Worker Network', input: 'Timesheet webhooks', costCenter: 'Roster & Care Platforms', spend: '$48.2K', status: 'Live', statusTone: 'live' },
+        { vendor: 'HealthEngine Booking', system: 'Appointment Layer', input: 'Calendar sync', costCenter: 'Patient Data Management', spend: '$9.1K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'MediSecure Scripts', system: 'ePrescription', input: 'PBS claim feed', costCenter: 'NDIS Compliance Software', spend: '$6.4K', status: 'Review', statusTone: 'warn' },
+      ],
+      policies: [
+        { name: 'NDIS Compliance Software', limit: '$45K/mo', spent: 33800, cap: 45000, compliance: 98.6, status: 'active' },
+        { name: 'Support Worker Payroll', limit: '$280K/mo', spent: 251400, cap: 280000, compliance: 93.2, status: 'warning' },
+        { name: 'Roster & Care Platforms', limit: '$35K/mo', spent: 27200, cap: 35000, compliance: 97.1, status: 'active' },
+        { name: 'Allied Health Contractors', limit: '$90K/mo', spent: 71400, cap: 90000, compliance: 95.4, status: 'active' },
+        { name: 'Patient Data Management', limit: '$25K/mo', spent: 18900, cap: 25000, compliance: 99.2, status: 'active' },
+        { name: 'Clinical Consumables', limit: '$18K/mo', spent: 14200, cap: 18000, compliance: 91.8, status: 'warning' },
+      ],
+      insights: [
+        { type: 'action', icon: '⚡', text: 'Validated NDIS claim batch via <strong>{{vendor1}}</strong> — 142 line items cleared', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: '<strong>{{cost0}}</strong> utilization at <strong>87%</strong> of monthly cap', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Duplicate roster shift blocked in <strong>{{vendor0}}</strong>: Saved <strong>$1,120</strong>', tag: 'auto' },
+        { type: 'optimize', icon: '📊', text: 'Care ratio optimization across <strong>{{vendor3}}</strong> network: +0.3 mo runway', tag: 'review' },
+        { type: 'action', icon: '⚡', text: 'FHIR sync from <strong>{{vendor2}}</strong> matched to participant plan budgets', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Rejected non-compliant PBS claim from <strong>{{vendor5}}</strong>', tag: 'auto' },
       ],
     },
     ecommerce: {
       hint: 'E-commerce & Retail',
-      desc: 'Active retail & e-commerce expense policies & compliance',
-      costs: [
-        'Shopify Plugins & Apps',
-        'Ad Attribution Software',
-        'Logistics & Shipping Tech',
+      badge: 'Ad Spend Attribution Guardrail: Enforced',
+      costs: ['Shopify Plugins & Apps', 'Ad Attribution Software', 'Logistics & Shipping Tech'],
+      costEyebrows: ['Storefront apps', 'Growth media', 'Fulfillment'],
+      metrics: {
+        cash: 'Merchant Cash Position',
+        runway: 'Contribution Runway',
+        savings: 'CAC Efficiency Savings',
+        compliance: 'Channel Control Plane',
+        complianceLabel: 'Marketplace Fee Compliance',
+        burnLabel: 'Growth burn',
+        actionsLabel: 'merch actions',
+        deltas: { cash: '+14.1%', runway: 'Scaling', savings: 'YTD', compliance: 'Enforced' },
+      },
+      panels: {
+        chartTitle: 'Predictive 12-Month Merchant Liquidity',
+        chartDesc: 'GMV settlement & ad-spend cash flow forecast',
+        insightsTitle: 'Retail Growth Insights',
+        insightsDesc: 'Shopify, ads, and fulfillment agent actions',
+        guardrailsTitle: 'Retail Spend Guardrails',
+        guardrailsDesc: 'Apps, attribution, and shipping expense policies',
+        vendorsTitle: 'Connected Commerce Vendors',
+        vendorsDesc: 'Live storefront, ads, and shipping system feeds',
+      },
+      vendors: [
+        { vendor: 'Shopify Plus', system: 'Storefront Commerce', input: 'Order webhooks', costCenter: 'Shopify Plugins & Apps', spend: '$36.5K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Klaviyo Lifecycle', system: 'CRM Automation', input: 'Event stream', costCenter: 'Shopify Plugins & Apps', spend: '$12.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Triple Whale', system: 'Ad Attribution', input: 'Pixel + SKAN', costCenter: 'Ad Attribution Software', spend: '$8.9K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Meta Ads Manager', system: 'Paid Social', input: 'Campaign spend API', costCenter: 'Ad Attribution Software', spend: '$124.0K', status: 'Capped', statusTone: 'warn' },
+        { vendor: 'ShipStation', system: 'Multi-carrier Shipping', input: 'Rate shop feed', costCenter: 'Logistics & Shipping Tech', spend: '$19.4K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Amazon Seller Central', system: 'Marketplace', input: 'Settlement reports', costCenter: 'Logistics & Shipping Tech', spend: '$54.2K', status: 'Live', statusTone: 'live' },
+      ],
+      policies: [
+        { name: 'Shopify Plugins & Apps', limit: '$55K/mo', spent: 42800, cap: 55000, compliance: 96.0, status: 'active' },
+        { name: 'Paid Social Media', limit: '$150K/mo', spent: 138400, cap: 150000, compliance: 84.5, status: 'warning' },
+        { name: 'Ad Attribution Software', limit: '$20K/mo', spent: 14200, cap: 20000, compliance: 98.1, status: 'active' },
+        { name: 'Influencer Affiliates', limit: '$40K/mo', spent: 28600, cap: 40000, compliance: 92.4, status: 'active' },
+        { name: 'Logistics & Shipping Tech', limit: '$85K/mo', spent: 76200, cap: 85000, compliance: 89.7, status: 'warning' },
+        { name: 'Returns & Reverse Logistics', limit: '$30K/mo', spent: 21400, cap: 30000, compliance: 95.3, status: 'active' },
+      ],
+      insights: [
+        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor3}}</strong> hit attribution guardrail — ROAS below 1.8x', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Paused duplicate Shopify app via <strong>{{vendor0}}</strong>: Saved <strong>$890/mo</strong>', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Auto-reconciled <strong>{{vendor5}}</strong> settlement to cash position', tag: 'auto' },
+        { type: 'optimize', icon: '📊', text: 'Carrier mix shift in <strong>{{vendor4}}</strong>: −11% shipping cost', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Klaviyo flow consolidation cut <strong>{{cost0}}</strong> seats 14%', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Triple Whale anomaly cleared for <strong>{{cost1}}</strong> spend spike', tag: 'auto' },
       ],
     },
     tech: {
       hint: 'Tech, AI & Cloud SaaS',
-      desc: 'Active tech & cloud SaaS expense policies & compliance',
-      costs: [
-        'AWS/Azure Cloud Compute',
-        'LLM API Usage (OpenAI/Anthropic)',
-        'CI/CD & DevOps Stack',
+      badge: 'LLMOps Cost Override Protection: Enabled',
+      costs: ['AWS/Azure Cloud Compute', 'LLM API Usage (OpenAI/Anthropic)', 'CI/CD & DevOps Stack'],
+      costEyebrows: ['Compute & infra', 'Model inference', 'Delivery systems'],
+      metrics: {
+        cash: 'Cloud Treasury Position',
+        runway: 'Inference Runway',
+        savings: 'Autonomous FinOps Savings',
+        compliance: 'SaaS Control Plane',
+        complianceLabel: 'SOC2 Spend Compliance',
+        burnLabel: 'Model burn',
+        actionsLabel: 'pipeline actions',
+        deltas: { cash: '+12.4%', runway: 'Healthy', savings: 'YTD', compliance: 'Live' },
+      },
+      panels: {
+        chartTitle: 'Predictive 12-Month Cloud Liquidity',
+        chartDesc: 'Compute, LLM, and SaaS cash flow with confidence bands',
+        insightsTitle: 'FinOps & LLMOps Insights',
+        insightsDesc: 'Cloud, model, and pipeline agent actions',
+        guardrailsTitle: 'Cloud & LLM Spend Guardrails',
+        guardrailsDesc: 'Compute, inference, and DevOps expense policies',
+        vendorsTitle: 'Connected System Vendors',
+        vendorsDesc: 'Live SaaS, cloud, and LLM vendor feeds for Tech / AI ops',
+      },
+      vendors: [
+        { vendor: 'OpenAI API Token Pool', system: 'LLM Inference', input: 'Token usage meter', costCenter: 'LLM API Usage (OpenAI/Anthropic)', spend: '$86.2K', status: 'Live', statusTone: 'live' },
+        { vendor: 'AWS EC2 Cluster', system: 'Cloud Compute', input: 'CloudWatch metrics', costCenter: 'AWS/Azure Cloud Compute', spend: '$142.5K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Datadog Monitoring', system: 'Observability', input: 'APM / log ingest', costCenter: 'CI/CD & DevOps Stack', spend: '$27.4K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Anthropic Claude API', system: 'LLM Inference', input: 'Token usage meter', costCenter: 'LLM API Usage (OpenAI/Anthropic)', spend: '$41.8K', status: 'Protected', statusTone: 'live' },
+        { vendor: 'GitHub Actions', system: 'CI/CD Pipelines', input: 'Workflow minutes', costCenter: 'CI/CD & DevOps Stack', spend: '$9.6K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Azure Cosmos DB', system: 'Managed Data', input: 'RU / storage feed', costCenter: 'AWS/Azure Cloud Compute', spend: '$18.1K', status: 'Review', statusTone: 'warn' },
+      ],
+      policies: [
+        { name: 'AWS/Azure Cloud Compute', limit: '$200K/mo', spent: 178400, cap: 200000, compliance: 89.2, status: 'warning' },
+        { name: 'LLM API Usage (OpenAI/Anthropic)', limit: '$120K/mo', spent: 98400, cap: 120000, compliance: 91.5, status: 'warning' },
+        { name: 'CI/CD & DevOps Stack', limit: '$45K/mo', spent: 31200, cap: 45000, compliance: 97.4, status: 'active' },
+        { name: 'SaaS Collaboration Suite', limit: '$50K/mo', spent: 38400, cap: 50000, compliance: 96.8, status: 'active' },
+        { name: 'Security & Compliance Tools', limit: '$35K/mo', spent: 22100, cap: 35000, compliance: 99.1, status: 'active' },
+        { name: 'Contractor Engineering', limit: '$80K/mo', spent: 54200, cap: 80000, compliance: 94.0, status: 'active' },
+      ],
+      insights: [
+        { type: 'save', icon: '💰', text: 'Rightsized idle <strong>{{vendor1}}</strong> instances: Saved <strong>$6,200/mo</strong>', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor0}}</strong> token burn approaching LLMOps override threshold', tag: 'review' },
+        { type: 'action', icon: '⚡', text: 'Enforced rate limit on <strong>{{vendor3}}</strong> staging keys', tag: 'auto' },
+        { type: 'optimize', icon: '📊', text: 'Reserved capacity purchase for <strong>{{cost0}}</strong>: −18% unit cost', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Deduplicated <strong>{{vendor2}}</strong> log indexes: Saved <strong>$1,840/mo</strong>', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Pipeline spend matched to <strong>{{vendor4}}</strong> workflow budget', tag: 'auto' },
       ],
     },
     nonprofit: {
       hint: 'Non-Profits & Public Policy',
-      desc: 'Active nonprofit & policy expense policies & compliance',
-      costs: [
-        'Grant Tracking Portals',
-        'Advocacy Toolkits',
-        'Donor Management CRMs',
+      badge: 'ACNC Grant Distribution Rule: Compliant',
+      costs: ['Grant Tracking Portals', 'Advocacy Toolkits', 'Donor Management CRMs'],
+      costEyebrows: ['Grant systems', 'Policy advocacy', 'Donor relations'],
+      metrics: {
+        cash: 'Restricted Funds Position',
+        runway: 'Program Runway',
+        savings: 'Grant Efficiency Savings',
+        compliance: 'ACNC Control Plane',
+        complianceLabel: 'Charitable Disbursement Compliance',
+        burnLabel: 'Program burn',
+        actionsLabel: 'grant actions',
+        deltas: { cash: '+4.3%', runway: 'Funded', savings: 'YTD', compliance: 'Compliant' },
+      },
+      panels: {
+        chartTitle: 'Predictive 12-Month Program Liquidity',
+        chartDesc: 'Grant drawdowns & program cash flow forecast',
+        insightsTitle: 'Mission Finance Insights',
+        insightsDesc: 'Grant, advocacy, and donor-system agent actions',
+        guardrailsTitle: 'Nonprofit Spend Guardrails',
+        guardrailsDesc: 'Grant, advocacy, and donor CRM expense policies',
+        vendorsTitle: 'Connected Mission Vendors',
+        vendorsDesc: 'Live grant, advocacy, and donor CRM system feeds',
+      },
+      vendors: [
+        { vendor: 'SmartyGrants Portal', system: 'Grant Tracking', input: 'Milestone reports', costCenter: 'Grant Tracking Portals', spend: '$7.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Salesforce NPSP', system: 'Donor CRM', input: 'Gift / pledge feed', costCenter: 'Donor Management CRMs', spend: '$16.4K', status: 'Live', statusTone: 'live' },
+        { vendor: 'EveryAction Advocacy', system: 'Campaign Tooling', input: 'Petition / email events', costCenter: 'Advocacy Toolkits', spend: '$5.2K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Xero Restricted Funds', system: 'Fund Accounting', input: 'Class / tracking codes', costCenter: 'Grant Tracking Portals', spend: '$3.9K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Classy Fundraising', system: 'Online Giving', input: 'Donation webhooks', costCenter: 'Donor Management CRMs', spend: '$4.6K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Quorum Policy Intel', system: 'Legislative Tracking', input: 'Bill watch API', costCenter: 'Advocacy Toolkits', spend: '$2.8K', status: 'Review', statusTone: 'warn' },
+      ],
+      policies: [
+        { name: 'Grant Tracking Portals', limit: '$15K/mo', spent: 11200, cap: 15000, compliance: 99.4, status: 'active' },
+        { name: 'Program Disbursements', limit: '$180K/mo', spent: 146800, cap: 180000, compliance: 97.8, status: 'active' },
+        { name: 'Advocacy Toolkits', limit: '$12K/mo', spent: 9400, cap: 12000, compliance: 96.2, status: 'active' },
+        { name: 'Field Organizing Travel', limit: '$20K/mo', spent: 16800, cap: 20000, compliance: 88.5, status: 'warning' },
+        { name: 'Donor Management CRMs', limit: '$22K/mo', spent: 17400, cap: 22000, compliance: 98.7, status: 'active' },
+        { name: 'Event & Gala Ops', limit: '$35K/qtr', spent: 28600, cap: 35000, compliance: 94.1, status: 'active' },
+      ],
+      insights: [
+        { type: 'action', icon: '⚡', text: 'ACNC rule check passed for <strong>{{vendor0}}</strong> milestone drawdown', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Merged duplicate donor records in <strong>{{vendor1}}</strong>: Saved <strong>$420/mo</strong>', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: 'Restricted fund variance flagged in <strong>{{vendor3}}</strong> class codes', tag: 'review' },
+        { type: 'optimize', icon: '📊', text: 'Advocacy channel mix via <strong>{{cost1}}</strong>: +9% petition conversion', tag: 'review' },
+        { type: 'action', icon: '⚡', text: 'Matched Classy gift to campaign budget in <strong>{{vendor4}}</strong>', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Blocked unbudgeted Quorum seat expansion under ACNC rule', tag: 'auto' },
       ],
     },
   };
 
+  function applyIndustryLabels(view) {
+    $$('[data-industry-label]').forEach((el) => {
+      const index = Number(el.dataset.industryLabel);
+      if (!Number.isNaN(index) && view.costs[index]) el.textContent = view.costs[index];
+    });
+
+    $$('[data-cost-eyebrow]').forEach((el) => {
+      const index = Number(el.dataset.costEyebrow);
+      if (!Number.isNaN(index) && view.costEyebrows?.[index]) {
+        el.textContent = view.costEyebrows[index];
+      }
+    });
+
+    const m = view.metrics || {};
+    const setText = (sel, value) => {
+      const el = $(sel);
+      if (el && value != null) el.textContent = value;
+    };
+
+    setText('[data-metric-eyebrow="cash"]', m.cash);
+    setText('[data-metric-eyebrow="runway"]', m.runway);
+    setText('[data-metric-eyebrow="savings"]', m.savings);
+    setText('[data-metric-eyebrow="compliance"]', m.compliance);
+    setText('[data-metric-compliance-label]', m.complianceLabel);
+    setText('[data-metric-burn-label]', m.burnLabel);
+    setText('[data-metric-actions-label]', m.actionsLabel);
+
+    if (m.deltas) {
+      setText('[data-metric-delta="cash"]', m.deltas.cash);
+      setText('[data-metric-delta="runway"]', m.deltas.runway);
+      setText('[data-metric-delta="savings"]', m.deltas.savings);
+      setText('[data-metric-delta="compliance"]', m.deltas.compliance);
+    }
+
+    const p = view.panels || {};
+    setText('#chartTitle', p.chartTitle);
+    setText('#chartDesc', p.chartDesc);
+    setText('#insightsTitle', p.insightsTitle);
+    setText('#insightsDesc', p.insightsDesc);
+    setText('#guardrailsTitle', p.guardrailsTitle);
+    setText('#guardrailsDesc', p.guardrailsDesc);
+    setText('#vendorsTitle', p.vendorsTitle);
+    setText('#vendorsDesc', p.vendorsDesc);
+    setText('#opsGuardrailText', view.badge);
+    setText('#industryViewHint', view.hint);
+  }
+
   function initIndustryView(guardrails, insights) {
     const tabs = $$('.industry-tab[data-industry]');
-    const hint = $('#industryViewHint');
-    const guardrailsDesc = $('#guardrailsDesc');
-    const costCenters = $('#costCenters');
-    const metricsGrid = $('#metricsGrid');
-    let activeIndustry = 'default';
+    const swapTargets = () => [
+      $('#metricsBlock'),
+      $('#costCenters'),
+      $('#vendorLedger'),
+      $('#guardrailsGrid'),
+      $('#insightsStream'),
+    ].filter(Boolean);
 
-    const applyIndustry = (industryId, { animate = true } = {}) => {
-      const view = INDUSTRY_VIEWS[industryId] || INDUSTRY_VIEWS.default;
-      activeIndustry = INDUSTRY_VIEWS[industryId] ? industryId : 'default';
+    let activeIndustry = 'tech';
+
+    const applyIndustry = (industryId) => {
+      const view = INDUSTRY_VIEWS[industryId];
+      if (!view) return;
+      activeIndustry = industryId;
 
       tabs.forEach((tab) => {
         const selected = tab.dataset.industry === activeIndustry;
@@ -736,48 +993,31 @@
         tab.setAttribute('aria-selected', selected ? 'true' : 'false');
       });
 
-      if (hint) hint.textContent = view.hint;
-      if (guardrailsDesc) guardrailsDesc.textContent = view.desc;
+      const targets = swapTargets();
+      targets.forEach((el) => el.classList.add('industry-flash'));
 
-      const commitLabels = () => {
-        $$('[data-industry-label]').forEach((el) => {
-          const index = Number(el.dataset.industryLabel);
-          if (!Number.isNaN(index) && view.costs[index]) {
-            el.textContent = view.costs[index];
-          }
-        });
+      applyIndustryLabels(view);
+      renderVendorLedger(view.vendors);
+      guardrails?.setPolicies(view.policies);
+      insights?.setIndustry(view);
 
-        guardrails?.setCostCenters(view.costs);
-        insights?.setCostCenters(view.costs);
-      };
-
-      if (!animate) {
-        commitLabels();
-        return;
-      }
-
-      const animateTargets = [costCenters, metricsGrid, $('#guardrailsGrid')].filter(Boolean);
-      animateTargets.forEach((el) => el.classList.add('industry-swap'));
-
-      window.setTimeout(() => {
-        commitLabels();
-        animateTargets.forEach((el) => {
-          el.classList.remove('industry-swap');
-          el.classList.add('industry-swap-in');
-          window.setTimeout(() => el.classList.remove('industry-swap-in'), 420);
-        });
-      }, 160);
+      requestAnimationFrame(() => {
+        targets.forEach((el) => el.classList.remove('industry-flash'));
+      });
     };
 
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const next = tab.dataset.industry;
-        // Toggle off → restore DEFAULT mapping
-        applyIndustry(activeIndustry === next ? 'default' : next);
+        if (!next || next === activeIndustry) return;
+        applyIndustry(next);
       });
     });
 
-    applyIndustry('default', { animate: false });
+    // Expose for report modal sync
+    window.__applyIndustryView = applyIndustry;
+
+    applyIndustry(activeIndustry);
   }
 
   // ─── Init ────────────────────────────────────────────────
@@ -789,7 +1029,6 @@
     const insights = new InsightsStream($('#insightsStream'));
 
     const guardrails = new GuardrailsPanel($('#guardrailsGrid'));
-    guardrails.animateMeters();
 
     new MetricSimulator();
     initMobileNav();
@@ -945,9 +1184,11 @@
       compileBtn.classList.add('btn--loading');
 
       // Sync dashboard industry view with report selection
-      const industryTab = $(`.industry-tab[data-industry="${industry}"]`);
-      if (industryTab && !industryTab.classList.contains('industry-tab--active')) {
-        industryTab.click();
+      if (typeof window.__applyIndustryView === 'function') {
+        window.__applyIndustryView(industry);
+      } else {
+        const industryTab = $(`.industry-tab[data-industry="${industry}"]`);
+        industryTab?.click();
       }
 
       setTimeout(() => {
@@ -962,12 +1203,11 @@
 
   // ─── Export CSV ──────────────────────────────────────────
   function buildIntelligenceCsv() {
-    const industryHint = $('#industryViewHint')?.textContent || 'General · B2B SaaS';
-    const costs = $$('[data-industry-label]').reduce((acc, el) => {
-      const idx = Number(el.dataset.industryLabel);
-      if (!Number.isNaN(idx) && !acc[idx]) acc[idx] = el.textContent.trim();
-      return acc;
-    }, []);
+    const industryHint = $('#industryViewHint')?.textContent || 'Tech, AI & Cloud SaaS';
+    const industryId = getActiveIndustryId();
+    const view = INDUSTRY_VIEWS[industryId];
+    const costs = view?.costs || [];
+    const vendors = view?.vendors || [];
 
     const cash = $('#metricCash')?.textContent || '';
     const runway = $('#metricRunway')?.textContent || '';
@@ -975,25 +1215,30 @@
     const savings = $('#metricSavings')?.textContent || '';
     const actions = $('#metricActions')?.textContent || '';
     const compliance = $('#metricCompliance')?.textContent || '';
+    const badge = $('#opsGuardrailText')?.textContent || '';
 
     const rows = [
       ['Obsidian Treasury — Financial Intelligence Report'],
       ['Period', 'Q3 FY2026'],
       ['Generated', new Date().toISOString()],
       ['Industry View', industryHint],
+      ['Operational Guardrail', badge],
       [],
       ['Metric', 'Value'],
-      ['Total Cash Position', cash],
+      ['Cash Position', cash],
       ['Runway', runway],
       ['Burn Rate', burn],
-      ['AI-Optimized Savings', savings],
+      ['Optimized Savings', savings],
       ['Autonomous Actions', actions],
       ['Policy Compliance', compliance],
       [],
       ['Cost Center Rank', 'Name'],
-      ['01', costs[0] || 'Variable Software Stack'],
-      ['02', costs[1] || 'Marketing Automation'],
-      ['03', costs[2] || 'Cloud Hosting'],
+      ['01', costs[0] || ''],
+      ['02', costs[1] || ''],
+      ['03', costs[2] || ''],
+      [],
+      ['System Vendor', 'Input', 'Cost Center', 'Monthly Spend', 'Status'],
+      ...vendors.map((v) => [v.vendor, v.input, v.costCenter, v.spend, v.status]),
       [],
       ['Guardrail Policy', 'Limit', 'Compliance'],
       ...GUARDRAIL_POLICIES.map((p) => [p.name, p.limit, `${Number(p.compliance).toFixed(1)}%`]),
@@ -1067,7 +1312,7 @@
 
       setTimeout(() => {
         const activeId = getActiveIndustryId();
-        const costs = INDUSTRY_VIEWS[activeId]?.costs || INDUSTRY_VIEWS.default.costs;
+        const costs = INDUSTRY_VIEWS[activeId]?.costs || INDUSTRY_VIEWS.tech.costs;
         if (GUARDRAIL_POLICIES.length < 8) {
           GUARDRAIL_POLICIES.push({
             name: `${costs[0]} · Draft Policy`,

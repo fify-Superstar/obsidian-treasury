@@ -81,7 +81,7 @@
       <section class="industry-view" aria-label="Select Industry View">
         <div class="industry-view__header">
           <span class="industry-view__label" id="industryViewLabel">Select Industry View</span>
-          <span class="industry-view__hint" id="industryViewHint">General · B2B SaaS</span>
+          <span class="industry-view__hint" id="industryViewHint">Tech, AI &amp; Cloud SaaS</span>
         </div>
         <div class="industry-tabs" role="tablist" aria-labelledby="industryViewLabel">
           <button
@@ -131,11 +131,11 @@
           </button>
           <button
             type="button"
-            class="industry-tab"
+            class="industry-tab industry-tab--active"
             role="tab"
             id="industry-tech"
             data-industry="tech"
-            aria-selected="false"
+            aria-selected="true"
           >
             <span class="industry-tab__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -163,58 +163,68 @@
       </section>
 
       <!-- Metric Cards -->
-      <section class="metrics" id="metricsGrid" aria-label="Key financial metrics">
-        <article class="metric-card" data-metric="cash">
-          <div class="metric-card__header">
-            <div class="metric-card__titles">
-              <span class="metric-card__eyebrow">Total Cash Position</span>
-              <span class="metric-card__label" data-industry-label="0">Variable Software Stack</span>
-            </div>
-            <span class="metric-card__badge metric-card__badge--mint">+12.4%</span>
-          </div>
-          <div class="metric-card__value" id="metricCash">$24.8M</div>
-          <div class="metric-card__sparkline">
-            <canvas id="sparkCash" width="120" height="32" aria-hidden="true"></canvas>
-          </div>
-        </article>
+      <section class="metrics-block" id="metricsBlock">
+        <div class="ops-guardrail" id="opsGuardrail" aria-live="polite">
+          <span class="ops-guardrail__label">Industry Budget Guardrail</span>
+          <span class="ops-guardrail__badge" id="opsGuardrailBadge">
+            <span class="ops-guardrail__dot" aria-hidden="true"></span>
+            <span id="opsGuardrailText">LLMOps Cost Override Protection: Enabled</span>
+          </span>
+        </div>
 
-        <article class="metric-card" data-metric="runway">
-          <div class="metric-card__header">
-            <div class="metric-card__titles">
-              <span class="metric-card__eyebrow">Runway</span>
-              <span class="metric-card__label" data-industry-label="1">Marketing Automation</span>
+        <section class="metrics" id="metricsGrid" aria-label="Key financial metrics">
+          <article class="metric-card" data-metric="cash">
+            <div class="metric-card__header">
+              <div class="metric-card__titles">
+                <span class="metric-card__eyebrow" data-metric-eyebrow="cash">Cloud Treasury Position</span>
+                <span class="metric-card__label" data-industry-label="0">AWS/Azure Cloud Compute</span>
+              </div>
+              <span class="metric-card__badge metric-card__badge--mint" data-metric-delta="cash">+12.4%</span>
             </div>
-            <span class="metric-card__badge metric-card__badge--violet">Healthy</span>
-          </div>
-          <div class="metric-card__value" id="metricRunway">18.2 mo</div>
-          <div class="metric-card__sub">Burn rate: <span id="metricBurn">$1.36M/mo</span></div>
-        </article>
+            <div class="metric-card__value" id="metricCash">$24.8M</div>
+            <div class="metric-card__sparkline">
+              <canvas id="sparkCash" width="120" height="32" aria-hidden="true"></canvas>
+            </div>
+          </article>
 
-        <article class="metric-card" data-metric="savings">
-          <div class="metric-card__header">
-            <div class="metric-card__titles">
-              <span class="metric-card__eyebrow">AI-Optimized Savings</span>
-              <span class="metric-card__label" data-industry-label="2">Cloud Hosting</span>
+          <article class="metric-card" data-metric="runway">
+            <div class="metric-card__header">
+              <div class="metric-card__titles">
+                <span class="metric-card__eyebrow" data-metric-eyebrow="runway">Inference Runway</span>
+                <span class="metric-card__label" data-industry-label="1">LLM API Usage (OpenAI/Anthropic)</span>
+              </div>
+              <span class="metric-card__badge metric-card__badge--violet" data-metric-delta="runway">Healthy</span>
             </div>
-            <span class="metric-card__badge metric-card__badge--mint">YTD</span>
-          </div>
-          <div class="metric-card__value" id="metricSavings">$847K</div>
-          <div class="metric-card__sub"><span id="metricActions">142</span> autonomous actions</div>
-        </article>
+            <div class="metric-card__value" id="metricRunway">18.2 mo</div>
+            <div class="metric-card__sub"><span data-metric-burn-label>Model burn</span>: <span id="metricBurn">$1.36M/mo</span></div>
+          </article>
 
-        <article class="metric-card" data-metric="compliance">
-          <div class="metric-card__header">
-            <div class="metric-card__titles">
-              <span class="metric-card__eyebrow">Enterprise</span>
-              <span class="metric-card__label">Policy Compliance</span>
+          <article class="metric-card" data-metric="savings">
+            <div class="metric-card__header">
+              <div class="metric-card__titles">
+                <span class="metric-card__eyebrow" data-metric-eyebrow="savings">Autonomous FinOps Savings</span>
+                <span class="metric-card__label" data-industry-label="2">CI/CD &amp; DevOps Stack</span>
+              </div>
+              <span class="metric-card__badge metric-card__badge--mint" data-metric-delta="savings">YTD</span>
             </div>
-            <span class="metric-card__badge metric-card__badge--violet">Live</span>
-          </div>
-          <div class="metric-card__value" id="metricCompliance">96.8%</div>
-          <div class="metric-card__progress">
-            <div class="metric-card__progress-bar" id="complianceBar" style="width: 96.8%"></div>
-          </div>
-        </article>
+            <div class="metric-card__value" id="metricSavings">$847K</div>
+            <div class="metric-card__sub"><span id="metricActions">142</span> <span data-metric-actions-label>pipeline actions</span></div>
+          </article>
+
+          <article class="metric-card" data-metric="compliance">
+            <div class="metric-card__header">
+              <div class="metric-card__titles">
+                <span class="metric-card__eyebrow" data-metric-eyebrow="compliance">SaaS Control Plane</span>
+                <span class="metric-card__label" data-metric-compliance-label>SOC2 Spend Compliance</span>
+              </div>
+              <span class="metric-card__badge metric-card__badge--violet" data-metric-delta="compliance">Live</span>
+            </div>
+            <div class="metric-card__value" id="metricCompliance">96.8%</div>
+            <div class="metric-card__progress">
+              <div class="metric-card__progress-bar" id="complianceBar" style="width: 96.8%"></div>
+            </div>
+          </article>
+        </section>
       </section>
 
       <!-- Industry Cost Centers -->
@@ -222,24 +232,51 @@
         <article class="cost-center-card">
           <span class="cost-center-card__index">01</span>
           <div class="cost-center-card__body">
-            <span class="cost-center-card__eyebrow">Primary cost center</span>
-            <span class="cost-center-card__name" data-industry-label="0">Variable Software Stack</span>
+            <span class="cost-center-card__eyebrow" data-cost-eyebrow="0">Compute &amp; infra</span>
+            <span class="cost-center-card__name" data-industry-label="0">AWS/Azure Cloud Compute</span>
           </div>
         </article>
         <article class="cost-center-card">
           <span class="cost-center-card__index">02</span>
           <div class="cost-center-card__body">
-            <span class="cost-center-card__eyebrow">Secondary cost center</span>
-            <span class="cost-center-card__name" data-industry-label="1">Marketing Automation</span>
+            <span class="cost-center-card__eyebrow" data-cost-eyebrow="1">Model inference</span>
+            <span class="cost-center-card__name" data-industry-label="1">LLM API Usage (OpenAI/Anthropic)</span>
           </div>
         </article>
         <article class="cost-center-card">
           <span class="cost-center-card__index">03</span>
           <div class="cost-center-card__body">
-            <span class="cost-center-card__eyebrow">Infrastructure cost center</span>
-            <span class="cost-center-card__name" data-industry-label="2">Cloud Hosting</span>
+            <span class="cost-center-card__eyebrow" data-cost-eyebrow="2">Delivery systems</span>
+            <span class="cost-center-card__name" data-industry-label="2">CI/CD &amp; DevOps Stack</span>
           </div>
         </article>
+      </section>
+
+      <!-- Connected System Vendors -->
+      <section class="panel panel--vendors" id="vendorLedger" aria-label="Connected system vendors">
+        <div class="panel__header">
+          <div>
+            <h2 class="panel__title" id="vendorsTitle">Connected System Vendors</h2>
+            <p class="panel__desc" id="vendorsDesc">Live SaaS, cloud, and LLM vendor feeds for Tech / AI ops</p>
+          </div>
+          <span class="panel__count" id="vendorCount">6 systems</span>
+        </div>
+        <div class="vendor-table-wrap">
+          <table class="vendor-table">
+            <thead>
+              <tr>
+                <th scope="col">System Vendor</th>
+                <th scope="col">Input / Feed</th>
+                <th scope="col">Cost Center</th>
+                <th scope="col">Monthly Spend</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="vendorLedgerBody">
+              <!-- Populated by script.js -->
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <!-- Primary Grid -->
@@ -248,8 +285,8 @@
         <section class="panel panel--chart" aria-label="Predictive liquidity forecast">
           <div class="panel__header">
             <div>
-              <h2 class="panel__title">Predictive 12-Month Liquidity</h2>
-              <p class="panel__desc">AI-forecasted cash flow with confidence bands</p>
+              <h2 class="panel__title" id="chartTitle">Predictive 12-Month Liquidity</h2>
+              <p class="panel__desc" id="chartDesc">AI-forecasted cash flow with confidence bands</p>
             </div>
             <div class="panel__controls">
               <div class="segmented" role="group" aria-label="Chart view">
@@ -278,8 +315,8 @@
         <section class="panel panel--insights" aria-label="Autonomous AI insights">
           <div class="panel__header">
             <div>
-              <h2 class="panel__title">Autonomous AI Insights</h2>
-              <p class="panel__desc">Real-time agent actions & recommendations</p>
+              <h2 class="panel__title" id="insightsTitle">Autonomous AI Insights</h2>
+              <p class="panel__desc" id="insightsDesc">Real-time agent actions &amp; recommendations</p>
             </div>
             <span class="panel__count" id="insightCount">0 events</span>
           </div>
@@ -292,8 +329,8 @@
         <section class="panel panel--guardrails" aria-label="B2B smart spend guardrails">
           <div class="panel__header">
             <div>
-              <h2 class="panel__title">B2B Smart Spend Guardrails</h2>
-              <p class="panel__desc" id="guardrailsDesc">Active enterprise expense policies &amp; compliance</p>
+              <h2 class="panel__title" id="guardrailsTitle">B2B Smart Spend Guardrails</h2>
+              <p class="panel__desc" id="guardrailsDesc">Active tech &amp; cloud SaaS expense policies &amp; compliance</p>
             </div>
             <button class="btn btn--ghost btn--sm" id="addPolicyBtn">+ Add Policy</button>
           </div>
