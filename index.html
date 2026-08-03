@@ -76,11 +76,100 @@
 
       <!-- Command Center View -->
       <div class="view-panel view-panel--active" id="view-command-center" data-view-panel="command-center">
+
+      <!-- Industry View Selector -->
+      <section class="industry-view" aria-label="Select Industry View">
+        <div class="industry-view__header">
+          <span class="industry-view__label" id="industryViewLabel">Select Industry View</span>
+          <span class="industry-view__hint" id="industryViewHint">General · B2B SaaS</span>
+        </div>
+        <div class="industry-tabs" role="tablist" aria-labelledby="industryViewLabel">
+          <button
+            type="button"
+            class="industry-tab"
+            role="tab"
+            id="industry-logistics"
+            data-industry="logistics"
+            aria-selected="false"
+          >
+            <span class="industry-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </span>
+            <span class="industry-tab__text">Logistics &amp; 3PL</span>
+          </button>
+          <button
+            type="button"
+            class="industry-tab"
+            role="tab"
+            id="industry-healthcare"
+            data-industry="healthcare"
+            aria-selected="false"
+          >
+            <span class="industry-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>
+              </svg>
+            </span>
+            <span class="industry-tab__text">Healthcare &amp; Care Ops</span>
+          </button>
+          <button
+            type="button"
+            class="industry-tab"
+            role="tab"
+            id="industry-ecommerce"
+            data-industry="ecommerce"
+            aria-selected="false"
+          >
+            <span class="industry-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>
+              </svg>
+            </span>
+            <span class="industry-tab__text">E-commerce &amp; Retail</span>
+          </button>
+          <button
+            type="button"
+            class="industry-tab"
+            role="tab"
+            id="industry-tech"
+            data-industry="tech"
+            aria-selected="false"
+          >
+            <span class="industry-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>
+              </svg>
+            </span>
+            <span class="industry-tab__text">Tech, AI &amp; Cloud SaaS</span>
+          </button>
+          <button
+            type="button"
+            class="industry-tab"
+            role="tab"
+            id="industry-nonprofit"
+            data-industry="nonprofit"
+            aria-selected="false"
+          >
+            <span class="industry-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v18"/><path d="M5 7h14l-2 4H7L5 7z"/><path d="M5 17h14l-2-4H7l-2 4z"/>
+              </svg>
+            </span>
+            <span class="industry-tab__text">Non-Profits &amp; Public Policy</span>
+          </button>
+        </div>
+      </section>
+
       <!-- Metric Cards -->
-      <section class="metrics" aria-label="Key financial metrics">
+      <section class="metrics" id="metricsGrid" aria-label="Key financial metrics">
         <article class="metric-card" data-metric="cash">
           <div class="metric-card__header">
-            <span class="metric-card__label">Total Cash Position</span>
+            <div class="metric-card__titles">
+              <span class="metric-card__eyebrow">Total Cash Position</span>
+              <span class="metric-card__label" data-industry-label="0">Variable Software Stack</span>
+            </div>
             <span class="metric-card__badge metric-card__badge--mint">+12.4%</span>
           </div>
           <div class="metric-card__value" id="metricCash">$24.8M</div>
@@ -91,7 +180,10 @@
 
         <article class="metric-card" data-metric="runway">
           <div class="metric-card__header">
-            <span class="metric-card__label">Runway</span>
+            <div class="metric-card__titles">
+              <span class="metric-card__eyebrow">Runway</span>
+              <span class="metric-card__label" data-industry-label="1">Marketing Automation</span>
+            </div>
             <span class="metric-card__badge metric-card__badge--violet">Healthy</span>
           </div>
           <div class="metric-card__value" id="metricRunway">18.2 mo</div>
@@ -100,7 +192,10 @@
 
         <article class="metric-card" data-metric="savings">
           <div class="metric-card__header">
-            <span class="metric-card__label">AI-Optimized Savings</span>
+            <div class="metric-card__titles">
+              <span class="metric-card__eyebrow">AI-Optimized Savings</span>
+              <span class="metric-card__label" data-industry-label="2">Cloud Hosting</span>
+            </div>
             <span class="metric-card__badge metric-card__badge--mint">YTD</span>
           </div>
           <div class="metric-card__value" id="metricSavings">$847K</div>
@@ -109,12 +204,40 @@
 
         <article class="metric-card" data-metric="compliance">
           <div class="metric-card__header">
-            <span class="metric-card__label">Policy Compliance</span>
-            <span class="metric-card__badge metric-card__badge--violet">Enterprise</span>
+            <div class="metric-card__titles">
+              <span class="metric-card__eyebrow">Enterprise</span>
+              <span class="metric-card__label">Policy Compliance</span>
+            </div>
+            <span class="metric-card__badge metric-card__badge--violet">Live</span>
           </div>
           <div class="metric-card__value" id="metricCompliance">96.8%</div>
           <div class="metric-card__progress">
             <div class="metric-card__progress-bar" id="complianceBar" style="width: 96.8%"></div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Industry Cost Centers -->
+      <section class="cost-centers" id="costCenters" aria-label="Industry cost centers">
+        <article class="cost-center-card">
+          <span class="cost-center-card__index">01</span>
+          <div class="cost-center-card__body">
+            <span class="cost-center-card__eyebrow">Primary cost center</span>
+            <span class="cost-center-card__name" data-industry-label="0">Variable Software Stack</span>
+          </div>
+        </article>
+        <article class="cost-center-card">
+          <span class="cost-center-card__index">02</span>
+          <div class="cost-center-card__body">
+            <span class="cost-center-card__eyebrow">Secondary cost center</span>
+            <span class="cost-center-card__name" data-industry-label="1">Marketing Automation</span>
+          </div>
+        </article>
+        <article class="cost-center-card">
+          <span class="cost-center-card__index">03</span>
+          <div class="cost-center-card__body">
+            <span class="cost-center-card__eyebrow">Infrastructure cost center</span>
+            <span class="cost-center-card__name" data-industry-label="2">Cloud Hosting</span>
           </div>
         </article>
       </section>
@@ -170,7 +293,7 @@
           <div class="panel__header">
             <div>
               <h2 class="panel__title">B2B Smart Spend Guardrails</h2>
-              <p class="panel__desc">Active enterprise expense policies & compliance</p>
+              <p class="panel__desc" id="guardrailsDesc">Active enterprise expense policies &amp; compliance</p>
             </div>
             <button class="btn btn--ghost btn--sm" id="addPolicyBtn">+ Add Policy</button>
           </div>

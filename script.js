@@ -337,14 +337,14 @@
     { type: 'save', icon: '💰', text: 'AI agent renegotiated <strong>SaaS bill</strong>: Saved <strong>$420/mo</strong>', tag: 'auto' },
     { type: 'save', icon: '💰', text: 'Duplicate subscription detected & cancelled: <strong>$1,840/yr</strong> recovered', tag: 'auto' },
     { type: 'action', icon: '⚡', text: 'Auto-approved vendor payment to <strong>Acme Corp</strong> within policy limits', tag: 'auto' },
-    { type: 'alert', icon: '⚠️', text: 'Marketing spend approaching <strong>85%</strong> of Q3 budget cap', tag: 'review' },
+    { type: 'alert', icon: '⚠️', text: '<strong>{{cost1}}</strong> approaching <strong>85%</strong> of Q3 budget cap', tag: 'review' },
     { type: 'optimize', icon: '📊', text: 'FX hedging opportunity identified: potential <strong>$12K</strong> savings', tag: 'review' },
-    { type: 'save', icon: '💰', text: 'Bulk license consolidation for <strong>Slack + Zoom</strong>: Saved <strong>$2,100/mo</strong>', tag: 'auto' },
-    { type: 'action', icon: '⚡', text: 'Triggered early payment discount on <strong>AWS invoice</strong>: 2% saved', tag: 'auto' },
-    { type: 'alert', icon: '⚠️', text: 'Unusual expense pattern flagged in <strong>Engineering</strong> dept', tag: 'review' },
+    { type: 'save', icon: '💰', text: 'Bulk license consolidation for <strong>{{cost0}}</strong>: Saved <strong>$2,100/mo</strong>', tag: 'auto' },
+    { type: 'action', icon: '⚡', text: 'Triggered early payment discount on <strong>{{cost2}}</strong> invoice: 2% saved', tag: 'auto' },
+    { type: 'alert', icon: '⚠️', text: 'Unusual expense pattern flagged in <strong>{{cost0}}</strong>', tag: 'review' },
     { type: 'optimize', icon: '📊', text: 'Cash sweep executed: <strong>$3.2M</strong> moved to high-yield account', tag: 'auto' },
     { type: 'save', icon: '💰', text: 'Travel policy violation blocked: <strong>$890</strong> non-compliant booking', tag: 'auto' },
-    { type: 'action', icon: '⚡', text: 'Invoice matched & scheduled: <strong>Datadog</strong> $47,200 due Aug 1', tag: 'auto' },
+    { type: 'action', icon: '⚡', text: 'Invoice matched & scheduled: <strong>{{cost2}}</strong> $47,200 due Aug 1', tag: 'auto' },
     { type: 'optimize', icon: '📊', text: 'Runway extended by <strong>0.4 months</strong> via burn optimization', tag: 'auto' },
   ];
 
@@ -355,6 +355,11 @@
       this.count = 0;
       this.maxItems = 20;
       this.templateIndex = 0;
+      this.costCenters = [
+        'Variable Software Stack',
+        'Marketing Automation',
+        'Cloud Hosting',
+      ];
 
       // Seed initial items
       for (let i = 0; i < 5; i++) {
@@ -363,6 +368,17 @@
 
       // Stream new insights periodically
       setInterval(() => this.addInsight(true), randomBetween(4000, 8000));
+    }
+
+    setCostCenters(names) {
+      this.costCenters = names.slice(0, 3);
+    }
+
+    fillTemplate(text) {
+      return text
+        .replace(/\{\{cost0\}\}/g, this.costCenters[0])
+        .replace(/\{\{cost1\}\}/g, this.costCenters[1])
+        .replace(/\{\{cost2\}\}/g, this.costCenters[2]);
     }
 
     addInsight(animate = true) {
@@ -379,7 +395,7 @@
       item.innerHTML = `
         <div class="insight-item__icon insight-item__icon--${template.type}">${template.icon}</div>
         <div class="insight-item__content">
-          <p class="insight-item__text">${template.text}</p>
+          <p class="insight-item__text">${this.fillTemplate(template.text)}</p>
           <div class="insight-item__meta">
             <span class="insight-item__time">${timeStr}</span>
             <span class="insight-item__tag insight-item__tag--${template.tag}">${template.tag === 'auto' ? 'Autonomous' : 'Review'}</span>
@@ -398,12 +414,14 @@
   }
 
   // ─── Spend Guardrails ────────────────────────────────────
+  const GUARDRAIL_COST_INDEXES = [0, 2, 4]; // SaaS, Marketing, Cloud → industry cost centers
+
   const GUARDRAIL_POLICIES = [
-    { name: 'SaaS & Software', limit: '$50K/mo', spent: 38400, cap: 50000, compliance: 97.2, status: 'active' },
+    { name: 'Variable Software Stack', limit: '$50K/mo', spent: 38400, cap: 50000, compliance: 97.2, status: 'active' },
     { name: 'Travel & Expenses', limit: '$25K/mo', spent: 21200, cap: 25000, compliance: 84.8, status: 'warning' },
-    { name: 'Marketing Spend', limit: '$120K/qtr', spent: 98400, cap: 120000, compliance: 82.0, status: 'warning' },
+    { name: 'Marketing Automation', limit: '$120K/qtr', spent: 98400, cap: 120000, compliance: 82.0, status: 'warning' },
     { name: 'Contractor Payments', limit: '$80K/mo', spent: 45200, cap: 80000, compliance: 99.1, status: 'active' },
-    { name: 'Cloud Infrastructure', limit: '$200K/mo', spent: 178400, cap: 200000, compliance: 89.2, status: 'active' },
+    { name: 'Cloud Hosting', limit: '$200K/mo', spent: 178400, cap: 200000, compliance: 89.2, status: 'active' },
     { name: 'Office & Facilities', limit: '$15K/mo', spent: 12800, cap: 15000, compliance: 100, status: 'active' },
   ];
 
@@ -414,6 +432,16 @@
 
       // Simulate meter updates
       setInterval(() => this.updateMeters(), 5000);
+    }
+
+    setCostCenters(names) {
+      GUARDRAIL_COST_INDEXES.forEach((policyIndex, i) => {
+        if (GUARDRAIL_POLICIES[policyIndex] && names[i]) {
+          GUARDRAIL_POLICIES[policyIndex].name = names[i];
+        }
+      });
+      this.render();
+      this.animateMeters();
     }
 
     render() {
@@ -462,6 +490,7 @@
     updateMeters() {
       $$('.guardrail-card', this.container).forEach((card, i) => {
         const policy = GUARDRAIL_POLICIES[i];
+        if (!policy) return;
         const delta = randomBetween(-800, 1200);
         policy.spent = Math.max(0, Math.min(policy.cap * 0.98, policy.spent + delta));
         policy.compliance = Math.min(100, Math.max(75, policy.compliance + randomBetween(-0.5, 0.3)));
@@ -471,7 +500,9 @@
         const fill = $('.guardrail-meter__fill', card);
         const valueEl = $('.guardrail-meter__value', card);
         const complianceEl = $('.guardrail-card__compliance', card);
+        const nameEl = $('.guardrail-card__name', card);
 
+        if (nameEl) nameEl.textContent = policy.name;
         fill.style.width = `${pct}%`;
         fill.className = `guardrail-meter__fill guardrail-meter__fill--${meterClass}`;
         fill.dataset.target = pct;
@@ -629,13 +660,133 @@
     });
   }
 
+  // ─── Industry View Selector ──────────────────────────────
+  const INDUSTRY_VIEWS = {
+    default: {
+      hint: 'General · B2B SaaS',
+      desc: 'Active enterprise expense policies & compliance',
+      costs: [
+        'Variable Software Stack',
+        'Marketing Automation',
+        'Cloud Hosting',
+      ],
+    },
+    logistics: {
+      hint: 'Logistics & 3PL',
+      desc: 'Active logistics & 3PL expense policies & compliance',
+      costs: [
+        'WMS & Fleet Telematics',
+        'Route Optimization Tools',
+        'Cold-Chain Supply Tracking',
+      ],
+    },
+    healthcare: {
+      hint: 'Healthcare & Care Ops',
+      desc: 'Active healthcare & care-ops expense policies & compliance',
+      costs: [
+        'NDIS Compliance Software',
+        'Roster & Care Platforms',
+        'Patient Data Management',
+      ],
+    },
+    ecommerce: {
+      hint: 'E-commerce & Retail',
+      desc: 'Active retail & e-commerce expense policies & compliance',
+      costs: [
+        'Shopify Plugins & Apps',
+        'Ad Attribution Software',
+        'Logistics & Shipping Tech',
+      ],
+    },
+    tech: {
+      hint: 'Tech, AI & Cloud SaaS',
+      desc: 'Active tech & cloud SaaS expense policies & compliance',
+      costs: [
+        'AWS/Azure Cloud Compute',
+        'LLM API Usage (OpenAI/Anthropic)',
+        'CI/CD & DevOps Stack',
+      ],
+    },
+    nonprofit: {
+      hint: 'Non-Profits & Public Policy',
+      desc: 'Active nonprofit & policy expense policies & compliance',
+      costs: [
+        'Grant Tracking Portals',
+        'Advocacy Toolkits',
+        'Donor Management CRMs',
+      ],
+    },
+  };
+
+  function initIndustryView(guardrails, insights) {
+    const tabs = $$('.industry-tab[data-industry]');
+    const hint = $('#industryViewHint');
+    const guardrailsDesc = $('#guardrailsDesc');
+    const costCenters = $('#costCenters');
+    const metricsGrid = $('#metricsGrid');
+    let activeIndustry = 'default';
+
+    const applyIndustry = (industryId, { animate = true } = {}) => {
+      const view = INDUSTRY_VIEWS[industryId] || INDUSTRY_VIEWS.default;
+      activeIndustry = INDUSTRY_VIEWS[industryId] ? industryId : 'default';
+
+      tabs.forEach((tab) => {
+        const selected = tab.dataset.industry === activeIndustry;
+        tab.classList.toggle('industry-tab--active', selected);
+        tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+
+      if (hint) hint.textContent = view.hint;
+      if (guardrailsDesc) guardrailsDesc.textContent = view.desc;
+
+      const commitLabels = () => {
+        $$('[data-industry-label]').forEach((el) => {
+          const index = Number(el.dataset.industryLabel);
+          if (!Number.isNaN(index) && view.costs[index]) {
+            el.textContent = view.costs[index];
+          }
+        });
+
+        guardrails?.setCostCenters(view.costs);
+        insights?.setCostCenters(view.costs);
+      };
+
+      if (!animate) {
+        commitLabels();
+        return;
+      }
+
+      const animateTargets = [costCenters, metricsGrid, $('#guardrailsGrid')].filter(Boolean);
+      animateTargets.forEach((el) => el.classList.add('industry-swap'));
+
+      window.setTimeout(() => {
+        commitLabels();
+        animateTargets.forEach((el) => {
+          el.classList.remove('industry-swap');
+          el.classList.add('industry-swap-in');
+          window.setTimeout(() => el.classList.remove('industry-swap-in'), 420);
+        });
+      }, 160);
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const next = tab.dataset.industry;
+        // Toggle off → restore DEFAULT mapping
+        applyIndustry(activeIndustry === next ? 'default' : next);
+      });
+    });
+
+    applyIndustry('default', { animate: false });
+  }
+
   // ─── Init ────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     const chart = new LiquidityChart($('#liquidityChart'));
     initChartControls(chart);
 
     drawSparkline($('#sparkCash'));
-    new InsightsStream($('#insightsStream'));
+    const insights = new InsightsStream($('#insightsStream'));
 
     const guardrails = new GuardrailsPanel($('#guardrailsGrid'));
     guardrails.animateMeters();
@@ -643,6 +794,7 @@
     new MetricSimulator();
     initMobileNav();
     initViewRouter(chart);
+    initIndustryView(guardrails, insights);
 
     $('#exportBtn').addEventListener('click', () => {
       alert('Export queued — report will be delivered to your inbox.');
