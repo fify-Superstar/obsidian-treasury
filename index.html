@@ -69,8 +69,8 @@
             <span class="live-indicator__dot"></span>
             Live
           </div>
-          <button class="btn btn--ghost" id="exportBtn">Export</button>
-          <button class="btn btn--primary">New Report</button>
+          <button type="button" class="btn btn--ghost" id="exportBtn">Export</button>
+          <button type="button" class="btn btn--primary" id="newReportBtn">New Report</button>
         </div>
       </header>
 
@@ -476,6 +476,70 @@
   </div>
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Generate Intelligence Report Modal -->
+  <div class="app-modal" id="reportModal" hidden aria-hidden="true">
+    <div class="app-modal__backdrop" id="reportModalBackdrop"></div>
+    <div
+      class="app-modal__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reportModalTitle"
+    >
+      <div class="app-modal__card">
+        <div class="app-modal__glow" aria-hidden="true"></div>
+        <div class="app-modal__inner">
+          <button type="button" class="app-modal__close" id="reportModalClose" aria-label="Close report modal">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <span class="app-modal__eyebrow">Obsidian Treasury</span>
+          <h2 class="app-modal__title" id="reportModalTitle">Generate Real-Time Intelligence Report</h2>
+          <p class="app-modal__desc">
+            Compile board-ready financial intelligence for your selected vertical and analysis window.
+          </p>
+          <form class="app-modal__form" id="reportForm">
+            <div class="field">
+              <label class="field__label" for="reportIndustry">Select Target Industry View</label>
+              <div class="field__control">
+                <select id="reportIndustry" name="industry" class="field__select" required>
+                  <option value="logistics">Logistics &amp; 3PL</option>
+                  <option value="healthcare">Healthcare &amp; Care Ops</option>
+                  <option value="ecommerce">E-commerce &amp; Retail</option>
+                  <option value="tech">Tech, AI &amp; Cloud SaaS</option>
+                  <option value="nonprofit">Non-Profits &amp; Public Policy</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="reportDateRange">Analysis Date Range</label>
+              <input
+                type="text"
+                id="reportDateRange"
+                name="dateRange"
+                class="field__input"
+                value="Jul 1 – Sep 30, 2026"
+                placeholder="e.g. Jul 1 – Sep 30, 2026"
+                autocomplete="off"
+                required
+              >
+            </div>
+            <div class="app-modal__actions">
+              <button type="button" class="btn btn--ghost" id="reportModalCancel">Cancel</button>
+              <button type="submit" class="btn btn--accent" id="reportCompileBtn">
+                <span class="btn__label">Compile &amp; Launch</span>
+                <span class="btn__spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-relevant="additions"></div>
 
   <!-- Founder's Circle success modal -->
   <div class="founder-modal" id="founderModal" hidden aria-hidden="true">

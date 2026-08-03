@@ -524,6 +524,68 @@ body {
   transform: translateY(-1px);
 }
 
+.btn--accent {
+  background: linear-gradient(135deg, #1a1a24 0%, #0d0d14 100%);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 245, 160, 0.35);
+  font-weight: 600;
+  box-shadow: 0 0 24px rgba(0, 245, 160, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.btn--accent:hover {
+  border-color: rgba(0, 245, 160, 0.55);
+  color: var(--mint);
+  transform: translateY(-1px);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.btn--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn--loading .btn__label {
+  opacity: 0.85;
+}
+
+.btn__spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  margin-left: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--mint);
+  border-radius: 50%;
+  animation: btnSpin 0.7s linear infinite;
+  vertical-align: -2px;
+}
+
+.btn--loading .btn__spinner,
+.btn--loading.btn--ghost .btn__spinner {
+  display: inline-block;
+}
+
+.btn--accent.btn--loading .btn__spinner {
+  border-color: rgba(0, 245, 160, 0.2);
+  border-top-color: var(--mint);
+}
+
+.btn--primary .btn__spinner {
+  border-color: rgba(10, 10, 15, 0.2);
+  border-top-color: var(--bg-base);
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
 .btn--sm {
   padding: 6px 12px;
   font-size: 12px;
@@ -1598,6 +1660,313 @@ body {
 
 .legal-section a:hover {
   color: #00D4AA;
+}
+
+/* ============================================
+   App Modal (Report Generator)
+   ============================================ */
+.app-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms var(--ease-out);
+}
+
+.app-modal--visible {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.app-modal[hidden] {
+  display: none;
+}
+
+.app-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 10, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.app-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  transform: scale(0.94) translateY(12px);
+  transition: transform 320ms var(--ease-out);
+}
+
+.app-modal--visible .app-modal__dialog {
+  transform: scale(1) translateY(0);
+}
+
+.app-modal__card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  padding: 1px;
+  background: linear-gradient(
+    145deg,
+    rgba(0, 245, 160, 0.45) 0%,
+    rgba(112, 0, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+.app-modal__glow {
+  position: absolute;
+  inset: -20% -10% auto;
+  height: 60%;
+  background: radial-gradient(ellipse at center, rgba(0, 245, 160, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.app-modal__inner {
+  position: relative;
+  background: var(--bg-elevated);
+  border-radius: calc(var(--radius-xl) - 1px);
+  padding: 28px 28px 24px;
+}
+
+.app-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease-out);
+}
+
+.app-modal__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.app-modal__close:hover {
+  color: var(--text-primary);
+  border-color: var(--border-default);
+  background: var(--bg-hover);
+}
+
+.app-modal__eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mint);
+  margin-bottom: 10px;
+}
+
+.app-modal__title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  margin-bottom: 8px;
+  padding-right: 28px;
+}
+
+.app-modal__desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+}
+
+.app-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.field__input,
+.field__select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
+}
+
+.field__control {
+  position: relative;
+}
+
+.field__control::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--text-tertiary);
+  border-bottom: 1.5px solid var(--text-tertiary);
+  transform: translateY(-60%) rotate(45deg);
+  pointer-events: none;
+}
+
+.field__select {
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.field__select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.field__input:focus,
+.field__select:focus {
+  border-color: rgba(0, 245, 160, 0.45);
+  box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.12);
+}
+
+.app-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.app-modal__actions .btn--accent {
+  min-width: 160px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   Toast Notifications
+   ============================================ */
+.toast-stack {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid rgba(0, 245, 160, 0.28);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 245, 160, 0.08);
+  color: var(--text-primary);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+}
+
+.toast--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast--exit {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+.toast__icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--mint);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.toast__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toast__message {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.toast__dismiss {
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color var(--duration) var(--ease-out);
+}
+
+.toast__dismiss:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .toast-stack {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+
+  .app-modal__inner {
+    padding: 24px 20px 20px;
+  }
+
+  .app-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .app-modal__actions .btn {
+    width: 100%;
+  }
 }
 
 /* ============================================

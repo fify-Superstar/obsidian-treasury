@@ -795,14 +795,9 @@
     initMobileNav();
     initViewRouter(chart);
     initIndustryView(guardrails, insights);
-
-    $('#exportBtn').addEventListener('click', () => {
-      alert('Export queued — report will be delivered to your inbox.');
-    });
-
-    $('#addPolicyBtn').addEventListener('click', () => {
-      alert('Policy builder coming soon.');
-    });
+    initReportModal();
+    initExportButton();
+    initAddPolicyButton(guardrails);
 
     const waitlistForm = $('#foundersWaitlist');
     if (waitlistForm) {
@@ -851,6 +846,250 @@
 
     initFounderModal();
   });
+
+  // ─── Toast Notifications ─────────────────────────────────
+  function showToast(message, { tone = 'success', duration = 3800 } = {}) {
+    const stack = $('#toastStack');
+    if (!stack) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${tone}`;
+    toast.setAttribute('role', 'status');
+    toast.innerHTML = `
+      <span class="toast__icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+      </span>
+      <span class="toast__message">${message}</span>
+      <button type="button" class="toast__dismiss" aria-label="Dismiss notification">×</button>
+    `;
+
+    const dismiss = () => {
+      toast.classList.add('toast--exit');
+      setTimeout(() => toast.remove(), 280);
+    };
+
+    toast.querySelector('.toast__dismiss')?.addEventListener('click', dismiss);
+    stack.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('toast--visible'));
+    setTimeout(dismiss, duration);
+  }
+
+  // ─── New Report Modal ────────────────────────────────────
+  function getActiveIndustryId() {
+    const active = $('.industry-tab--active[data-industry]');
+    return active?.dataset.industry || 'tech';
+  }
+
+  function openAppModal(modal) {
+    if (!modal) return;
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => modal.classList.add('app-modal--visible'));
+  }
+
+  function closeAppModal(modal) {
+    if (!modal) return;
+    modal.classList.remove('app-modal--visible');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setTimeout(() => { modal.hidden = true; }, 320);
+  }
+
+  function initReportModal() {
+    const modal = $('#reportModal');
+    const openBtn = $('#newReportBtn');
+    const form = $('#reportForm');
+    const compileBtn = $('#reportCompileBtn');
+    const industrySelect = $('#reportIndustry');
+    if (!modal || !openBtn || !form || !compileBtn) return;
+
+    let compiling = false;
+
+    const close = () => {
+      if (compiling) return;
+      closeAppModal(modal);
+    };
+
+    openBtn.addEventListener('click', () => {
+      if (industrySelect) industrySelect.value = getActiveIndustryId();
+      openAppModal(modal);
+      setTimeout(() => industrySelect?.focus(), 50);
+    });
+
+    $('#reportModalClose')?.addEventListener('click', close);
+    $('#reportModalCancel')?.addEventListener('click', close);
+    $('#reportModalBackdrop')?.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('app-modal--visible') && !compiling) {
+        close();
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (compiling) return;
+
+      const industry = industrySelect?.value || 'tech';
+      const dateRange = ($('#reportDateRange')?.value || '').trim();
+      if (!dateRange) {
+        $('#reportDateRange')?.focus();
+        return;
+      }
+
+      compiling = true;
+      compileBtn.disabled = true;
+      compileBtn.classList.add('btn--loading');
+
+      // Sync dashboard industry view with report selection
+      const industryTab = $(`.industry-tab[data-industry="${industry}"]`);
+      if (industryTab && !industryTab.classList.contains('industry-tab--active')) {
+        industryTab.click();
+      }
+
+      setTimeout(() => {
+        compiling = false;
+        compileBtn.disabled = false;
+        compileBtn.classList.remove('btn--loading');
+        closeAppModal(modal);
+        showToast('Intelligence Report Generated Successfully.');
+      }, 2000);
+    });
+  }
+
+  // ─── Export CSV ──────────────────────────────────────────
+  function buildIntelligenceCsv() {
+    const industryHint = $('#industryViewHint')?.textContent || 'General · B2B SaaS';
+    const costs = $$('[data-industry-label]').reduce((acc, el) => {
+      const idx = Number(el.dataset.industryLabel);
+      if (!Number.isNaN(idx) && !acc[idx]) acc[idx] = el.textContent.trim();
+      return acc;
+    }, []);
+
+    const cash = $('#metricCash')?.textContent || '';
+    const runway = $('#metricRunway')?.textContent || '';
+    const burn = $('#metricBurn')?.textContent || '';
+    const savings = $('#metricSavings')?.textContent || '';
+    const actions = $('#metricActions')?.textContent || '';
+    const compliance = $('#metricCompliance')?.textContent || '';
+
+    const rows = [
+      ['Obsidian Treasury — Financial Intelligence Report'],
+      ['Period', 'Q3 FY2026'],
+      ['Generated', new Date().toISOString()],
+      ['Industry View', industryHint],
+      [],
+      ['Metric', 'Value'],
+      ['Total Cash Position', cash],
+      ['Runway', runway],
+      ['Burn Rate', burn],
+      ['AI-Optimized Savings', savings],
+      ['Autonomous Actions', actions],
+      ['Policy Compliance', compliance],
+      [],
+      ['Cost Center Rank', 'Name'],
+      ['01', costs[0] || 'Variable Software Stack'],
+      ['02', costs[1] || 'Marketing Automation'],
+      ['03', costs[2] || 'Cloud Hosting'],
+      [],
+      ['Guardrail Policy', 'Limit', 'Compliance'],
+      ...GUARDRAIL_POLICIES.map((p) => [p.name, p.limit, `${Number(p.compliance).toFixed(1)}%`]),
+    ];
+
+    return rows
+      .map((row) => row.map((cell) => {
+        const value = String(cell ?? '');
+        return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+      }).join(','))
+      .join('\n');
+  }
+
+  function downloadCsv(filename, content) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function initExportButton() {
+    const btn = $('#exportBtn');
+    if (!btn) return;
+
+    let exporting = false;
+    const idleLabel = btn.textContent;
+
+    btn.addEventListener('click', () => {
+      if (exporting) return;
+      exporting = true;
+      btn.disabled = true;
+      btn.classList.add('btn--loading');
+      btn.setAttribute('aria-busy', 'true');
+      btn.innerHTML = `<span class="btn__label">Exporting...</span><span class="btn__spinner" aria-hidden="true"></span>`;
+
+      setTimeout(() => {
+        downloadCsv(
+          'Obsidian_Treasury_Financial_Intelligence_Q3_2026.csv',
+          buildIntelligenceCsv()
+        );
+
+        exporting = false;
+        btn.disabled = false;
+        btn.classList.remove('btn--loading');
+        btn.removeAttribute('aria-busy');
+        btn.textContent = idleLabel;
+        showToast('Financial Intelligence Exported to CSV.');
+      }, 1500);
+    });
+  }
+
+  // ─── Add Policy ──────────────────────────────────────────
+  function initAddPolicyButton(guardrails) {
+    const btn = $('#addPolicyBtn');
+    if (!btn) return;
+
+    let busy = false;
+    const idleLabel = btn.textContent;
+
+    btn.addEventListener('click', () => {
+      if (busy) return;
+      busy = true;
+      btn.disabled = true;
+      btn.textContent = 'Adding…';
+
+      setTimeout(() => {
+        const activeId = getActiveIndustryId();
+        const costs = INDUSTRY_VIEWS[activeId]?.costs || INDUSTRY_VIEWS.default.costs;
+        if (GUARDRAIL_POLICIES.length < 8) {
+          GUARDRAIL_POLICIES.push({
+            name: `${costs[0]} · Draft Policy`,
+            limit: '$40K/mo',
+            spent: randomBetween(4000, 12000),
+            cap: 40000,
+            compliance: Number(randomBetween(92, 99).toFixed(1)),
+            status: 'active',
+          });
+          guardrails?.render();
+          guardrails?.animateMeters();
+          showToast('New spend policy draft added to guardrails.');
+        } else {
+          showToast('Policy slots full — review existing guardrails first.', { tone: 'success' });
+        }
+
+        busy = false;
+        btn.disabled = false;
+        btn.textContent = idleLabel;
+      }, 900);
+    });
+  }
 
   // ─── Founder's Circle Success Modal ───────────────────────
   function initFounderModal() {
