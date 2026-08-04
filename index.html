@@ -70,9 +70,37 @@
             Live
           </div>
           <button type="button" class="btn btn--ghost" id="exportBtn">Export</button>
-          <button type="button" class="btn btn--primary" id="newReportBtn">New Report</button>
+          <button type="button" class="btn btn--primary btn--diagnostic" id="newReportBtn">
+            <span class="btn--diagnostic__bolt" aria-hidden="true">⚡</span>
+            Run 60-Sec Leak Diagnostic
+          </button>
         </div>
       </header>
+
+      <!-- Capital Leak Alert Banner -->
+      <aside class="leak-alert" id="leakAlert" hidden role="alert" aria-live="assertive">
+        <div class="leak-alert__accent" aria-hidden="true"></div>
+        <div class="leak-alert__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+        <div class="leak-alert__body">
+          <span class="leak-alert__eyebrow">Threat Assessment · Capital Leak Detected</span>
+          <p class="leak-alert__message" id="leakAlertMessage"></p>
+          <a
+            href="https://buy.stripe.com/3cIcN5bH26Sbd2x2yI8EM04"
+            class="leak-alert__cta"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Activate Scale Plan</a>
+        </div>
+        <button type="button" class="leak-alert__close" id="leakAlertClose" aria-label="Dismiss leak warning">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </aside>
 
       <!-- Command Center View -->
       <div class="view-panel view-panel--active" id="view-command-center" data-view-panel="command-center">
@@ -514,7 +542,7 @@
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- Generate Intelligence Report Modal -->
+  <!-- Automated Capital Leak Diagnostic Modal -->
   <div class="app-modal" id="reportModal" hidden aria-hidden="true">
     <div class="app-modal__backdrop" id="reportModalBackdrop"></div>
     <div
@@ -526,15 +554,15 @@
       <div class="app-modal__card">
         <div class="app-modal__glow" aria-hidden="true"></div>
         <div class="app-modal__inner">
-          <button type="button" class="app-modal__close" id="reportModalClose" aria-label="Close report modal">
+          <button type="button" class="app-modal__close" id="reportModalClose" aria-label="Close diagnostic modal">
             <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
             </svg>
           </button>
-          <span class="app-modal__eyebrow">Obsidian Treasury</span>
-          <h2 class="app-modal__title" id="reportModalTitle">Generate Real-Time Intelligence Report</h2>
+          <span class="app-modal__eyebrow">60-Second Diagnostic</span>
+          <h2 class="app-modal__title" id="reportModalTitle">Automated Capital Leak Diagnostic Engine</h2>
           <p class="app-modal__desc">
-            Compile board-ready financial intelligence for your selected vertical and analysis window.
+            Run a rapid audit of overlapping SaaS and cloud spend to surface silent monthly capital leaks for your vertical.
           </p>
           <form class="app-modal__form" id="reportForm">
             <div class="field">
@@ -550,14 +578,16 @@
               </div>
             </div>
             <div class="field">
-              <label class="field__label" for="reportDateRange">Analysis Date Range</label>
+              <label class="field__label" for="monthlySpendInput">Estimated Monthly Software &amp; Cloud Infrastructure Spend ($ AUD)</label>
               <input
-                type="text"
-                id="reportDateRange"
-                name="dateRange"
+                type="number"
+                id="monthlySpendInput"
+                name="monthlySpend"
                 class="field__input"
-                value="Jul 1 – Sep 30, 2026"
-                placeholder="e.g. Jul 1 – Sep 30, 2026"
+                inputmode="decimal"
+                min="1"
+                step="1"
+                placeholder="e.g. 5000"
                 autocomplete="off"
                 required
               >
@@ -565,7 +595,7 @@
             <div class="app-modal__actions">
               <button type="button" class="btn btn--ghost" id="reportModalCancel">Cancel</button>
               <button type="submit" class="btn btn--accent" id="reportCompileBtn">
-                <span class="btn__label">Compile &amp; Launch</span>
+                <span class="btn__label">Compute Exposure Risk</span>
                 <span class="btn__spinner" aria-hidden="true"></span>
               </button>
             </div>

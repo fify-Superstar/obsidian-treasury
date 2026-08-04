@@ -628,6 +628,196 @@ body {
   transform: translateY(-1px);
 }
 
+.btn--diagnostic {
+  position: relative;
+  overflow: hidden;
+  gap: 8px;
+  padding-left: 14px;
+  padding-right: 16px;
+  animation: diagnosticIdlePulse 2.8s ease-in-out infinite;
+}
+
+.btn--diagnostic__bolt {
+  display: inline-flex;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(10, 10, 15, 0.35));
+}
+
+.btn--diagnostic::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.35), transparent 55%);
+  opacity: 0;
+  transition: opacity 220ms var(--ease-out);
+  pointer-events: none;
+}
+
+.btn--diagnostic:hover {
+  animation: diagnosticHoverPulse 1.1s ease-in-out infinite;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(0, 245, 160, 0.35),
+    0 0 28px rgba(0, 245, 160, 0.45),
+    0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.btn--diagnostic:hover::before {
+  opacity: 1;
+}
+
+@keyframes diagnosticIdlePulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--mint-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(0, 245, 160, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+}
+
+@keyframes diagnosticHoverPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(0, 245, 160, 0.4),
+      0 0 24px rgba(0, 245, 160, 0.4),
+      0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(0, 245, 160, 0.65),
+      0 0 40px rgba(0, 245, 160, 0.65),
+      0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Capital leak threat banner */
+.leak-alert {
+  position: relative;
+  display: none;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 0 0 20px;
+  padding: 16px 18px 16px 16px;
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(135deg, rgba(127, 29, 29, 0.55), rgba(120, 53, 15, 0.42)),
+    var(--bg-elevated);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.08),
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+}
+
+.leak-alert:not([hidden]) {
+  display: flex;
+}
+
+.leak-alert--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.leak-alert__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #FBBF24, #F87171);
+}
+
+.leak-alert__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(248, 113, 113, 0.16);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #FBBF24;
+}
+
+.leak-alert__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.leak-alert__body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.leak-alert__eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #FBBF24;
+  margin-bottom: 6px;
+}
+
+.leak-alert__message {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #FECACA;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+.leak-alert__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  color: #1C1917;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  transition: filter 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+.leak-alert__cta:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.leak-alert__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(254, 202, 202, 0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.2);
+  color: #FECACA;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease-out);
+}
+
+.leak-alert__close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.leak-alert__close:hover {
+  color: #fff;
+  border-color: rgba(254, 202, 202, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+}
+
 .btn--accent {
   background: linear-gradient(135deg, #1a1a24 0%, #0d0d14 100%);
   color: var(--text-primary);
@@ -2410,6 +2600,27 @@ body {
 
   .header__actions .btn--ghost {
     display: none;
+  }
+
+  .btn--diagnostic {
+    font-size: 12px;
+    padding: 8px 12px;
+    animation: none;
+  }
+
+  .leak-alert {
+    flex-wrap: wrap;
+    padding-right: 14px;
+  }
+
+  .leak-alert__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  .leak-alert__body {
+    padding-right: 28px;
   }
 
   .metrics {

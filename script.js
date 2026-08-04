@@ -1137,12 +1137,47 @@
     setTimeout(() => { modal.hidden = true; }, 320);
   }
 
+  function formatAudCurrency(amount) {
+    const rounded = Math.round(amount * 100) / 100;
+    const hasCents = Math.abs(rounded % 1) > 0.001;
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: hasCents ? 2 : 0,
+      maximumFractionDigits: hasCents ? 2 : 0,
+    }).format(rounded).replace('A$', '$');
+  }
+
+  function showLeakAlert(exposureAmount) {
+    const alertEl = $('#leakAlert');
+    const messageEl = $('#leakAlertMessage');
+    if (!alertEl || !messageEl) return;
+
+    const formatted = formatAudCurrency(exposureAmount);
+    messageEl.textContent =
+      `⚠️ WARNING: Based on your selected industry parameters, your operations are at high risk of an estimated ${formatted}/month in silent cost leaks and overlapping tool waste. Activate our Scale Plan to freeze this exposure immediately.`;
+
+    alertEl.hidden = false;
+    requestAnimationFrame(() => {
+      alertEl.classList.add('leak-alert--visible');
+      alertEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
+  function hideLeakAlert() {
+    const alertEl = $('#leakAlert');
+    if (!alertEl) return;
+    alertEl.classList.remove('leak-alert--visible');
+    setTimeout(() => { alertEl.hidden = true; }, 280);
+  }
+
   function initReportModal() {
     const modal = $('#reportModal');
     const openBtn = $('#newReportBtn');
     const form = $('#reportForm');
     const compileBtn = $('#reportCompileBtn');
     const industrySelect = $('#reportIndustry');
+    const spendInput = $('#monthlySpendInput');
     if (!modal || !openBtn || !form || !compileBtn) return;
 
     let compiling = false;
@@ -1155,12 +1190,13 @@
     openBtn.addEventListener('click', () => {
       if (industrySelect) industrySelect.value = getActiveIndustryId();
       openAppModal(modal);
-      setTimeout(() => industrySelect?.focus(), 50);
+      setTimeout(() => spendInput?.focus(), 50);
     });
 
     $('#reportModalClose')?.addEventListener('click', close);
     $('#reportModalCancel')?.addEventListener('click', close);
     $('#reportModalBackdrop')?.addEventListener('click', close);
+    $('#leakAlertClose')?.addEventListener('click', hideLeakAlert);
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('app-modal--visible') && !compiling) {
@@ -1173,9 +1209,11 @@
       if (compiling) return;
 
       const industry = industrySelect?.value || 'tech';
-      const dateRange = ($('#reportDateRange')?.value || '').trim();
-      if (!dateRange) {
-        $('#reportDateRange')?.focus();
+      const rawSpend = (spendInput?.value || '').replace(/,/g, '').trim();
+      const monthlySpend = Number(rawSpend);
+
+      if (!Number.isFinite(monthlySpend) || monthlySpend <= 0) {
+        spendInput?.focus();
         return;
       }
 
@@ -1183,21 +1221,19 @@
       compileBtn.disabled = true;
       compileBtn.classList.add('btn--loading');
 
-      // Sync dashboard industry view with report selection
       if (typeof window.__applyIndustryView === 'function') {
         window.__applyIndustryView(industry);
-      } else {
-        const industryTab = $(`.industry-tab[data-industry="${industry}"]`);
-        industryTab?.click();
       }
+
+      const exposureLeak = monthlySpend * 0.08;
 
       setTimeout(() => {
         compiling = false;
         compileBtn.disabled = false;
         compileBtn.classList.remove('btn--loading');
         closeAppModal(modal);
-        showToast('Intelligence Report Generated Successfully.');
-      }, 2000);
+        showLeakAlert(exposureLeak);
+      }, 1500);
     });
   }
 
