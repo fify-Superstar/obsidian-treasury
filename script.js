@@ -3,6 +3,7 @@
  * Interactive simulations & real-time widget updates
  */
 
+// Force global enterprise build trigger
 (function () {
   'use strict';
 
