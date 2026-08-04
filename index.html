@@ -19,6 +19,17 @@
           alt="Obsidian Treasury"
           class="sidebar__logo-img"
         >
+        <div class="hub-switcher">
+          <label class="hub-switcher__label" for="enterpriseHubSelect">🏢 Enterprise Hub Location</label>
+          <div class="hub-switcher__control">
+            <select id="enterpriseHubSelect" class="hub-switcher__select" aria-label="Enterprise Hub Location">
+              <option value="austco">Austco Polar (Global Master)</option>
+              <option value="uswest">Obsidian Treasury (US West Operations - San Francisco)</option>
+              <option value="emea">Vectors Group (EMEA Hub - Paris)</option>
+              <option value="apac">APAC Logistics Center (Singapore)</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <nav class="sidebar__nav">
@@ -62,6 +73,7 @@
           <div>
             <h1 class="header__title" id="headerTitle">Executive Command Center</h1>
             <p class="header__subtitle" id="headerSubtitle">Real-time financial intelligence · Q3 FY2026</p>
+            <p class="header__hub-meta" id="headerHubMeta">Austco Polar · Global Master · <span id="hubTeamCount">248</span> operators online</p>
           </div>
         </div>
         <div class="header__actions" id="headerActions">
@@ -201,6 +213,17 @@
 
       <!-- Metric Cards -->
       <section class="metrics-block" id="metricsBlock">
+        <div class="currency-bar" id="currencyBar" role="group" aria-label="Corporate currency">
+          <span class="currency-bar__label">Global Multi-Currency Tax Engine</span>
+          <div class="currency-bar__toggles">
+            <button type="button" class="currency-btn currency-btn--active" data-currency="AUD">AUD ($)</button>
+            <button type="button" class="currency-btn" data-currency="USD">USD ($)</button>
+            <button type="button" class="currency-btn" data-currency="EUR">EUR (€)</button>
+            <button type="button" class="currency-btn" data-currency="GBP">GBP (£)</button>
+          </div>
+          <span class="currency-bar__tax" id="currencyTaxBadge">GST Tracked</span>
+        </div>
+
         <div class="ops-guardrail" id="opsGuardrail" aria-live="polite">
           <span class="ops-guardrail__label">Industry Budget Guardrail</span>
           <span class="ops-guardrail__badge" id="opsGuardrailBadge">
@@ -230,7 +253,7 @@
               </div>
               <span class="metric-card__badge metric-card__badge--mint" data-metric-delta="cash">+12.4%</span>
             </div>
-            <div class="metric-card__value" id="metricCash">$24.8M</div>
+            <div class="metric-card__value" id="metricCash" data-aud-base="24800000">$24.8M</div>
             <div class="metric-card__sparkline">
               <canvas id="sparkCash" width="120" height="32" aria-hidden="true"></canvas>
             </div>
@@ -245,7 +268,7 @@
               <span class="metric-card__badge metric-card__badge--violet" data-metric-delta="runway">Healthy</span>
             </div>
             <div class="metric-card__value" id="metricRunway">18.2 mo</div>
-            <div class="metric-card__sub"><span data-metric-burn-label>Model burn</span>: <span id="metricBurn">$1.36M/mo</span></div>
+            <div class="metric-card__sub"><span data-metric-burn-label>Model burn</span>: <span id="metricBurn" data-aud-base="1360000">$1.36M/mo</span></div>
           </article>
 
           <article class="metric-card" data-metric="savings">
@@ -256,7 +279,7 @@
               </div>
               <span class="metric-card__badge metric-card__badge--mint" data-metric-delta="savings">YTD</span>
             </div>
-            <div class="metric-card__value" id="metricSavings">$847K</div>
+            <div class="metric-card__value" id="metricSavings" data-aud-base="847000">$847K</div>
             <div class="metric-card__sub"><span id="metricActions">142</span> <span data-metric-actions-label>pipeline actions</span></div>
           </article>
 
@@ -319,6 +342,7 @@
                 <th scope="col">Cost Center</th>
                 <th scope="col">Monthly Spend</th>
                 <th scope="col">Status</th>
+                <th scope="col">Tax</th>
                 <th scope="col">Actions</th>
               </tr>
             </thead>
@@ -689,6 +713,45 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Contract Negotiator Modal -->
+  <div class="app-modal" id="negotiateModal" hidden aria-hidden="true">
+    <div class="app-modal__backdrop" id="negotiateModalBackdrop"></div>
+    <div
+      class="app-modal__dialog app-modal__dialog--wide"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="negotiateModalTitle"
+    >
+      <div class="app-modal__card">
+        <div class="app-modal__glow" aria-hidden="true"></div>
+        <div class="app-modal__inner">
+          <button type="button" class="app-modal__close" id="negotiateModalClose" aria-label="Close negotiation modal">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div class="negotiate-loader" id="negotiateLoader">
+            <div class="negotiate-loader__terminal" aria-live="polite">
+              <span class="negotiate-loader__cursor">▌</span>
+              <span id="negotiateLoaderText">AI analyzing idle usage logs &amp; contract terms...</span>
+            </div>
+            <div class="negotiate-loader__bar"><span></span></div>
+          </div>
+          <div class="negotiate-result" id="negotiateResult" hidden>
+            <span class="app-modal__eyebrow">AI Supplier Contract Negotiator</span>
+            <h2 class="app-modal__title" id="negotiateModalTitle">Procurement Re-Negotiation Packet</h2>
+            <p class="app-modal__desc" id="negotiateModalDesc">Formal commercial notice prepared for vendor desk review.</p>
+            <pre class="negotiate-email" id="negotiateEmailBody"></pre>
+            <div class="app-modal__actions">
+              <button type="button" class="btn btn--ghost" id="negotiateModalCancel">Close</button>
+              <button type="button" class="btn btn--dispatch" id="negotiateDispatchBtn">Dispatch Legal Review Letter</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

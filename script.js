@@ -10,13 +10,201 @@
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
-  const formatCurrency = (n) => {
-    if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
-    if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
-    return `$${n.toFixed(0)}`;
+  // Canonical amounts are AUD; FX rates are AUD → target
+  const FX_ENGINE = {
+    AUD: { rate: 1, symbol: '$', code: 'AUD', locale: 'en-AU' },
+    USD: { rate: 0.66, symbol: '$', code: 'USD', locale: 'en-US' },
+    EUR: { rate: 0.61, symbol: '€', code: 'EUR', locale: 'de-DE' },
+    GBP: { rate: 0.52, symbol: '£', code: 'GBP', locale: 'en-GB' },
   };
 
+  const ENTERPRISE_HUBS = {
+    austco: {
+      label: 'Austco Polar (Global Master)',
+      short: 'Austco Polar · Global Master',
+      region: 'Global',
+      tax: 'GST Tracked',
+      teamCount: 248,
+      metricScale: 1,
+      defaultCurrency: 'AUD',
+      runwayBias: 0,
+    },
+    uswest: {
+      label: 'Obsidian Treasury (US West Operations - San Francisco)',
+      short: 'US West · San Francisco',
+      region: 'US West',
+      tax: 'US Sales Tax Audited',
+      teamCount: 86,
+      metricScale: 0.74,
+      defaultCurrency: 'USD',
+      runwayBias: -8,
+    },
+    emea: {
+      label: 'Vectors Group (EMEA Hub - Paris)',
+      short: 'EMEA Hub · Paris',
+      region: 'EMEA',
+      tax: 'VAT Compliant',
+      teamCount: 124,
+      metricScale: 0.88,
+      defaultCurrency: 'EUR',
+      runwayBias: 4,
+    },
+    apac: {
+      label: 'APAC Logistics Center (Singapore)',
+      short: 'APAC Logistics · Singapore',
+      region: 'APAC',
+      tax: 'GST Tracked',
+      teamCount: 162,
+      metricScale: 0.91,
+      defaultCurrency: 'USD',
+      runwayBias: 2,
+    },
+  };
+
+  let activeCurrency = 'AUD';
+  let activeHubId = 'austco';
+  let metricSimulatorRef = null;
+
+  const parseMoneyToAud = (str) => {
+    const cleaned = String(str).replace(/[^0-9.KMkm]/g, '');
+    const match = cleaned.match(/^([\d.]+)([KMkm])?$/);
+    if (!match) return 0;
+    let value = parseFloat(match[1]);
+    const unit = (match[2] || '').toUpperCase();
+    if (unit === 'K') value *= 1e3;
+    if (unit === 'M') value *= 1e6;
+    return value;
+  };
+
+  const formatMoney = (audAmount, { perMonth = false } = {}) => {
+    const hub = ENTERPRISE_HUBS[activeHubId] || ENTERPRISE_HUBS.austco;
+    const fx = FX_ENGINE[activeCurrency] || FX_ENGINE.AUD;
+    const value = Number(audAmount) * hub.metricScale * fx.rate;
+    let formatted;
+    if (Math.abs(value) >= 1e6) formatted = `${fx.symbol}${(value / 1e6).toFixed(1)}M`;
+    else if (Math.abs(value) >= 1e3) formatted = `${fx.symbol}${(value / 1e3).toFixed(value >= 1e4 ? 0 : 1)}K`;
+    else {
+      formatted = new Intl.NumberFormat(fx.locale, {
+        style: 'currency',
+        currency: fx.code,
+        maximumFractionDigits: 0,
+      }).format(value);
+    }
+    return perMonth ? `${formatted}/mo` : formatted;
+  };
+
+  // Chart/tooltip helper — keeps historical name, routes through FX engine
+  const formatCurrency = (n) => formatMoney(n);
+
   const randomBetween = (min, max) => min + Math.random() * (max - min);
+
+  function getActiveHub() {
+    return ENTERPRISE_HUBS[activeHubId] || ENTERPRISE_HUBS.austco;
+  }
+
+  function refreshMonetaryDisplays() {
+    if (metricSimulatorRef) metricSimulatorRef.render();
+
+    $$('[data-aud-base]').forEach((el) => {
+      const aud = Number(el.dataset.audBase || 0);
+      const perMonth = el.id === 'metricBurn' || el.dataset.perMonth === 'true';
+      el.textContent = formatMoney(aud, { perMonth });
+    });
+
+    $$('[data-spend-aud]').forEach((el) => {
+      const aud = Number(el.dataset.spendAud || 0);
+      el.textContent = formatMoney(aud);
+    });
+
+    $$('.guardrail-card__limit span[data-limit-aud]').forEach((el) => {
+      const aud = Number(el.dataset.limitAud || 0);
+      const period = el.dataset.limitPeriod || '/mo';
+      el.textContent = `${formatMoney(aud)}${period}`;
+    });
+
+    $$('.tax-badge').forEach((el) => {
+      el.textContent = getActiveHub().tax;
+    });
+
+    const taxBadge = $('#currencyTaxBadge');
+    if (taxBadge) taxBadge.textContent = getActiveHub().tax;
+
+    const industryId = typeof getActiveIndustryId === 'function' ? getActiveIndustryId() : 'tech';
+    updatePredictiveRunwayCard(industryId);
+  }
+
+  function applyEnterpriseHub(hubId, { syncCurrency = true } = {}) {
+    const hub = ENTERPRISE_HUBS[hubId];
+    if (!hub) return;
+    activeHubId = hubId;
+
+    const select = $('#enterpriseHubSelect');
+    if (select && select.value !== hubId) select.value = hubId;
+
+    const team = $('#hubTeamCount');
+    if (team) team.textContent = hub.teamCount;
+
+    const meta = $('#headerHubMeta');
+    if (meta) {
+      meta.innerHTML = `${hub.short} · <span id="hubTeamCount">${hub.teamCount}</span> operators online`;
+    }
+
+    const taxBadge = $('#currencyTaxBadge');
+    if (taxBadge) taxBadge.textContent = hub.tax;
+
+    if (syncCurrency && hub.defaultCurrency) {
+      setActiveCurrency(hub.defaultCurrency, { refresh: false });
+    }
+
+    const industryId = typeof getActiveIndustryId === 'function' ? getActiveIndustryId() : 'tech';
+    const view = typeof INDUSTRY_VIEWS !== 'undefined' ? INDUSTRY_VIEWS[industryId] : null;
+    if (view) {
+      renderVendorLedger(view.vendors, industryId);
+      renderSystemHealth(view, industryId);
+      if (typeof GUARDRAIL_POLICIES !== 'undefined') {
+        // re-render guardrail limit labels in active currency
+        $$('#guardrailsGrid .guardrail-card').forEach((card, i) => {
+          const policy = GUARDRAIL_POLICIES[i];
+          if (!policy) return;
+          const limitEl = $('.guardrail-card__limit span', card);
+          if (limitEl && policy.cap) {
+            const period = /qtr/i.test(policy.limit || '') ? '/qtr' : '/mo';
+            limitEl.dataset.limitAud = policy.cap;
+            limitEl.dataset.limitPeriod = period;
+            limitEl.textContent = `${formatMoney(policy.cap)}${period}`;
+          }
+        });
+      }
+    }
+
+    refreshMonetaryDisplays();
+  }
+
+  function setActiveCurrency(code, { refresh = true } = {}) {
+    if (!FX_ENGINE[code]) return;
+    activeCurrency = code;
+    $$('.currency-btn').forEach((btn) => {
+      btn.classList.toggle('currency-btn--active', btn.dataset.currency === code);
+    });
+    if (refresh) refreshMonetaryDisplays();
+  }
+
+  function initEnterpriseHubSwitcher() {
+    const select = $('#enterpriseHubSelect');
+    if (!select) return;
+    select.addEventListener('change', () => {
+      applyEnterpriseHub(select.value, { syncCurrency: true });
+      showToast(`Enterprise hub switched · ${getActiveHub().region} tracking live.`);
+    });
+  }
+
+  function initCurrencyToggle() {
+    $$('.currency-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setActiveCurrency(btn.dataset.currency);
+      });
+    });
+  }
 
   // ─── Liquidity Chart ─────────────────────────────────────
   class LiquidityChart {
@@ -441,7 +629,7 @@
             <span class="guardrail-card__name">${policy.name}</span>
             <span class="guardrail-card__status guardrail-card__status--${policy.status}"></span>
           </div>
-          <div class="guardrail-card__limit">Limit: <span>${policy.limit}</span></div>
+          <div class="guardrail-card__limit">Limit: <span data-limit-aud="${policy.cap}" data-limit-period="${/qtr/i.test(policy.limit || '') ? '/qtr' : '/mo'}">${formatMoney(policy.cap)}${/qtr/i.test(policy.limit || '') ? '/qtr' : '/mo'}</span></div>
           <div class="guardrail-meter">
             <div class="guardrail-meter__label">
               <span>Utilization</span>
@@ -521,8 +709,9 @@
     const view = INDUSTRY_VIEWS[industryId];
     if (!view) return;
     const state = ensureActionState(industryId);
-    const base = view.predictiveDays ?? 180;
-    const total = base + state.extendedDays;
+    const hub = getActiveHub();
+    const base = (view.predictiveDays ?? 180) + (hub.runwayBias || 0);
+    const total = Math.max(30, base + state.extendedDays);
 
     const valueEl = $('#predictiveRunwayValue');
     const deltaEl = $('#predictiveRunwayDelta');
@@ -535,7 +724,6 @@
         : '+0 Days Saved';
       if (flash && state.extendedDays > 0) {
         deltaEl.classList.remove('metric-card__delta--flash');
-        // reflow to retrigger animation
         void deltaEl.offsetWidth;
         deltaEl.classList.add('metric-card__delta--flash');
       }
@@ -570,11 +758,14 @@
     if (!body) return;
 
     const state = ensureActionState(industryId);
+    const tax = getActiveHub().tax;
 
     body.innerHTML = (vendors || []).map((v, index) => {
       const secured = !!state.securedVendors[v.vendor];
+      const spendAud = v.spendAud != null ? v.spendAud : parseMoneyToAud(v.spend);
+      const safeVendor = v.vendor.replace(/"/g, '&quot;');
       return `
-      <tr class="vendor-row${secured ? ' vendor-row--secured' : ''}" data-vendor="${v.vendor.replace(/"/g, '&quot;')}">
+      <tr class="vendor-row${secured ? ' vendor-row--secured' : ''}" data-vendor="${safeVendor}">
         <td>
           <div class="vendor-table__identity">
             <span class="vendor-table__logo" aria-hidden="true">${vendorInitials(v.vendor)}</span>
@@ -586,16 +777,25 @@
         </td>
         <td><code class="vendor-table__input">${v.input}</code></td>
         <td>${v.costCenter}</td>
-        <td class="vendor-table__spend">${v.spend}</td>
+        <td class="vendor-table__spend" data-spend-aud="${spendAud}">${formatMoney(spendAud)}</td>
         <td><span class="vendor-status vendor-status--${secured ? 'live' : (v.statusTone || 'live')}">${secured ? 'Secured' : v.status}</span></td>
+        <td><span class="tax-badge">${tax}</span></td>
         <td>
-          <button
-            type="button"
-            class="intercept-btn${secured ? ' intercept-btn--secured' : ''}"
-            data-intercept-vendor="${v.vendor.replace(/"/g, '&quot;')}"
-            data-intercept-index="${index}"
-            ${secured ? 'disabled' : ''}
-          >${secured ? '✓ Secured' : '⚡ Intercept Leak'}</button>
+          <div class="vendor-actions">
+            <button
+              type="button"
+              class="intercept-btn${secured ? ' intercept-btn--secured' : ''}"
+              data-intercept-vendor="${safeVendor}"
+              data-intercept-index="${index}"
+              ${secured ? 'disabled' : ''}
+            >${secured ? '✓ Secured' : '⚡ Intercept Leak'}</button>
+            <button
+              type="button"
+              class="negotiate-btn"
+              data-negotiate-vendor="${safeVendor}"
+              data-negotiate-spend="${spendAud}"
+            >🤖 AI Contract Re-Negotiation</button>
+          </div>
         </td>
       </tr>
     `;
@@ -603,6 +803,7 @@
 
     if (count) count.textContent = `${(vendors || []).length} systems`;
     bindInterceptButtons(industryId);
+    bindNegotiateButtons();
   }
 
   function bindInterceptButtons(industryId) {
@@ -640,6 +841,100 @@
           showToast('Capital Leak Intercepted. Operational runway updated.');
         }, 1000);
       });
+    });
+  }
+
+  function procurementDesk(vendorName) {
+    if (/AWS|EC2|Azure/i.test(vendorName)) return 'AWS FinOps Desk';
+    if (/Salesforce/i.test(vendorName)) return 'Salesforce Procurement';
+    if (/OpenAI/i.test(vendorName)) return 'OpenAI Enterprise Sales';
+    if (/Anthropic|Claude/i.test(vendorName)) return 'Anthropic Commercial Desk';
+    if (/Datadog/i.test(vendorName)) return 'Datadog Account Team';
+    if (/Shopify/i.test(vendorName)) return 'Shopify Plus Partnerships';
+    if (/Manhattan/i.test(vendorName)) return 'Manhattan Associates Renewals';
+    return `${vendorName} Commercial Desk`;
+  }
+
+  function buildNegotiationEmail(vendorName, spendAud) {
+    const hub = getActiveHub();
+    const desk = procurementDesk(vendorName);
+    const current = formatMoney(spendAud, { perMonth: true });
+    const target = formatMoney(spendAud * 0.85, { perMonth: true });
+    const savings = formatMoney(spendAud * 0.15, { perMonth: true });
+
+    return `TO: ${desk}
+FROM: Obsidian Treasury · Autonomous Procurement Agent
+CC: Legal & Finance Control Tower · ${hub.short}
+SUBJECT: Formal Request for Contract Re-Negotiation — 15% Capacity-Linked Reduction
+
+Dear ${desk},
+
+Our continuous FinOps telemetry across the ${hub.region} operating entity has identified sustained unutilized capacity and overlapping entitlement on the ${vendorName} commercial agreement.
+
+Current contracted run-rate: ${current}
+Observed idle / under-utilized capacity: ≥ 15% over the trailing 90 days
+Requested revised run-rate: ${target}
+Estimated monthly capital recovery: ${savings}
+
+Pursuant to our enterprise commercial framework and audit rights, we request an automated fifteen percent (15%) price reduction effective the next billing cycle, reflecting measured idle usage logs and contract-term utilization thresholds.
+
+Please confirm acceptance within five (5) business days. Absent confirmation, this packet will escalate to formal legal review under our master services agreement.
+
+Respectfully,
+Obsidian Treasury Autonomous Supplier Negotiator
+On behalf of ${hub.label}`;
+  }
+
+  function bindNegotiateButtons() {
+    $$('[data-negotiate-vendor]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const vendor = btn.dataset.negotiateVendor;
+        const spendAud = Number(btn.dataset.negotiateSpend || 0);
+        openNegotiateModal(vendor, spendAud);
+      });
+    });
+  }
+
+  function openNegotiateModal(vendorName, spendAud) {
+    const modal = $('#negotiateModal');
+    const loader = $('#negotiateLoader');
+    const result = $('#negotiateResult');
+    if (!modal) return;
+
+    if (loader) loader.hidden = false;
+    if (result) result.hidden = true;
+    openAppModal(modal);
+
+    setTimeout(() => {
+      if (loader) loader.hidden = true;
+      if (result) result.hidden = false;
+      const desc = $('#negotiateModalDesc');
+      if (desc) {
+        desc.textContent = `Formal commercial notice prepared for ${procurementDesk(vendorName)}.`;
+      }
+      const body = $('#negotiateEmailBody');
+      if (body) body.textContent = buildNegotiationEmail(vendorName, spendAud);
+    }, 2000);
+  }
+
+  function initContractNegotiator() {
+    const modal = $('#negotiateModal');
+    if (!modal) return;
+
+    const close = () => closeAppModal(modal);
+    $('#negotiateModalClose')?.addEventListener('click', close);
+    $('#negotiateModalCancel')?.addEventListener('click', close);
+    $('#negotiateModalBackdrop')?.addEventListener('click', close);
+
+    $('#negotiateDispatchBtn')?.addEventListener('click', () => {
+      closeAppModal(modal);
+      showToast('Negotiation Packet Dispatched Externally via Secure Webhook.');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('app-modal--visible')) {
+        close();
+      }
     });
   }
 
@@ -780,24 +1075,48 @@
     constructor() {
       this.cash = 24.8e6;
       this.savings = 847e3;
+      this.burn = 1.36e6;
       this.actions = 142;
       this.compliance = 96.8;
-
+      metricSimulatorRef = this;
+      this.render();
       setInterval(() => this.tick(), 3000);
+    }
+
+    render() {
+      const cashEl = $('#metricCash');
+      const savingsEl = $('#metricSavings');
+      const burnEl = $('#metricBurn');
+      const actionsEl = $('#metricActions');
+      const complianceEl = $('#metricCompliance');
+      const complianceBar = $('#complianceBar');
+
+      if (cashEl) {
+        cashEl.dataset.audBase = String(Math.round(this.cash));
+        cashEl.textContent = formatMoney(this.cash);
+      }
+      if (savingsEl) {
+        savingsEl.dataset.audBase = String(Math.round(this.savings));
+        savingsEl.textContent = formatMoney(this.savings);
+      }
+      if (burnEl) {
+        burnEl.dataset.audBase = String(Math.round(this.burn));
+        burnEl.textContent = formatMoney(this.burn, { perMonth: true });
+      }
+      if (actionsEl) actionsEl.textContent = this.actions;
+      if (complianceEl) complianceEl.textContent = `${this.compliance.toFixed(1)}%`;
+      if (complianceBar) complianceBar.style.width = `${this.compliance}%`;
     }
 
     tick() {
       this.cash += randomBetween(-50000, 80000);
       this.savings += randomBetween(200, 800);
+      this.burn += randomBetween(-8000, 12000);
+      this.burn = Math.max(900000, this.burn);
       if (Math.random() > 0.7) this.actions++;
 
-      $('#metricCash').textContent = formatCurrency(this.cash);
-      $('#metricSavings').textContent = formatCurrency(this.savings);
-      $('#metricActions').textContent = this.actions;
-
       this.compliance = Math.min(99.9, Math.max(94, this.compliance + randomBetween(-0.2, 0.15)));
-      $('#metricCompliance').textContent = `${this.compliance.toFixed(1)}%`;
-      $('#complianceBar').style.width = `${this.compliance}%`;
+      this.render();
     }
   }
 
@@ -1361,6 +1680,7 @@
       updatePredictiveRunwayCard(industryId);
       guardrails?.setPolicies(view.policies);
       insights?.setIndustry(view);
+      refreshMonetaryDisplays();
 
       const badge = $('#opsEngineBadge');
       const meterFill = $('#opsEngineMeterFill');
@@ -1406,6 +1726,10 @@
     initViewRouter(chart);
     initIndustryView(guardrails, insights);
     initOpsEngineToggle();
+    initEnterpriseHubSwitcher();
+    initCurrencyToggle();
+    initContractNegotiator();
+    applyEnterpriseHub(activeHubId, { syncCurrency: true });
     initReportModal();
     initExportButton();
     initAddPolicyButton(guardrails);
