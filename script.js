@@ -502,6 +502,57 @@
     }
   }
 
+  // ─── Autonomous Action Center State ──────────────────────
+  const ACTION_CENTER_STATE = Object.create(null);
+  const RUNWAY_EXTEND_STEP = 12;
+
+  function ensureActionState(industryId) {
+    if (!ACTION_CENTER_STATE[industryId]) {
+      ACTION_CENTER_STATE[industryId] = {
+        securedVendors: Object.create(null),
+        guardrailArmed: true,
+        extendedDays: 0,
+      };
+    }
+    return ACTION_CENTER_STATE[industryId];
+  }
+
+  function updatePredictiveRunwayCard(industryId, { flash = false } = {}) {
+    const view = INDUSTRY_VIEWS[industryId];
+    if (!view) return;
+    const state = ensureActionState(industryId);
+    const base = view.predictiveDays ?? 180;
+    const total = base + state.extendedDays;
+
+    const valueEl = $('#predictiveRunwayValue');
+    const deltaEl = $('#predictiveRunwayDelta');
+    const card = $('#predictiveRunwayCard');
+
+    if (valueEl) valueEl.textContent = `${total} Days Active`;
+    if (deltaEl) {
+      deltaEl.textContent = state.extendedDays > 0
+        ? `+${state.extendedDays} Days Extended`
+        : '+0 Days Saved';
+      if (flash && state.extendedDays > 0) {
+        deltaEl.classList.remove('metric-card__delta--flash');
+        // reflow to retrigger animation
+        void deltaEl.offsetWidth;
+        deltaEl.classList.add('metric-card__delta--flash');
+      }
+    }
+    if (card && flash) {
+      card.classList.remove('metric-card--runway-pulse');
+      void card.offsetWidth;
+      card.classList.add('metric-card--runway-pulse');
+    }
+
+    const healthEl = $('#healthRunwayDays');
+    if (healthEl) {
+      const baseSaved = view.health?.runwayDaysSaved ?? 0;
+      healthEl.textContent = baseSaved + state.extendedDays;
+    }
+  }
+
   // ─── Vendor Ledger ───────────────────────────────────────
   function vendorInitials(name) {
     return String(name || '')
@@ -513,13 +564,17 @@
       .toUpperCase();
   }
 
-  function renderVendorLedger(vendors) {
+  function renderVendorLedger(vendors, industryId = getActiveIndustryId()) {
     const body = $('#vendorLedgerBody');
     const count = $('#vendorCount');
     if (!body) return;
 
-    body.innerHTML = (vendors || []).map((v) => `
-      <tr>
+    const state = ensureActionState(industryId);
+
+    body.innerHTML = (vendors || []).map((v, index) => {
+      const secured = !!state.securedVendors[v.vendor];
+      return `
+      <tr class="vendor-row${secured ? ' vendor-row--secured' : ''}" data-vendor="${v.vendor.replace(/"/g, '&quot;')}">
         <td>
           <div class="vendor-table__identity">
             <span class="vendor-table__logo" aria-hidden="true">${vendorInitials(v.vendor)}</span>
@@ -532,11 +587,60 @@
         <td><code class="vendor-table__input">${v.input}</code></td>
         <td>${v.costCenter}</td>
         <td class="vendor-table__spend">${v.spend}</td>
-        <td><span class="vendor-status vendor-status--${v.statusTone || 'live'}">${v.status}</span></td>
+        <td><span class="vendor-status vendor-status--${secured ? 'live' : (v.statusTone || 'live')}">${secured ? 'Secured' : v.status}</span></td>
+        <td>
+          <button
+            type="button"
+            class="intercept-btn${secured ? ' intercept-btn--secured' : ''}"
+            data-intercept-vendor="${v.vendor.replace(/"/g, '&quot;')}"
+            data-intercept-index="${index}"
+            ${secured ? 'disabled' : ''}
+          >${secured ? '✓ Secured' : '⚡ Intercept Leak'}</button>
+        </td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
 
     if (count) count.textContent = `${(vendors || []).length} systems`;
+    bindInterceptButtons(industryId);
+  }
+
+  function bindInterceptButtons(industryId) {
+    $$('[data-intercept-vendor]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled || btn.classList.contains('intercept-btn--loading')) return;
+
+        const vendorName = btn.dataset.interceptVendor;
+        const state = ensureActionState(industryId);
+        if (state.securedVendors[vendorName]) return;
+
+        const row = btn.closest('tr');
+        btn.classList.add('intercept-btn--loading');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="intercept-btn__spinner" aria-hidden="true"></span>';
+
+        setTimeout(() => {
+          state.securedVendors[vendorName] = true;
+          state.extendedDays += RUNWAY_EXTEND_STEP;
+
+          btn.classList.remove('intercept-btn--loading');
+          btn.classList.add('intercept-btn--secured');
+          btn.innerHTML = '✓ Secured';
+
+          if (row) {
+            row.classList.add('vendor-row--secured');
+            const status = row.querySelector('.vendor-status');
+            if (status) {
+              status.textContent = 'Secured';
+              status.className = 'vendor-status vendor-status--live';
+            }
+          }
+
+          updatePredictiveRunwayCard(industryId, { flash: true });
+          showToast('Capital Leak Intercepted. Operational runway updated.');
+        }, 1000);
+      });
+    });
   }
 
   function showOpsExposureAlert() {
@@ -553,8 +657,9 @@
     setTimeout(() => { alertEl.hidden = true; }, 250);
   }
 
-  function renderOpsEngine(view) {
+  function renderOpsEngine(view, industryId = getActiveIndustryId()) {
     const engine = view.engine || {};
+    const state = ensureActionState(industryId);
     const toggle = $('#opsEngineToggle');
     const label = $('#opsEngineToggleLabel');
     const hint = $('#opsEngineToggleHint');
@@ -566,14 +671,11 @@
 
     if (label) label.textContent = engine.toggle || 'Operational Guardrail';
     if (hint) hint.textContent = engine.hint || 'Autonomous intercept while armed';
-    if (badge) badge.textContent = engine.status || 'Active';
     if (desc) desc.textContent = engine.desc || 'Sector-specific capital protection controls';
-    if (meterValue) meterValue.textContent = `${engine.meter ?? 90}%`;
-    if (meterFill) meterFill.style.width = `${engine.meter ?? 90}%`;
-    if (toggle) {
-      toggle.checked = true;
-      toggle.setAttribute('aria-checked', 'true');
-    }
+    if (badge) badge.dataset.armedStatus = engine.status || 'Active';
+    if (meterFill) meterFill.dataset.armedWidth = `${engine.meter ?? 90}%`;
+    if (meterValue) meterValue.dataset.armedValue = `${engine.meter ?? 90}%`;
+
     if (signals) {
       signals.innerHTML = (engine.signals || []).map((s) => `
         <li class="ops-engine__signal">
@@ -583,19 +685,35 @@
       `).join('');
     }
 
-    hideOpsExposureAlert();
-    $('#opsEngine')?.classList.remove('panel--ops-engine-disarmed');
+    if (toggle) {
+      toggle.checked = state.guardrailArmed;
+      toggle.setAttribute('aria-checked', state.guardrailArmed ? 'true' : 'false');
+    }
+
+    if (state.guardrailArmed) {
+      if (badge) badge.textContent = engine.status || 'Active';
+      if (meterValue) meterValue.textContent = `${engine.meter ?? 90}%`;
+      if (meterFill) meterFill.style.width = `${engine.meter ?? 90}%`;
+      hideOpsExposureAlert();
+      $('#opsEngine')?.classList.remove('panel--ops-engine-disarmed');
+    } else {
+      if (badge) badge.textContent = 'Disarmed';
+      if (meterValue) meterValue.textContent = '18%';
+      if (meterFill) meterFill.style.width = '18%';
+      $('#opsEngine')?.classList.add('panel--ops-engine-disarmed');
+    }
   }
 
-  function renderSystemHealth(view) {
+  function renderSystemHealth(view, industryId = getActiveIndustryId()) {
     const health = view.health || {};
+    const state = ensureActionState(industryId);
     const setText = (id, value) => {
       const el = $(id);
       if (el) el.textContent = value;
     };
     setText('#healthVendors', health.vendors ?? (view.vendors || []).length);
     setText('#healthExclusions', health.exclusions ?? 0);
-    setText('#healthRunwayDays', health.runwayDaysSaved ?? 0);
+    setText('#healthRunwayDays', (health.runwayDaysSaved ?? 0) + state.extendedDays);
 
     const log = $('#healthLog');
     if (log) {
@@ -613,7 +731,12 @@
     if (!toggle) return;
 
     toggle.addEventListener('change', () => {
+      const industryId = getActiveIndustryId();
+      const state = ensureActionState(industryId);
       const armed = toggle.checked;
+      const wasArmed = state.guardrailArmed;
+      state.guardrailArmed = armed;
+
       toggle.setAttribute('aria-checked', armed ? 'true' : 'false');
       $('#opsEngine')?.classList.toggle('panel--ops-engine-disarmed', !armed);
 
@@ -626,17 +749,23 @@
         if (badge) badge.textContent = badge.dataset.armedStatus || badge.textContent;
         if (meterFill) meterFill.style.width = meterFill.dataset.armedWidth || meterFill.style.width;
         if (meterValue) meterValue.textContent = meterValue.dataset.armedValue || meterValue.textContent;
+
+        if (!wasArmed) {
+          state.extendedDays += RUNWAY_EXTEND_STEP;
+          updatePredictiveRunwayCard(industryId, { flash: true });
+          showToast('Guardrail armed. Predictive runway extended.');
+        }
       } else {
         if (badge) {
-          badge.dataset.armedStatus = badge.textContent;
+          badge.dataset.armedStatus = badge.dataset.armedStatus || badge.textContent;
           badge.textContent = 'Disarmed';
         }
         if (meterFill) {
-          meterFill.dataset.armedWidth = meterFill.style.width;
+          meterFill.dataset.armedWidth = meterFill.dataset.armedWidth || meterFill.style.width;
           meterFill.style.width = '18%';
         }
         if (meterValue) {
-          meterValue.dataset.armedValue = meterValue.textContent;
+          meterValue.dataset.armedValue = meterValue.dataset.armedValue || meterValue.textContent;
           meterValue.textContent = '18%';
         }
         showOpsExposureAlert();
@@ -796,6 +925,7 @@
     logistics: {
       hint: 'Logistics & 3PL',
       badge: 'Fleet Asset Cost Cap: Active',
+      predictiveDays: 162,
       costs: ['WMS & Fleet Telematics', 'Route Optimization Tools', 'Cold-Chain Supply Tracking'],
       costEyebrows: ['Fleet systems', 'Network routing', 'Cold-chain'],
       metrics: {
@@ -866,6 +996,7 @@
     healthcare: {
       hint: 'Healthcare & Care Ops',
       badge: 'NDIS Compliance Billing Guardrails: Verified',
+      predictiveDays: 178,
       costs: ['NDIS Compliance Software', 'Roster & Care Platforms', 'Patient Data Management'],
       costEyebrows: ['Billing compliance', 'Care workforce', 'Clinical data'],
       metrics: {
@@ -936,6 +1067,7 @@
     ecommerce: {
       hint: 'E-commerce & Retail',
       badge: 'Ad Spend Attribution Guardrail: Enforced',
+      predictiveDays: 151,
       costs: ['Shopify Plugins & Apps', 'Ad Attribution Software', 'Logistics & Shipping Tech'],
       costEyebrows: ['Storefront apps', 'Growth media', 'Fulfillment'],
       metrics: {
@@ -1006,6 +1138,7 @@
     tech: {
       hint: 'Tech, AI & Cloud SaaS',
       badge: 'LLMOps Cost Override Protection: Enabled',
+      predictiveDays: 184,
       costs: ['AWS/Azure Cloud Compute', 'LLM API Usage (OpenAI/Anthropic)', 'CI/CD & DevOps Stack'],
       costEyebrows: ['Compute & infra', 'Model inference', 'Delivery systems'],
       metrics: {
@@ -1076,6 +1209,7 @@
     nonprofit: {
       hint: 'Non-Profits & Public Policy',
       badge: 'ACNC Grant Distribution Rule: Compliant',
+      predictiveDays: 196,
       costs: ['Grant Tracking Portals', 'Advocacy Toolkits', 'Donor Management CRMs'],
       costEyebrows: ['Grant systems', 'Policy advocacy', 'Donor relations'],
       metrics: {
@@ -1221,18 +1355,22 @@
       targets.forEach((el) => el.classList.add('industry-flash'));
 
       applyIndustryLabels(view);
-      renderVendorLedger(view.vendors);
-      renderOpsEngine(view);
-      renderSystemHealth(view);
+      renderVendorLedger(view.vendors, industryId);
+      renderOpsEngine(view, industryId);
+      renderSystemHealth(view, industryId);
+      updatePredictiveRunwayCard(industryId);
       guardrails?.setPolicies(view.policies);
       insights?.setIndustry(view);
 
       const badge = $('#opsEngineBadge');
       const meterFill = $('#opsEngineMeterFill');
       const meterValue = $('#opsEngineMeterValue');
+      const state = ensureActionState(industryId);
       if (badge) badge.dataset.armedStatus = view.engine?.status || 'Active';
       if (meterFill) meterFill.dataset.armedWidth = `${view.engine?.meter ?? 90}%`;
       if (meterValue) meterValue.dataset.armedValue = `${view.engine?.meter ?? 90}%`;
+      // Keep disarmed visuals if this vertical's guardrail was turned off earlier
+      if (!state.guardrailArmed && badge) badge.textContent = 'Disarmed';
 
       requestAnimationFrame(() => {
         targets.forEach((el) => el.classList.remove('industry-flash'));
