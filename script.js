@@ -503,6 +503,16 @@
   }
 
   // ─── Vendor Ledger ───────────────────────────────────────
+  function vendorInitials(name) {
+    return String(name || '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase();
+  }
+
   function renderVendorLedger(vendors) {
     const body = $('#vendorLedgerBody');
     const count = $('#vendorCount');
@@ -511,8 +521,13 @@
     body.innerHTML = (vendors || []).map((v) => `
       <tr>
         <td>
-          <div class="vendor-table__vendor">${v.vendor}</div>
-          <div class="vendor-table__system">${v.system}</div>
+          <div class="vendor-table__identity">
+            <span class="vendor-table__logo" aria-hidden="true">${vendorInitials(v.vendor)}</span>
+            <div>
+              <div class="vendor-table__vendor">${v.vendor}</div>
+              <div class="vendor-table__system">${v.system}</div>
+            </div>
+          </div>
         </td>
         <td><code class="vendor-table__input">${v.input}</code></td>
         <td>${v.costCenter}</td>
@@ -522,6 +537,113 @@
     `).join('');
 
     if (count) count.textContent = `${(vendors || []).length} systems`;
+  }
+
+  function showOpsExposureAlert() {
+    const alertEl = $('#opsExposureAlert');
+    if (!alertEl) return;
+    alertEl.hidden = false;
+    requestAnimationFrame(() => alertEl.classList.add('ops-exposure-alert--visible'));
+  }
+
+  function hideOpsExposureAlert() {
+    const alertEl = $('#opsExposureAlert');
+    if (!alertEl) return;
+    alertEl.classList.remove('ops-exposure-alert--visible');
+    setTimeout(() => { alertEl.hidden = true; }, 250);
+  }
+
+  function renderOpsEngine(view) {
+    const engine = view.engine || {};
+    const toggle = $('#opsEngineToggle');
+    const label = $('#opsEngineToggleLabel');
+    const hint = $('#opsEngineToggleHint');
+    const badge = $('#opsEngineBadge');
+    const meterValue = $('#opsEngineMeterValue');
+    const meterFill = $('#opsEngineMeterFill');
+    const signals = $('#opsEngineSignals');
+    const desc = $('#opsEngineDesc');
+
+    if (label) label.textContent = engine.toggle || 'Operational Guardrail';
+    if (hint) hint.textContent = engine.hint || 'Autonomous intercept while armed';
+    if (badge) badge.textContent = engine.status || 'Active';
+    if (desc) desc.textContent = engine.desc || 'Sector-specific capital protection controls';
+    if (meterValue) meterValue.textContent = `${engine.meter ?? 90}%`;
+    if (meterFill) meterFill.style.width = `${engine.meter ?? 90}%`;
+    if (toggle) {
+      toggle.checked = true;
+      toggle.setAttribute('aria-checked', 'true');
+    }
+    if (signals) {
+      signals.innerHTML = (engine.signals || []).map((s) => `
+        <li class="ops-engine__signal">
+          <span class="ops-engine__signal-dot" aria-hidden="true"></span>
+          <span>${s}</span>
+        </li>
+      `).join('');
+    }
+
+    hideOpsExposureAlert();
+    $('#opsEngine')?.classList.remove('panel--ops-engine-disarmed');
+  }
+
+  function renderSystemHealth(view) {
+    const health = view.health || {};
+    const setText = (id, value) => {
+      const el = $(id);
+      if (el) el.textContent = value;
+    };
+    setText('#healthVendors', health.vendors ?? (view.vendors || []).length);
+    setText('#healthExclusions', health.exclusions ?? 0);
+    setText('#healthRunwayDays', health.runwayDaysSaved ?? 0);
+
+    const log = $('#healthLog');
+    if (log) {
+      log.innerHTML = (health.log || []).map((line) => `
+        <div class="health-log__row">
+          <span class="health-log__time">${line.time}</span>
+          <span class="health-log__text">${line.text}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  function initOpsEngineToggle() {
+    const toggle = $('#opsEngineToggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('change', () => {
+      const armed = toggle.checked;
+      toggle.setAttribute('aria-checked', armed ? 'true' : 'false');
+      $('#opsEngine')?.classList.toggle('panel--ops-engine-disarmed', !armed);
+
+      const badge = $('#opsEngineBadge');
+      const meterFill = $('#opsEngineMeterFill');
+      const meterValue = $('#opsEngineMeterValue');
+
+      if (armed) {
+        hideOpsExposureAlert();
+        if (badge) badge.textContent = badge.dataset.armedStatus || badge.textContent;
+        if (meterFill) meterFill.style.width = meterFill.dataset.armedWidth || meterFill.style.width;
+        if (meterValue) meterValue.textContent = meterValue.dataset.armedValue || meterValue.textContent;
+      } else {
+        if (badge) {
+          badge.dataset.armedStatus = badge.textContent;
+          badge.textContent = 'Disarmed';
+        }
+        if (meterFill) {
+          meterFill.dataset.armedWidth = meterFill.style.width;
+          meterFill.style.width = '18%';
+        }
+        if (meterValue) {
+          meterValue.dataset.armedValue = meterValue.textContent;
+          meterValue.textContent = '18%';
+        }
+        showOpsExposureAlert();
+      }
+    });
+
+    $('#opsExposureAlertClose')?.addEventListener('click', hideOpsExposureAlert);
   }
 
   // ─── Live Metric Updates ─────────────────────────────────
@@ -694,15 +816,35 @@
         guardrailsTitle: 'Logistics Spend Guardrails',
         guardrailsDesc: 'Fleet, carrier, and warehouse expense policies',
         vendorsTitle: 'Connected Logistics Vendors',
-        vendorsDesc: 'Live telematics, carrier TMS, and WMS system feeds',
+        vendorsDesc: 'Live telematics, fleet, and WMS system feeds',
+      },
+      engine: {
+        toggle: 'Fleet Idle-Time Cost Cap',
+        status: 'Active',
+        hint: 'Blocks idle tractor and deadhead burn automatically',
+        desc: 'Fleet telematics capital protection controls',
+        meter: 91,
+        signals: [
+          'Idle-time interceptor scanning 428 assets',
+          'Cold-chain variance under 2.1°C threshold',
+          'Carrier settlement matched to lane budgets',
+        ],
+      },
+      health: {
+        vendors: 4,
+        exclusions: 17,
+        runwayDaysSaved: 9,
+        log: [
+          { time: '00:04', text: 'Teletrac Navman sync verified — 428 GPS uplinks' },
+          { time: '00:12', text: 'Excluded 6 zombie ELD seats from fleet bill' },
+          { time: '00:19', text: 'Manhattan WMS ASN matched · runway +0.3 days' },
+        ],
       },
       vendors: [
         { vendor: 'Teletrac Navman', system: 'Fleet Telematics', input: 'GPS ping · 4G uplink', costCenter: 'WMS & Fleet Telematics', spend: '$18.4K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Linfox Carrier Stack', system: 'Carrier TMS', input: 'EDI 214 status', costCenter: 'Route Optimization Tools', spend: '$42.1K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Verizon Connect Fleet', system: 'Fleet OS', input: 'ELD / CAN-bus feed', costCenter: 'Route Optimization Tools', spend: '$24.7K', status: 'Live', statusTone: 'live' },
         { vendor: 'Manhattan Associates WMS', system: 'Warehouse WMS', input: 'ASN / inventory feed', costCenter: 'WMS & Fleet Telematics', spend: '$67.8K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Thermo King Cold Chain', system: 'Reefer Monitoring', input: 'Temp sensor stream', costCenter: 'Cold-Chain Supply Tracking', spend: '$11.2K', status: 'Alert', statusTone: 'warn' },
-        { vendor: 'WiseTech CargoWise', system: 'Freight Forwarding', input: 'Customs declaration API', costCenter: 'Route Optimization Tools', spend: '$29.6K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Samsara Fleet OS', system: 'ELDs & Safety', input: 'CAN-bus / camera events', costCenter: 'WMS & Fleet Telematics', spend: '$15.9K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Cold-Chain Temp Trackers', system: 'Reefer Monitoring', input: 'Temp sensor stream', costCenter: 'Cold-Chain Supply Tracking', spend: '$11.2K', status: 'Alert', statusTone: 'warn' },
       ],
       policies: [
         { name: 'WMS & Fleet Telematics', limit: '$75K/mo', spent: 58400, cap: 75000, compliance: 96.4, status: 'active' },
@@ -714,10 +856,10 @@
       ],
       insights: [
         { type: 'save', icon: '💰', text: 'Renegotiated <strong>{{vendor0}}</strong> telematics seats: Saved <strong>$2,400/mo</strong>', tag: 'auto' },
-        { type: 'action', icon: '⚡', text: 'Auto-approved <strong>{{vendor1}}</strong> carrier settlement within Fleet Asset Cap', tag: 'auto' },
-        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor3}}</strong> cold-chain breach risk — reefer unit spend +12% WoW', tag: 'review' },
+        { type: 'action', icon: '⚡', text: 'Auto-approved <strong>{{vendor1}}</strong> settlement within Fleet Idle-Time Cap', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor3}}</strong> cold-chain breach risk — reefer spend +12% WoW', tag: 'review' },
         { type: 'optimize', icon: '📊', text: 'Lane consolidation via <strong>{{cost1}}</strong>: projected <strong>$18K</strong> monthly savings', tag: 'review' },
-        { type: 'save', icon: '💰', text: 'Idle tractor detected by <strong>{{vendor5}}</strong> — fuel burn cut <strong>$640</strong>', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Idle tractor detected by <strong>{{vendor1}}</strong> — fuel burn cut <strong>$640</strong>', tag: 'auto' },
         { type: 'action', icon: '⚡', text: 'Matched ASN from <strong>{{vendor2}}</strong> to PO #LFX-8841', tag: 'auto' },
       ],
     },
@@ -744,15 +886,35 @@
         guardrailsTitle: 'Healthcare Spend Guardrails',
         guardrailsDesc: 'NDIS, rostering, and clinical data expense policies',
         vendorsTitle: 'Connected Care Vendors',
-        vendorsDesc: 'Live NDIS, rostering, and patient-data system feeds',
+        vendorsDesc: 'Live practice, roster, and NDIS claim system feeds',
+      },
+      engine: {
+        toggle: 'NDIS Audit-Trail Safeguard',
+        status: 'Verified',
+        hint: 'Locks claim mutations to immutable audit trail',
+        desc: 'NDIS and care-ops capital protection controls',
+        meter: 97,
+        signals: [
+          'PRODA claim batch hash verified',
+          'Roster award rules within Fair Work bands',
+          'Participant plan budgets reconciled hourly',
+        ],
+      },
+      health: {
+        vendors: 4,
+        exclusions: 21,
+        runwayDaysSaved: 12,
+        log: [
+          { time: '00:03', text: 'Halaxy practice suite billing sync OK' },
+          { time: '00:11', text: 'Excluded 9 duplicate Deputy overtime claims' },
+          { time: '00:21', text: 'NDIS Claim Portal Connect · runway +0.4 days' },
+        ],
       },
       vendors: [
-        { vendor: 'ShiftCare Roster OS', system: 'Care Rostering', input: 'Award / shift feed', costCenter: 'Roster & Care Platforms', spend: '$22.7K', status: 'Live', statusTone: 'live' },
-        { vendor: 'SupportAbility NDIS', system: 'Plan Management', input: 'PRODA claim API', costCenter: 'NDIS Compliance Software', spend: '$31.4K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Cliniko PMS', system: 'Patient Records', input: 'FHIR R4 events', costCenter: 'Patient Data Management', spend: '$14.8K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Mable Marketplace', system: 'Support Worker Network', input: 'Timesheet webhooks', costCenter: 'Roster & Care Platforms', spend: '$48.2K', status: 'Live', statusTone: 'live' },
-        { vendor: 'HealthEngine Booking', system: 'Appointment Layer', input: 'Calendar sync', costCenter: 'Patient Data Management', spend: '$9.1K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'MediSecure Scripts', system: 'ePrescription', input: 'PBS claim feed', costCenter: 'NDIS Compliance Software', spend: '$6.4K', status: 'Review', statusTone: 'warn' },
+        { vendor: 'Halaxy Practice Suite', system: 'Practice Management', input: 'Invoice / Medicare feed', costCenter: 'Patient Data Management', spend: '$12.6K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Cliniko Care Engine', system: 'Clinical Records', input: 'FHIR R4 events', costCenter: 'Patient Data Management', spend: '$14.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Deputy Staff Roster', system: 'Care Rostering', input: 'Award / shift feed', costCenter: 'Roster & Care Platforms', spend: '$9.4K', status: 'Live', statusTone: 'live' },
+        { vendor: 'NDIS Claim Portal Connect', system: 'Plan Management', input: 'PRODA claim API', costCenter: 'NDIS Compliance Software', spend: '$31.4K', status: 'Verified', statusTone: 'live' },
       ],
       policies: [
         { name: 'NDIS Compliance Software', limit: '$45K/mo', spent: 33800, cap: 45000, compliance: 98.6, status: 'active' },
@@ -763,12 +925,12 @@
         { name: 'Clinical Consumables', limit: '$18K/mo', spent: 14200, cap: 18000, compliance: 91.8, status: 'warning' },
       ],
       insights: [
-        { type: 'action', icon: '⚡', text: 'Validated NDIS claim batch via <strong>{{vendor1}}</strong> — 142 line items cleared', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Validated NDIS claim batch via <strong>{{vendor3}}</strong> — 142 line items cleared', tag: 'auto' },
         { type: 'alert', icon: '⚠️', text: '<strong>{{cost0}}</strong> utilization at <strong>87%</strong> of monthly cap', tag: 'review' },
-        { type: 'save', icon: '💰', text: 'Duplicate roster shift blocked in <strong>{{vendor0}}</strong>: Saved <strong>$1,120</strong>', tag: 'auto' },
-        { type: 'optimize', icon: '📊', text: 'Care ratio optimization across <strong>{{vendor3}}</strong> network: +0.3 mo runway', tag: 'review' },
-        { type: 'action', icon: '⚡', text: 'FHIR sync from <strong>{{vendor2}}</strong> matched to participant plan budgets', tag: 'auto' },
-        { type: 'save', icon: '💰', text: 'Rejected non-compliant PBS claim from <strong>{{vendor5}}</strong>', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Duplicate roster shift blocked in <strong>{{vendor2}}</strong>: Saved <strong>$1,120</strong>', tag: 'auto' },
+        { type: 'optimize', icon: '📊', text: 'Care ratio optimization across <strong>{{vendor0}}</strong>: +0.3 mo runway', tag: 'review' },
+        { type: 'action', icon: '⚡', text: 'FHIR sync from <strong>{{vendor1}}</strong> matched to participant plan budgets', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Rejected non-compliant claim before <strong>{{vendor3}}</strong> submission', tag: 'auto' },
       ],
     },
     ecommerce: {
@@ -790,19 +952,39 @@
         chartTitle: 'Predictive 12-Month Merchant Liquidity',
         chartDesc: 'GMV settlement & ad-spend cash flow forecast',
         insightsTitle: 'Retail Growth Insights',
-        insightsDesc: 'Shopify, ads, and fulfillment agent actions',
+        insightsDesc: 'Shopify, ads, and support agent actions',
         guardrailsTitle: 'Retail Spend Guardrails',
         guardrailsDesc: 'Apps, attribution, and shipping expense policies',
         vendorsTitle: 'Connected Commerce Vendors',
-        vendorsDesc: 'Live storefront, ads, and shipping system feeds',
+        vendorsDesc: 'Live storefront, attribution, and helpdesk feeds',
+      },
+      engine: {
+        toggle: 'Zombie App Billing Interceptor',
+        status: 'Armed',
+        hint: 'Kills unused Shopify apps before renewal',
+        desc: 'Retail SaaS and media capital protection controls',
+        meter: 88,
+        signals: [
+          '14 zombie apps queued for intercept',
+          'TripleWhale ROAS floor enforced at 1.8x',
+          'Gorgias ticket macros within SLA budget',
+        ],
+      },
+      health: {
+        vendors: 4,
+        exclusions: 26,
+        runwayDaysSaved: 16,
+        log: [
+          { time: '00:02', text: 'Shopify Advanced App Stack — 41 apps inventoried' },
+          { time: '00:09', text: 'Excluded 11 zombie apps before billing cycle' },
+          { time: '00:18', text: 'Klaviyo + Gorgias sync · runway +0.5 days' },
+        ],
       },
       vendors: [
-        { vendor: 'Shopify Plus', system: 'Storefront Commerce', input: 'Order webhooks', costCenter: 'Shopify Plugins & Apps', spend: '$36.5K', status: 'Live', statusTone: 'live' },
-        { vendor: 'Klaviyo Lifecycle', system: 'CRM Automation', input: 'Event stream', costCenter: 'Shopify Plugins & Apps', spend: '$12.8K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Triple Whale', system: 'Ad Attribution', input: 'Pixel + SKAN', costCenter: 'Ad Attribution Software', spend: '$8.9K', status: 'Live', statusTone: 'live' },
-        { vendor: 'Meta Ads Manager', system: 'Paid Social', input: 'Campaign spend API', costCenter: 'Ad Attribution Software', spend: '$124.0K', status: 'Capped', statusTone: 'warn' },
-        { vendor: 'ShipStation', system: 'Multi-carrier Shipping', input: 'Rate shop feed', costCenter: 'Logistics & Shipping Tech', spend: '$19.4K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Amazon Seller Central', system: 'Marketplace', input: 'Settlement reports', costCenter: 'Logistics & Shipping Tech', spend: '$54.2K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Shopify Advanced App Stack', system: 'Storefront Commerce', input: 'Order webhooks', costCenter: 'Shopify Plugins & Apps', spend: '$36.5K', status: 'Live', statusTone: 'live' },
+        { vendor: 'Klaviyo Marketing Automation', system: 'Lifecycle CRM', input: 'Event stream', costCenter: 'Shopify Plugins & Apps', spend: '$12.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'TripleWhale Attribution', system: 'Ad Attribution', input: 'Pixel + SKAN', costCenter: 'Ad Attribution Software', spend: '$8.9K', status: 'Armed', statusTone: 'live' },
+        { vendor: 'Gorgias Support Helpdesk', system: 'CX Helpdesk', input: 'Ticket / MAC feed', costCenter: 'Logistics & Shipping Tech', spend: '$7.2K', status: 'Live', statusTone: 'live' },
       ],
       policies: [
         { name: 'Shopify Plugins & Apps', limit: '$55K/mo', spent: 42800, cap: 55000, compliance: 96.0, status: 'active' },
@@ -813,12 +995,12 @@
         { name: 'Returns & Reverse Logistics', limit: '$30K/mo', spent: 21400, cap: 30000, compliance: 95.3, status: 'active' },
       ],
       insights: [
-        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor3}}</strong> hit attribution guardrail — ROAS below 1.8x', tag: 'review' },
-        { type: 'save', icon: '💰', text: 'Paused duplicate Shopify app via <strong>{{vendor0}}</strong>: Saved <strong>$890/mo</strong>', tag: 'auto' },
-        { type: 'action', icon: '⚡', text: 'Auto-reconciled <strong>{{vendor5}}</strong> settlement to cash position', tag: 'auto' },
-        { type: 'optimize', icon: '📊', text: 'Carrier mix shift in <strong>{{vendor4}}</strong>: −11% shipping cost', tag: 'review' },
-        { type: 'save', icon: '💰', text: 'Klaviyo flow consolidation cut <strong>{{cost0}}</strong> seats 14%', tag: 'auto' },
-        { type: 'action', icon: '⚡', text: 'Triple Whale anomaly cleared for <strong>{{cost1}}</strong> spend spike', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor2}}</strong> hit attribution floor — ROAS below 1.8x', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Paused duplicate apps via <strong>{{vendor0}}</strong>: Saved <strong>$890/mo</strong>', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Auto-triaged spike tickets in <strong>{{vendor3}}</strong> within SLA', tag: 'auto' },
+        { type: 'optimize', icon: '📊', text: 'Klaviyo flow consolidation cut <strong>{{cost0}}</strong> seats 14%', tag: 'review' },
+        { type: 'save', icon: '💰', text: 'Zombie interceptor blocked renewal on unused <strong>{{vendor0}}</strong> add-on', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'TripleWhale anomaly cleared for <strong>{{cost1}}</strong> spend spike', tag: 'auto' },
       ],
     },
     tech: {
@@ -840,19 +1022,39 @@
         chartTitle: 'Predictive 12-Month Cloud Liquidity',
         chartDesc: 'Compute, LLM, and SaaS cash flow with confidence bands',
         insightsTitle: 'FinOps & LLMOps Insights',
-        insightsDesc: 'Cloud, model, and pipeline agent actions',
+        insightsDesc: 'Cloud, model, and observability agent actions',
         guardrailsTitle: 'Cloud & LLM Spend Guardrails',
         guardrailsDesc: 'Compute, inference, and DevOps expense policies',
         vendorsTitle: 'Connected System Vendors',
-        vendorsDesc: 'Live SaaS, cloud, and LLM vendor feeds for Tech / AI ops',
+        vendorsDesc: 'Live cloud, LLM, and FinOps vendor feeds',
+      },
+      engine: {
+        toggle: 'LLM API Token Budget Spike Interceptor',
+        status: 'Caps Enabled',
+        hint: 'Hard-caps token burn across OpenAI & Anthropic pools',
+        desc: 'Cloud and LLMOps capital protection controls',
+        meter: 94,
+        signals: [
+          'OpenAI pool under soft cap · 72% utilized',
+          'Anthropic staging keys rate-limited',
+          'Datadog FinOps suite indexing rightsized',
+        ],
+      },
+      health: {
+        vendors: 4,
+        exclusions: 22,
+        runwayDaysSaved: 14,
+        log: [
+          { time: '00:01', text: 'AWS EC2 Cluster Compute telemetry healthy' },
+          { time: '00:08', text: 'Excluded 3 orphan GPU nodes from invoice' },
+          { time: '00:16', text: 'Token spike interceptor armed · runway +0.4 days' },
+        ],
       },
       vendors: [
+        { vendor: 'AWS EC2 Cluster Compute', system: 'Cloud Compute', input: 'CloudWatch metrics', costCenter: 'AWS/Azure Cloud Compute', spend: '$142.5K', status: 'Synced', statusTone: 'live' },
         { vendor: 'OpenAI API Token Pool', system: 'LLM Inference', input: 'Token usage meter', costCenter: 'LLM API Usage (OpenAI/Anthropic)', spend: '$86.2K', status: 'Live', statusTone: 'live' },
-        { vendor: 'AWS EC2 Cluster', system: 'Cloud Compute', input: 'CloudWatch metrics', costCenter: 'AWS/Azure Cloud Compute', spend: '$142.5K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Datadog Monitoring', system: 'Observability', input: 'APM / log ingest', costCenter: 'CI/CD & DevOps Stack', spend: '$27.4K', status: 'Live', statusTone: 'live' },
         { vendor: 'Anthropic Claude API', system: 'LLM Inference', input: 'Token usage meter', costCenter: 'LLM API Usage (OpenAI/Anthropic)', spend: '$41.8K', status: 'Protected', statusTone: 'live' },
-        { vendor: 'GitHub Actions', system: 'CI/CD Pipelines', input: 'Workflow minutes', costCenter: 'CI/CD & DevOps Stack', spend: '$9.6K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Azure Cosmos DB', system: 'Managed Data', input: 'RU / storage feed', costCenter: 'AWS/Azure Cloud Compute', spend: '$18.1K', status: 'Review', statusTone: 'warn' },
+        { vendor: 'Datadog FinOps Suite', system: 'Observability', input: 'APM / cost ingest', costCenter: 'CI/CD & DevOps Stack', spend: '$27.4K', status: 'Live', statusTone: 'live' },
       ],
       policies: [
         { name: 'AWS/Azure Cloud Compute', limit: '$200K/mo', spent: 178400, cap: 200000, compliance: 89.2, status: 'warning' },
@@ -863,12 +1065,12 @@
         { name: 'Contractor Engineering', limit: '$80K/mo', spent: 54200, cap: 80000, compliance: 94.0, status: 'active' },
       ],
       insights: [
-        { type: 'save', icon: '💰', text: 'Rightsized idle <strong>{{vendor1}}</strong> instances: Saved <strong>$6,200/mo</strong>', tag: 'auto' },
-        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor0}}</strong> token burn approaching LLMOps override threshold', tag: 'review' },
-        { type: 'action', icon: '⚡', text: 'Enforced rate limit on <strong>{{vendor3}}</strong> staging keys', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Rightsized idle <strong>{{vendor0}}</strong> instances: Saved <strong>$6,200/mo</strong>', tag: 'auto' },
+        { type: 'alert', icon: '⚠️', text: '<strong>{{vendor1}}</strong> token burn approaching LLMOps override threshold', tag: 'review' },
+        { type: 'action', icon: '⚡', text: 'Enforced rate limit on <strong>{{vendor2}}</strong> staging keys', tag: 'auto' },
         { type: 'optimize', icon: '📊', text: 'Reserved capacity purchase for <strong>{{cost0}}</strong>: −18% unit cost', tag: 'review' },
-        { type: 'save', icon: '💰', text: 'Deduplicated <strong>{{vendor2}}</strong> log indexes: Saved <strong>$1,840/mo</strong>', tag: 'auto' },
-        { type: 'action', icon: '⚡', text: 'Pipeline spend matched to <strong>{{vendor4}}</strong> workflow budget', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Deduplicated <strong>{{vendor3}}</strong> log indexes: Saved <strong>$1,840/mo</strong>', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Spike interceptor held <strong>{{vendor1}}</strong> under monthly token budget', tag: 'auto' },
       ],
     },
     nonprofit: {
@@ -894,15 +1096,35 @@
         guardrailsTitle: 'Nonprofit Spend Guardrails',
         guardrailsDesc: 'Grant, advocacy, and donor CRM expense policies',
         vendorsTitle: 'Connected Mission Vendors',
-        vendorsDesc: 'Live grant, advocacy, and donor CRM system feeds',
+        vendorsDesc: 'Live ACNC, grant, CRM, and donor system feeds',
+      },
+      engine: {
+        toggle: 'ACNC Restricted Grant Allocator',
+        status: 'Compliant',
+        hint: 'Routes restricted funds only to approved program codes',
+        desc: 'Nonprofit and policy capital protection controls',
+        meter: 96,
+        signals: [
+          'Restricted class codes reconciled to ACNC rules',
+          'GrantTracker milestones within drawdown schedule',
+          'Stripe Donor Connect fees under 2.9% band',
+        ],
+      },
+      health: {
+        vendors: 4,
+        exclusions: 14,
+        runwayDaysSaved: 8,
+        log: [
+          { time: '00:05', text: 'ACNC Compliance Portal attestation current' },
+          { time: '00:13', text: 'Excluded 4 ineligible advocacy line items' },
+          { time: '00:22', text: 'GrantTracker + Donor Connect · runway +0.3 days' },
+        ],
       },
       vendors: [
-        { vendor: 'SmartyGrants Portal', system: 'Grant Tracking', input: 'Milestone reports', costCenter: 'Grant Tracking Portals', spend: '$7.8K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Salesforce NPSP', system: 'Donor CRM', input: 'Gift / pledge feed', costCenter: 'Donor Management CRMs', spend: '$16.4K', status: 'Live', statusTone: 'live' },
-        { vendor: 'EveryAction Advocacy', system: 'Campaign Tooling', input: 'Petition / email events', costCenter: 'Advocacy Toolkits', spend: '$5.2K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Xero Restricted Funds', system: 'Fund Accounting', input: 'Class / tracking codes', costCenter: 'Grant Tracking Portals', spend: '$3.9K', status: 'Live', statusTone: 'live' },
-        { vendor: 'Classy Fundraising', system: 'Online Giving', input: 'Donation webhooks', costCenter: 'Donor Management CRMs', spend: '$4.6K', status: 'Synced', statusTone: 'live' },
-        { vendor: 'Quorum Policy Intel', system: 'Legislative Tracking', input: 'Bill watch API', costCenter: 'Advocacy Toolkits', spend: '$2.8K', status: 'Review', statusTone: 'warn' },
+        { vendor: 'ACNC Compliance Portal', system: 'Charity Compliance', input: 'AIS / attestation feed', costCenter: 'Grant Tracking Portals', spend: '$2.1K', status: 'Compliant', statusTone: 'live' },
+        { vendor: 'Salesforce Non-Profit CRM', system: 'Donor CRM', input: 'Gift / pledge feed', costCenter: 'Donor Management CRMs', spend: '$16.4K', status: 'Live', statusTone: 'live' },
+        { vendor: 'GrantTracker Dashboard', system: 'Grant Tracking', input: 'Milestone reports', costCenter: 'Grant Tracking Portals', spend: '$7.8K', status: 'Synced', statusTone: 'live' },
+        { vendor: 'Stripe Donor Connect', system: 'Online Giving', input: 'Donation webhooks', costCenter: 'Donor Management CRMs', spend: '$4.6K', status: 'Live', statusTone: 'live' },
       ],
       policies: [
         { name: 'Grant Tracking Portals', limit: '$15K/mo', spent: 11200, cap: 15000, compliance: 99.4, status: 'active' },
@@ -913,12 +1135,12 @@
         { name: 'Event & Gala Ops', limit: '$35K/qtr', spent: 28600, cap: 35000, compliance: 94.1, status: 'active' },
       ],
       insights: [
-        { type: 'action', icon: '⚡', text: 'ACNC rule check passed for <strong>{{vendor0}}</strong> milestone drawdown', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'ACNC rule check passed for <strong>{{vendor0}}</strong> attestation window', tag: 'auto' },
         { type: 'save', icon: '💰', text: 'Merged duplicate donor records in <strong>{{vendor1}}</strong>: Saved <strong>$420/mo</strong>', tag: 'auto' },
-        { type: 'alert', icon: '⚠️', text: 'Restricted fund variance flagged in <strong>{{vendor3}}</strong> class codes', tag: 'review' },
+        { type: 'alert', icon: '⚠️', text: 'Restricted fund variance flagged in <strong>{{vendor2}}</strong> milestones', tag: 'review' },
         { type: 'optimize', icon: '📊', text: 'Advocacy channel mix via <strong>{{cost1}}</strong>: +9% petition conversion', tag: 'review' },
-        { type: 'action', icon: '⚡', text: 'Matched Classy gift to campaign budget in <strong>{{vendor4}}</strong>', tag: 'auto' },
-        { type: 'save', icon: '💰', text: 'Blocked unbudgeted Quorum seat expansion under ACNC rule', tag: 'auto' },
+        { type: 'action', icon: '⚡', text: 'Matched Stripe gift to campaign budget in <strong>{{vendor3}}</strong>', tag: 'auto' },
+        { type: 'save', icon: '💰', text: 'Blocked unbudgeted disbursement under ACNC allocator', tag: 'auto' },
       ],
     },
   };
@@ -976,8 +1198,10 @@
       $('#metricsBlock'),
       $('#costCenters'),
       $('#vendorLedger'),
+      $('#simOpsRow'),
       $('#guardrailsGrid'),
       $('#insightsStream'),
+      $('#systemHealth'),
     ].filter(Boolean);
 
     let activeIndustry = 'tech';
@@ -998,8 +1222,17 @@
 
       applyIndustryLabels(view);
       renderVendorLedger(view.vendors);
+      renderOpsEngine(view);
+      renderSystemHealth(view);
       guardrails?.setPolicies(view.policies);
       insights?.setIndustry(view);
+
+      const badge = $('#opsEngineBadge');
+      const meterFill = $('#opsEngineMeterFill');
+      const meterValue = $('#opsEngineMeterValue');
+      if (badge) badge.dataset.armedStatus = view.engine?.status || 'Active';
+      if (meterFill) meterFill.dataset.armedWidth = `${view.engine?.meter ?? 90}%`;
+      if (meterValue) meterValue.dataset.armedValue = `${view.engine?.meter ?? 90}%`;
 
       requestAnimationFrame(() => {
         targets.forEach((el) => el.classList.remove('industry-flash'));
@@ -1034,6 +1267,7 @@
     initMobileNav();
     initViewRouter(chart);
     initIndustryView(guardrails, insights);
+    initOpsEngineToggle();
     initReportModal();
     initExportButton();
     initAddPolicyButton(guardrails);

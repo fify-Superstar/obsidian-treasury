@@ -102,6 +102,15 @@
         </button>
       </aside>
 
+      <!-- Ops exposure unprotected alert -->
+      <aside class="ops-exposure-alert" id="opsExposureAlert" hidden role="alert" aria-live="assertive">
+        <div class="ops-exposure-alert__inner">
+          <span class="ops-exposure-alert__icon" aria-hidden="true">⚠</span>
+          <p class="ops-exposure-alert__text" id="opsExposureAlertText">Warning: Operational capital exposure unprotected!</p>
+          <button type="button" class="ops-exposure-alert__close" id="opsExposureAlertClose" aria-label="Dismiss exposure warning">×</button>
+        </div>
+      </aside>
+
       <!-- Command Center View -->
       <div class="view-panel view-panel--active" id="view-command-center" data-view-panel="command-center">
 
@@ -307,8 +316,8 @@
         </div>
       </section>
 
-      <!-- Primary Grid -->
-      <div class="dashboard-grid">
+      <!-- Primary simulation row: analytics + guardrail engine -->
+      <div class="sim-ops-row" id="simOpsRow">
         <!-- Liquidity Chart -->
         <section class="panel panel--chart" aria-label="Predictive liquidity forecast">
           <div class="panel__header">
@@ -339,6 +348,73 @@
           </div>
         </section>
 
+        <div class="sim-ops-rail">
+          <!-- Operational Guardrail Engine -->
+          <section class="panel panel--ops-engine" id="opsEngine" aria-label="Operational Guardrail Engine">
+            <div class="panel__header">
+              <div>
+                <h2 class="panel__title">Operational Guardrail Engine</h2>
+                <p class="panel__desc" id="opsEngineDesc">Sector-specific capital protection controls</p>
+              </div>
+              <span class="ops-engine__badge" id="opsEngineBadge">Caps Enabled</span>
+            </div>
+            <div class="ops-engine__toggle-row">
+              <div class="ops-engine__toggle-copy">
+                <span class="ops-engine__toggle-label" id="opsEngineToggleLabel">LLM API Token Budget Spike Interceptor</span>
+                <span class="ops-engine__toggle-hint" id="opsEngineToggleHint">Autonomous intercept while armed</span>
+              </div>
+              <label class="ops-switch">
+                <input type="checkbox" id="opsEngineToggle" checked>
+                <span class="ops-switch__track" aria-hidden="true"><span class="ops-switch__thumb"></span></span>
+                <span class="visually-hidden">Toggle operational guardrail</span>
+              </label>
+            </div>
+            <div class="ops-engine__meter">
+              <div class="ops-engine__meter-head">
+                <span>Threat Intercept Meter</span>
+                <span id="opsEngineMeterValue">94%</span>
+              </div>
+              <div class="ops-engine__meter-track">
+                <div class="ops-engine__meter-fill" id="opsEngineMeterFill" style="width: 94%"></div>
+              </div>
+            </div>
+            <ul class="ops-engine__signals" id="opsEngineSignals">
+              <!-- Populated by script.js -->
+            </ul>
+          </section>
+
+          <!-- System Health Summary -->
+          <section class="panel panel--health" id="systemHealth" aria-label="System Health Summary">
+            <div class="panel__header">
+              <div>
+                <h2 class="panel__title">System Health Summary</h2>
+                <p class="panel__desc">Live operational audit for the active vertical</p>
+              </div>
+              <span class="health-pulse" aria-hidden="true"></span>
+            </div>
+            <div class="health-grid">
+              <article class="health-stat">
+                <span class="health-stat__label">Active Vendor Connections</span>
+                <span class="health-stat__value" id="healthVendors">4</span>
+              </article>
+              <article class="health-stat">
+                <span class="health-stat__label">Automated Cost Exclusions</span>
+                <span class="health-stat__value" id="healthExclusions">22</span>
+              </article>
+              <article class="health-stat health-stat--accent">
+                <span class="health-stat__label">Runway Days Saved This Month</span>
+                <span class="health-stat__value" id="healthRunwayDays">14</span>
+              </article>
+            </div>
+            <div class="health-log" id="healthLog" role="log" aria-live="polite">
+              <!-- Populated by script.js -->
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Primary Grid -->
+      <div class="dashboard-grid">
         <!-- AI Insights Stream -->
         <section class="panel panel--insights" aria-label="Autonomous AI insights">
           <div class="panel__header">
