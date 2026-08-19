@@ -97,9 +97,15 @@
             margin-top: 0.2rem;
             opacity: 0.85;
         }
+        /* Header Control Actions Wrapper */
+        .header-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
         .live-status-pill {
             background: rgba(0, 255, 204, 0.04);
-            border: 1px solid rgba(0, 255, 204, 0.2);
+            border: 1px solid rgba(0, 255, 204, 0.15);
             color: #00ffcc;
             padding: 0.4rem 0.85rem;
             border-radius: 100px;
@@ -118,6 +124,27 @@
             border-radius: 50%;
             box-shadow: 0 0 10px #00ffcc;
             animation: corePulse 2.5s infinite;
+        }
+        /* Premium Nav Dashboard Button styling matching Stripe/Brex frameworks */
+        .header-dashboard-link {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            padding: 0.4rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .header-dashboard-link:hover {
+            border-color: #00ffcc;
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.02);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
         }
         @keyframes corePulse {
             0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.6); }
@@ -401,6 +428,13 @@
             }
         }
         @media (max-width: 600px) {
+            .header-actions-group {
+                gap: 0.5rem;
+            }
+            .header-dashboard-link {
+                padding: 0.35rem 0.75rem;
+                font-size: 0.68rem;
+            }
             .action-flex-input-row {
                 flex-direction: column;
             }
@@ -440,8 +474,11 @@
                     <span class="brand-subtitle">Capital Efficiency Architecture</span>
                 </div>
             </a>
-            <div class="live-status-pill">
-                <span class="pulse-core"></span>Active Onboarding
+            <div class="header-actions-group">
+                <div class="live-status-pill">
+                    <span class="pulse-core"></span>Active Onboarding
+                </div>
+                <a href="#" class="header-dashboard-link" onclick="triggerDashboardNotice(); return false;">Client Login</a>
             </div>
         </header>
         <!-- Main Dynamic Content -->
@@ -521,15 +558,33 @@
     <script>
         function executeAppFormTransmission(event) {
             event.preventDefault();
-
             const emailInputEl = document.getElementById('appProspectEmail');
             const feedbackPanelEl = document.getElementById('appSuccessAlert');
-            const formEl = document.getElementById('appOnboardingForm');
-
-            if (!emailInputEl.value.trim()) return;
-
-            formEl.style.display = 'none';
-            feedbackPanelEl.style.display = 'block';
+            const submitButtonEl = document.querySelector('.portal-action-btn');
+            const formInputGroupEl = document.querySelector('.action-flex-input-row');
+            if (emailInputEl.value) {
+                submitButtonEl.disabled = true;
+                submitButtonEl.style.opacity = '0.4';
+                submitButtonEl.innerText = 'Verifying...';
+                setTimeout(() => {
+                    formInputGroupEl.style.display = 'none';
+                    feedbackPanelEl.style.display = 'block';
+                }, 750);
+            }
+        }
+        function triggerDashboardNotice() {
+            const formCard = document.querySelector('.portal-entry-card');
+            const emailInput = document.getElementById('appProspectEmail');
+            formCard.style.borderColor = '#00ffcc';
+            formCard.style.boxShadow = '0 0 30px rgba(0, 255, 204, 0.2)';
+            if (emailInput) {
+                emailInput.focus();
+                emailInput.placeholder = 'Enter email to unlock dashboard access...';
+            }
+            setTimeout(() => {
+                formCard.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                formCard.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+            }, 3000);
         }
     </script>
 </body>
