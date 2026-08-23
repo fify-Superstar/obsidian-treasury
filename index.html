@@ -146,6 +146,20 @@
             background: rgba(0, 255, 204, 0.02);
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
         }
+        .header-demo-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.28rem 0.65rem;
+            border-radius: 100px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #06090e;
+            background: #00ffcc;
+            box-shadow: 0 0 14px rgba(0, 255, 204, 0.35);
+            white-space: nowrap;
+        }
         @keyframes corePulse {
             0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.6); }
             70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(0, 255, 204, 0); }
@@ -154,7 +168,7 @@
         /* Main Centerpiece Layout Container */
         .main-app-content {
             text-align: center;
-            max-width: 850px;
+            max-width: 960px;
             margin: 3.5rem auto;
             width: 100%;
         }
@@ -273,96 +287,195 @@
             color: #00ffcc;
             font-weight: 700;
         }
-        /* Interactive Portal Entry Box */
-        .portal-entry-card {
-            max-width: 540px;
+        /* Working Capital Dashboard Demo */
+        #live-dashboard-preview {
+            max-width: 920px;
             margin: 0 auto;
-            background: rgba(10, 15, 22, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2.2rem;
-            border-radius: 14px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: left;
+            scroll-margin-top: 2rem;
+            background: #0b0f19;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 1.75rem 1.75rem 1.5rem;
+            box-shadow:
+                0 0 0 1px rgba(0, 255, 204, 0.04),
+                0 28px 60px -20px rgba(0, 0, 0, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
         }
-        .portal-headline {
+        #live-dashboard-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffcc, transparent);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+        .dash-preview__header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.15rem;
+            border-bottom: 1px solid #1e293b;
+        }
+        .dash-preview__eyebrow {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #00ffcc;
+            margin-bottom: 0.35rem;
+        }
+        .dash-preview__title {
             font-size: 1.15rem;
             font-weight: 800;
-            color: #ffffff;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
-            margin-bottom: 0.4rem;
+            color: #ffffff;
         }
-        .portal-description {
-            font-size: 0.88rem;
+        .dash-preview__subtitle {
+            margin-top: 0.35rem;
+            font-size: 0.82rem;
             color: #64748b;
-            margin-bottom: 1.5rem;
+            max-width: 36rem;
         }
-        .action-flex-input-row {
-            display: flex;
-            gap: 0.6rem;
-        }
-        .portal-text-input {
-            flex-grow: 1;
-            background: #121824;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 0.9rem 1.1rem;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.25s ease;
-        }
-        .portal-text-input:focus {
-            border-color: #00ffcc;
-            box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.1);
-        }
-        .portal-action-btn {
-            background: #00ffcc;
-            color: #06090e;
+        .dash-preview__live {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 100px;
+            border: 1px solid rgba(0, 255, 204, 0.22);
+            background: rgba(0, 255, 204, 0.05);
+            color: #00ffcc;
+            font-size: 0.68rem;
             font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            padding: 0.9rem 1.6rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.25s ease;
             white-space: nowrap;
         }
-        .portal-action-btn:hover {
-            background: #33ffdd;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.35);
+        .dash-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.9rem;
+            margin-bottom: 1.5rem;
         }
-        /* Form Feedback Interface Block */
-        .form-feedback-panel {
-            display: none;
-            background: rgba(0, 255, 204, 0.03);
-            border: 1px solid rgba(0, 255, 204, 0.2);
-            border-radius: 8px;
-            padding: 1.2rem;
-            text-align: left;
-            animation: slideUpClear 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .dash-metric-card {
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.95), rgba(11, 15, 25, 0.98));
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 1.1rem 1.15rem;
+            min-width: 0;
         }
-        .feedback-title-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #00ffcc;
+        .dash-metric-card__label {
+            font-size: 0.68rem;
             font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 0.3rem;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 0.55rem;
+        }
+        .dash-metric-card__value {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.15;
+        }
+        .dash-metric-card__value--mint {
+            color: #00ffcc;
+            text-shadow: 0 0 18px rgba(0, 255, 204, 0.25);
+        }
+        .dash-metric-card__hint {
+            margin-top: 0.45rem;
+            font-size: 0.72rem;
+            color: #475569;
+            line-height: 1.35;
+        }
+        .dash-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.1rem;
+            padding: 1.15rem;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            background: rgba(15, 23, 42, 0.45);
+        }
+        .dash-control {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            min-width: 0;
+        }
+        .dash-control__top {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+        .dash-control__label {
+            font-size: 0.78rem;
+            font-weight: 700;
             letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #cbd5e1;
         }
-        .feedback-body-text {
-            font-size: 0.88rem;
-            color: #94a3b8;
-            line-height: 1.5;
+        .dash-control__readout {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #00ffcc;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
-        @keyframes slideUpClear {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+        .dash-control__range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #1e293b, #334155);
+            outline: none;
+            cursor: pointer;
+        }
+        .dash-control__range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00ffcc;
+            border: 2px solid #0b0f19;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.55);
+            cursor: pointer;
+        }
+        .dash-control__range::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00ffcc;
+            border: 2px solid #0b0f19;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.55);
+            cursor: pointer;
+        }
+        .dash-control__meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.68rem;
+            color: #475569;
+            letter-spacing: 0.02em;
+        }
+        .dash-preview__footer {
+            margin-top: 1rem;
+            font-size: 0.72rem;
+            color: #475569;
+            letter-spacing: 0.02em;
         }
         /* Bottom Disclosure Footer Layer */
         footer {
@@ -426,6 +539,13 @@
             .main-app-content {
                 margin: 2rem auto;
             }
+            .dash-metrics-grid,
+            .dash-controls {
+                grid-template-columns: 1fr;
+            }
+            #live-dashboard-preview {
+                padding: 1.25rem;
+            }
         }
         @media (max-width: 600px) {
             .header-actions-group {
@@ -435,11 +555,8 @@
                 padding: 0.35rem 0.75rem;
                 font-size: 0.68rem;
             }
-            .action-flex-input-row {
-                flex-direction: column;
-            }
-            .portal-action-btn {
-                width: 100%;
+            .header-demo-badge {
+                display: none;
             }
             footer {
                 flex-direction: column;
@@ -478,7 +595,8 @@
                 <div class="live-status-pill">
                     <span class="pulse-core"></span>Active Onboarding
                 </div>
-                <a href="#" class="header-dashboard-link" onclick="triggerDashboardNotice(); return false;">Client Login</a>
+                <a href="#live-dashboard-preview" class="header-dashboard-link">Client Login</a>
+                <span class="header-demo-badge">(Instant Demo)</span>
             </div>
         </header>
         <!-- Main Dynamic Content -->
@@ -523,27 +641,76 @@
                     </ul>
                 </div>
             </div>
-            <div class="portal-entry-card">
-                <h4 class="portal-headline">Ready to Scale?</h4>
-                <p class="portal-description">Enter your professional finance email to initiate a swift baseline ledger parameter check.</p>
-                <form id="appOnboardingForm" onsubmit="executeAppFormTransmission(event)">
-                    <div class="action-flex-input-row">
-                        <input type="email" id="appProspectEmail" class="portal-text-input" placeholder="cfo@companyname.com.au" required>
-                        <button type="submit" class="portal-action-btn">Get Started</button>
+            <section id="live-dashboard-preview" aria-label="Working Capital Dashboard Demo">
+                <div class="dash-preview__header">
+                    <div>
+                        <div class="dash-preview__eyebrow">Working Capital Dashboard</div>
+                        <h3 class="dash-preview__title">Live Ledger Calibration Demo</h3>
+                        <p class="dash-preview__subtitle">Drag DSO and payable terms to simulate trapped cash release, unlocked liquidity, and runway extension in real time.</p>
                     </div>
-                </form>
-                <div id="appSuccessAlert" class="form-feedback-panel">
-                    <div class="feedback-title-row">
-                        <svg style="width:18px;height:18px;fill:currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Baseline Request Verified
+                    <div class="dash-preview__live"><span class="pulse-core"></span>Instant Demo</div>
+                </div>
+
+                <div class="dash-metrics-grid">
+                    <article class="dash-metric-card">
+                        <div class="dash-metric-card__label">Trapped Cash</div>
+                        <div class="dash-metric-card__value" id="metricTrappedCash">$750K</div>
+                        <div class="dash-metric-card__hint">Days overdue × $15,000 baseline</div>
+                    </article>
+                    <article class="dash-metric-card">
+                        <div class="dash-metric-card__label">Available Working Capital</div>
+                        <div class="dash-metric-card__value dash-metric-card__value--mint" id="metricAvailableWC">$420K</div>
+                        <div class="dash-metric-card__hint">Cash buffer + unlocked capital</div>
+                    </article>
+                    <article class="dash-metric-card">
+                        <div class="dash-metric-card__label">Runway Extension</div>
+                        <div class="dash-metric-card__value" id="metricRunwayDays">+18 Days</div>
+                        <div class="dash-metric-card__hint">Liquidity days recovered</div>
+                    </article>
+                </div>
+
+                <div class="dash-controls">
+                    <div class="dash-control">
+                        <div class="dash-control__top">
+                            <label class="dash-control__label" for="sliderDso">Days Sales Outstanding (DSO)</label>
+                            <span class="dash-control__readout" id="readoutDso">65 days</span>
+                        </div>
+                        <input
+                            type="range"
+                            id="sliderDso"
+                            class="dash-control__range"
+                            min="15"
+                            max="90"
+                            value="65"
+                            step="1"
+                            aria-valuemin="15"
+                            aria-valuemax="90"
+                            aria-valuenow="65"
+                        >
+                        <div class="dash-control__meta"><span>15 days</span><span>90 days</span></div>
                     </div>
-                    <div class="feedback-body-text">
-                        Your corporate access request has been securely logged. An infrastructure analyst will cross-reference your distribution networks and contact you via your secure endpoint within one business hour.
+                    <div class="dash-control">
+                        <div class="dash-control__top">
+                            <label class="dash-control__label" for="sliderAp">Accounts Payable Extension</label>
+                            <span class="dash-control__readout" id="readoutAp">45 days</span>
+                        </div>
+                        <input
+                            type="range"
+                            id="sliderAp"
+                            class="dash-control__range"
+                            min="30"
+                            max="90"
+                            value="45"
+                            step="1"
+                            aria-valuemin="30"
+                            aria-valuemax="90"
+                            aria-valuenow="45"
+                        >
+                        <div class="dash-control__meta"><span>30 days</span><span>90 days</span></div>
                     </div>
                 </div>
-            </div>
+                <p class="dash-preview__footer">Illustrative simulation only · ledger parameters recalibrate on each slider input</p>
+            </section>
         </main>
         <footer>
             <div class="footer-copyright">
@@ -556,36 +723,66 @@
         </footer>
     </div>
     <script>
-        function executeAppFormTransmission(event) {
-            event.preventDefault();
-            const emailInputEl = document.getElementById('appProspectEmail');
-            const feedbackPanelEl = document.getElementById('appSuccessAlert');
-            const submitButtonEl = document.querySelector('.portal-action-btn');
-            const formInputGroupEl = document.querySelector('.action-flex-input-row');
-            if (emailInputEl.value) {
-                submitButtonEl.disabled = true;
-                submitButtonEl.style.opacity = '0.4';
-                submitButtonEl.innerText = 'Verifying...';
-                setTimeout(() => {
-                    formInputGroupEl.style.display = 'none';
-                    feedbackPanelEl.style.display = 'block';
-                }, 750);
+        (function initWorkingCapitalDemo() {
+            const BASELINE_CASH_BUFFER = 250000;
+            const TRAPPED_PER_DAY = 15000;
+            const TARGET_DSO = 30;
+            const BASE_AP = 30;
+            const DAILY_BURN = 14000;
+
+            const dsoSlider = document.getElementById('sliderDso');
+            const apSlider = document.getElementById('sliderAp');
+            const readoutDso = document.getElementById('readoutDso');
+            const readoutAp = document.getElementById('readoutAp');
+            const metricTrapped = document.getElementById('metricTrappedCash');
+            const metricAvailable = document.getElementById('metricAvailableWC');
+            const metricRunway = document.getElementById('metricRunwayDays');
+
+            if (!dsoSlider || !apSlider) return;
+
+            function formatCurrency(amount) {
+                const abs = Math.abs(amount);
+                if (abs >= 1e6) return (amount < 0 ? '-' : '') + '$' + (abs / 1e6).toFixed(1) + 'M';
+                if (abs >= 1e3) return (amount < 0 ? '-' : '') + '$' + Math.round(abs / 1e3) + 'K';
+                return new Intl.NumberFormat('en-AU', {
+                    style: 'currency',
+                    currency: 'AUD',
+                    maximumFractionDigits: 0,
+                }).format(amount).replace('A$', '$');
             }
-        }
-        function triggerDashboardNotice() {
-            const formCard = document.querySelector('.portal-entry-card');
-            const emailInput = document.getElementById('appProspectEmail');
-            formCard.style.borderColor = '#00ffcc';
-            formCard.style.boxShadow = '0 0 30px rgba(0, 255, 204, 0.2)';
-            if (emailInput) {
-                emailInput.focus();
-                emailInput.placeholder = 'Enter email to unlock dashboard access...';
+
+            function recalibrateLedger() {
+                const dso = Number(dsoSlider.value);
+                const ap = Number(apSlider.value);
+
+                const daysOverdue = Math.max(0, dso - TARGET_DSO);
+                const trappedCash = daysOverdue * TRAPPED_PER_DAY;
+                const unlockedFromDso = Math.max(0, 90 - dso) * 5500;
+                const unlockedFromAp = Math.max(0, ap - BASE_AP) * 8000;
+                const unlockedCapital = unlockedFromDso + unlockedFromAp;
+                const availableWC = BASELINE_CASH_BUFFER + unlockedCapital;
+                const runwayDays = Math.max(
+                    0,
+                    Math.round(unlockedCapital / DAILY_BURN) + Math.max(0, ap - 45) + Math.max(0, 65 - dso)
+                );
+
+                readoutDso.textContent = dso + ' days';
+                readoutAp.textContent = ap + ' days';
+                dsoSlider.setAttribute('aria-valuenow', String(dso));
+                apSlider.setAttribute('aria-valuenow', String(ap));
+
+                metricTrapped.textContent = formatCurrency(trappedCash);
+                metricAvailable.textContent = formatCurrency(availableWC);
+                metricRunway.textContent = '+' + runwayDays + ' Days';
             }
-            setTimeout(() => {
-                formCard.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                formCard.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
-            }, 3000);
-        }
+
+            ['input', 'change'].forEach((evt) => {
+                dsoSlider.addEventListener(evt, recalibrateLedger);
+                apSlider.addEventListener(evt, recalibrateLedger);
+            });
+
+            recalibrateLedger();
+        })();
     </script>
 </body>
 </html>
