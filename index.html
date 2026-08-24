@@ -298,7 +298,7 @@
             font-weight: 700;
         }
         /* Working Capital Dashboard Demo */
-        #command-center {
+        #live-dashboard-preview {
             max-width: 920px;
             margin: 0 auto;
             text-align: left;
@@ -314,7 +314,7 @@
             position: relative;
             overflow: hidden;
         }
-        #command-center::before {
+        #live-dashboard-preview::before {
             content: '';
             position: absolute;
             inset: 0 auto auto 0;
@@ -369,6 +369,52 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
             white-space: nowrap;
+        }
+        .dash-industry-select {
+            width: 100%;
+            margin: 0 0 1.35rem;
+            padding: 0.95rem 1.05rem;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            background: rgba(15, 23, 42, 0.55);
+        }
+        .dash-industry-select__label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 0.55rem;
+        }
+        .dash-industry-select__control {
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            background:
+                linear-gradient(45deg, transparent 50%, #00ffcc 50%) calc(100% - 18px) calc(50% - 3px) / 6px 6px no-repeat,
+                linear-gradient(135deg, #00ffcc 50%, transparent 50%) calc(100% - 12px) calc(50% - 3px) / 6px 6px no-repeat,
+                #0b0f19;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            color: #f3f4f6;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            padding: 0.85rem 2.4rem 0.85rem 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .dash-industry-select__control:hover,
+        .dash-industry-select__control:focus {
+            border-color: rgba(0, 255, 204, 0.45);
+            box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.08);
+        }
+        .dash-industry-select__control option {
+            background: #0b0f19;
+            color: #f3f4f6;
         }
         .dash-metrics-grid {
             display: grid;
@@ -553,20 +599,23 @@
             .dash-controls {
                 grid-template-columns: 1fr;
             }
-            #command-center {
+            #live-dashboard-preview {
                 padding: 1.25rem;
             }
         }
         @media (max-width: 600px) {
             .header-actions-group {
                 gap: 0.5rem;
+                flex-wrap: wrap;
+                justify-content: flex-end;
             }
             .header-dashboard-link {
                 padding: 0.35rem 0.75rem;
-                font-size: 0.68rem;
+                font-size: 0.62rem;
             }
             .header-demo-badge {
-                display: none;
+                padding: 0.28rem 0.55rem;
+                font-size: 0.58rem;
             }
             footer {
                 flex-direction: column;
@@ -605,8 +654,8 @@
                 <div class="live-status-pill">
                     <span class="pulse-core"></span>Active Onboarding
                 </div>
-                <a href="#command-center" class="header-dashboard-link">Client Login</a>
-                <a href="#command-center" class="header-demo-badge">(Instant Demo)</a>
+                <a href="#live-dashboard-preview" class="header-dashboard-link">Command Centre</a>
+                <a href="#live-dashboard-preview" class="header-demo-badge">Target Enterprise Demo</a>
             </div>
         </header>
         <!-- Main Dynamic Content -->
@@ -651,21 +700,31 @@
                     </ul>
                 </div>
             </div>
-            <section id="command-center" aria-label="Working Capital Dashboard Demo">
+            <section id="live-dashboard-preview" aria-label="Working Capital Dashboard Demo">
                 <div class="dash-preview__header">
                     <div>
                         <div class="dash-preview__eyebrow">Working Capital Dashboard</div>
                         <h3 class="dash-preview__title">Live Ledger Calibration Demo</h3>
                         <p class="dash-preview__subtitle">Drag DSO and payable terms to simulate trapped cash release, unlocked liquidity, and runway extension in real time.</p>
                     </div>
-                    <div class="dash-preview__live"><span class="pulse-core"></span>Instant Demo</div>
+                    <div class="dash-preview__live"><span class="pulse-core"></span>Live Console</div>
+                </div>
+
+                <div class="dash-industry-select">
+                    <label class="dash-industry-select__label" for="industryBenchmarkSelect">Select Industry Benchmark Profile:</label>
+                    <select id="industryBenchmarkSelect" class="dash-industry-select__control" aria-label="Select Industry Benchmark Profile">
+                        <option value="agribusiness" selected>General Agribusiness Profile</option>
+                        <option value="poultry">Poultry &amp; Protein Operations</option>
+                        <option value="produce">Fresh Produce Logistics</option>
+                        <option value="grain">Bulk Grain &amp; Wholesale Trade</option>
+                    </select>
                 </div>
 
                 <div class="dash-metrics-grid">
                     <article class="dash-metric-card">
                         <div class="dash-metric-card__label">Trapped Cash</div>
                         <div class="dash-metric-card__value" id="metricTrappedCash">$750K</div>
-                        <div class="dash-metric-card__hint">Days overdue × $15,000 baseline</div>
+                        <div class="dash-metric-card__hint" id="metricTrappedHint">Days overdue × $15,000 baseline</div>
                     </article>
                     <article class="dash-metric-card">
                         <div class="dash-metric-card__label">Available Working Capital</div>
@@ -734,21 +793,70 @@
     </div>
     <script>
         (function initWorkingCapitalDemo() {
-            const BASELINE_CASH_BUFFER = 250000;
-            const TRAPPED_PER_DAY = 15000;
-            const TARGET_DSO = 30;
-            const BASE_AP = 30;
-            const DAILY_BURN = 14000;
+            const INDUSTRY_PROFILES = {
+                agribusiness: {
+                    dso: 65,
+                    ap: 45,
+                    trappedPerDay: 15000,
+                    cashBuffer: 250000,
+                    targetDso: 30,
+                    baseAp: 30,
+                    dailyBurn: 14000,
+                    unlockDsoRate: 5500,
+                    unlockApRate: 8000,
+                    hint: 'Days overdue × $15,000 baseline',
+                },
+                poultry: {
+                    dso: 55,
+                    ap: 40,
+                    trappedPerDay: 28000,
+                    cashBuffer: 320000,
+                    targetDso: 28,
+                    baseAp: 30,
+                    dailyBurn: 18500,
+                    unlockDsoRate: 7200,
+                    unlockApRate: 9100,
+                    hint: 'High-volume protein scale × $28,000 / overdue day',
+                },
+                produce: {
+                    dso: 42,
+                    ap: 65,
+                    trappedPerDay: 12000,
+                    cashBuffer: 210000,
+                    targetDso: 21,
+                    baseAp: 30,
+                    dailyBurn: 16000,
+                    unlockDsoRate: 6800,
+                    unlockApRate: 10500,
+                    hint: 'Fresh logistics velocity × $12,000 / overdue day',
+                },
+                grain: {
+                    dso: 75,
+                    ap: 55,
+                    trappedPerDay: 22000,
+                    cashBuffer: 480000,
+                    targetDso: 35,
+                    baseAp: 35,
+                    dailyBurn: 21000,
+                    unlockDsoRate: 6400,
+                    unlockApRate: 9800,
+                    hint: 'Macro wholesale ledger × $22,000 / overdue day',
+                },
+            };
 
             const dsoSlider = document.getElementById('sliderDso');
             const apSlider = document.getElementById('sliderAp');
+            const industrySelect = document.getElementById('industryBenchmarkSelect');
             const readoutDso = document.getElementById('readoutDso');
             const readoutAp = document.getElementById('readoutAp');
             const metricTrapped = document.getElementById('metricTrappedCash');
             const metricAvailable = document.getElementById('metricAvailableWC');
             const metricRunway = document.getElementById('metricRunwayDays');
+            const metricTrappedHint = document.getElementById('metricTrappedHint');
 
-            if (!dsoSlider || !apSlider) return;
+            if (!dsoSlider || !apSlider || !industrySelect) return;
+
+            let activeProfile = INDUSTRY_PROFILES.agribusiness;
 
             function formatCurrency(amount) {
                 const abs = Math.abs(amount);
@@ -764,16 +872,17 @@
             function recalibrateLedger() {
                 const dso = Number(dsoSlider.value);
                 const ap = Number(apSlider.value);
+                const profile = activeProfile;
 
-                const daysOverdue = Math.max(0, dso - TARGET_DSO);
-                const trappedCash = daysOverdue * TRAPPED_PER_DAY;
-                const unlockedFromDso = Math.max(0, 90 - dso) * 5500;
-                const unlockedFromAp = Math.max(0, ap - BASE_AP) * 8000;
+                const daysOverdue = Math.max(0, dso - profile.targetDso);
+                const trappedCash = daysOverdue * profile.trappedPerDay;
+                const unlockedFromDso = Math.max(0, 90 - dso) * profile.unlockDsoRate;
+                const unlockedFromAp = Math.max(0, ap - profile.baseAp) * profile.unlockApRate;
                 const unlockedCapital = unlockedFromDso + unlockedFromAp;
-                const availableWC = BASELINE_CASH_BUFFER + unlockedCapital;
+                const availableWC = profile.cashBuffer + unlockedCapital;
                 const runwayDays = Math.max(
                     0,
-                    Math.round(unlockedCapital / DAILY_BURN) + Math.max(0, ap - 45) + Math.max(0, 65 - dso)
+                    Math.round(unlockedCapital / profile.dailyBurn) + Math.max(0, ap - profile.ap) + Math.max(0, profile.dso - dso)
                 );
 
                 readoutDso.textContent = dso + ' days';
@@ -784,6 +893,15 @@
                 metricTrapped.textContent = formatCurrency(trappedCash);
                 metricAvailable.textContent = formatCurrency(availableWC);
                 metricRunway.textContent = '+' + runwayDays + ' Days';
+                if (metricTrappedHint) metricTrappedHint.textContent = profile.hint;
+            }
+
+            function applyIndustryProfile(profileKey) {
+                const profile = INDUSTRY_PROFILES[profileKey] || INDUSTRY_PROFILES.agribusiness;
+                activeProfile = profile;
+                dsoSlider.value = String(profile.dso);
+                apSlider.value = String(profile.ap);
+                recalibrateLedger();
             }
 
             ['input', 'change'].forEach((evt) => {
@@ -791,7 +909,11 @@
                 apSlider.addEventListener(evt, recalibrateLedger);
             });
 
-            recalibrateLedger();
+            industrySelect.addEventListener('change', () => {
+                applyIndustryProfile(industrySelect.value);
+            });
+
+            applyIndustryProfile(industrySelect.value || 'agribusiness');
         })();
     </script>
 </body>
