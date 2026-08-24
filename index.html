@@ -4,916 +4,566 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Obsidian Treasury | Capital Efficiency Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Base Reset and Fintech Terminal Theme Configuration */
+        :root {
+            --obsidian: #06080f;
+            --slate: #0f1322;
+            --border: #1e293b;
+            --white: #ffffff;
+            --steel: #94a3b8;
+            --mint: #00ffcc;
+            --font: "IBM Plex Sans", "Segoe UI", sans-serif;
+            --mono: "IBM Plex Mono", ui-monospace, monospace;
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         html {
             scroll-behavior: smooth;
         }
         body {
-            background-color: #06090e;
-            background-image: 
-                radial-gradient(circle at 50% 0%, #0d1b15 0%, #06090e 75%),
-                radial-gradient(circle at 100% 100%, #081310 0%, transparent 40%);
-            color: #f3f4f6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow-x: hidden;
-            line-height: 1.5;
+            background: var(--obsidian);
+            color: var(--white);
+            font-family: var(--font);
+            line-height: 1.45;
         }
-        /* Decorative Grid Overlay to match FinTech App Aesthetic */
-        .grid-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.007) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.007) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: 1;
-        }
-        /* Container Layout */
-        .wrapper {
-            position: relative;
-            z-index: 2;
-            max-width: 1100px;
-            width: 100%;
+        .shell {
+            max-width: 1180px;
             margin: 0 auto;
-            padding: 2.5rem 2rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            padding: 28px 28px 40px;
         }
-        /* Top Navigation Header Area */
-        header {
+        header.masthead {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            gap: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
         }
-        .brand-logo-container {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
+        .wordmark {
             text-decoration: none;
+            color: var(--white);
         }
-        /* SVG Geometry configured to mirror your neon geometric crystal banner */
-        .logo-geometric-icon {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logo-geometric-icon svg {
-            width: 100%;
-            height: 100%;
-        }
-        .brand-text-block {
-            display: flex;
-            flex-direction: column;
-        }
-        .brand-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            color: #ffffff;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-        .brand-subtitle {
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.18em;
-            color: #00ffcc;
-            text-transform: uppercase;
-            margin-top: 0.2rem;
-            opacity: 0.85;
-        }
-        /* Header Control Actions Wrapper */
-        .header-actions-group {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .live-status-pill {
-            background: rgba(0, 255, 204, 0.04);
-            border: 1px solid rgba(0, 255, 204, 0.15);
-            color: #00ffcc;
-            padding: 0.4rem 0.85rem;
-            border-radius: 100px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .pulse-core {
-            width: 6px;
-            height: 6px;
-            background-color: #00ffcc;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #00ffcc;
-            animation: corePulse 2.5s infinite;
-        }
-        /* Premium Nav Dashboard Button styling matching Stripe/Brex frameworks */
-        .header-dashboard-link {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            padding: 0.4rem 1.1rem;
-            border-radius: 8px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            text-decoration: none;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
-        }
-        .header-dashboard-link:hover {
-            border-color: #00ffcc;
-            color: #00ffcc;
-            background: rgba(0, 255, 204, 0.02);
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
-        }
-        .header-demo-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.28rem 0.65rem;
-            border-radius: 100px;
-            font-size: 0.62rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #06090e;
-            background: #00ffcc;
-            box-shadow: 0 0 14px rgba(0, 255, 204, 0.35);
-            white-space: nowrap;
-            text-decoration: none;
-            transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-        }
-        .header-demo-badge:hover {
-            background: #33ffdd;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
-            transform: translateY(-1px);
-        }
-        @keyframes corePulse {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.6); }
-            70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(0, 255, 204, 0); }
-            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
-        }
-        /* Main Centerpiece Layout Container */
-        .main-app-content {
-            text-align: center;
-            max-width: 960px;
-            margin: 3.5rem auto;
-            width: 100%;
-        }
-        /* Poster Header Styling Match */
-        .poster-header-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.01em;
-            color: #ffffff;
-            text-transform: uppercase;
-            margin-bottom: 2rem;
-        }
-        .poster-header-title span {
-            color: #cbd5e1;
-            font-weight: 400;
+        .wordmark__primary {
             display: block;
-            font-size: 1.4rem;
-            letter-spacing: 0.15em;
-            margin-top: 0.5rem;
-            opacity: 0.9;
-        }
-        /* The Premium Central Glowing Rate Badge Card */
-        .central-rate-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, rgba(6, 15, 13, 0.9) 0%, rgba(9, 11, 15, 0.9) 100%);
-            border: 2px solid #00ffcc;
-            box-shadow: 
-                0 0 25px rgba(0, 255, 204, 0.15),
-                inset 0 0 15px rgba(0, 255, 204, 0.05);
-            padding: 1.5rem 4.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-        .rate-main-text {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-        .rate-sub-tag {
-            font-size: 0.85rem;
+            font-size: 13px;
             font-weight: 700;
-            color: #00ffcc;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.22em;
             text-transform: uppercase;
-            margin-top: 0.15rem;
+        }
+        .wordmark__secondary {
             display: block;
-        }
-        .poster-marketing-subline {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 4rem;
-            opacity: 0.95;
-        }
-        /* Dual Column Structural Grid Mirroring the Tablet Graphic Layout */
-        .app-columns-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3.5rem;
-            text-align: left;
-            margin-bottom: 4rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-            padding-top: 3rem;
-        }
-        .column-block {
-            display: flex;
-            flex-direction: column;
-        }
-        .column-header-group {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            margin-bottom: 1.5rem;
-        }
-        .column-icon-frame {
-            width: 28px;
-            height: 28px;
-            color: #00ffcc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .column-icon-frame svg {
-            width: 100%;
-            height: 100%;
-        }
-        .column-main-heading {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-        .bullet-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            list-style: none;
-        }
-        .bullet-item-row {
-            font-size: 1rem;
-            color: #94a3b8;
+            margin-top: 6px;
+            font-size: 10px;
             font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--mint);
+        }
+        .masthead__actions {
             display: flex;
-            align-items: flex-start;
-            gap: 0.6rem;
-            line-height: 1.4;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
         }
-        .bullet-prefix-dash {
-            color: #00ffcc;
-            font-weight: 700;
-        }
-        /* Working Capital Dashboard Demo */
-        #live-dashboard-preview {
-            max-width: 920px;
-            margin: 0 auto;
-            text-align: left;
-            scroll-margin-top: 2rem;
-            background: #0b0f19;
-            border: 1px solid #1e293b;
-            border-radius: 16px;
-            padding: 1.75rem 1.75rem 1.5rem;
-            box-shadow:
-                0 0 0 1px rgba(0, 255, 204, 0.04),
-                0 28px 60px -20px rgba(0, 0, 0, 0.65),
-                inset 0 1px 0 rgba(255, 255, 255, 0.03);
-            position: relative;
-            overflow: hidden;
-        }
-        #live-dashboard-preview::before {
-            content: '';
-            position: absolute;
-            inset: 0 auto auto 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00ffcc, transparent);
-            opacity: 0.55;
-            pointer-events: none;
-        }
-        .dash-preview__header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.15rem;
-            border-bottom: 1px solid #1e293b;
-        }
-        .dash-preview__eyebrow {
-            font-size: 0.68rem;
-            font-weight: 700;
+        .nav-link {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: #00ffcc;
-            margin-bottom: 0.35rem;
+            padding: 10px 4px;
+            border-bottom: 1px solid transparent;
         }
-        .dash-preview__title {
-            font-size: 1.15rem;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #ffffff;
+        .nav-link:hover {
+            color: var(--mint);
+            border-bottom-color: var(--mint);
         }
-        .dash-preview__subtitle {
-            margin-top: 0.35rem;
-            font-size: 0.82rem;
-            color: #64748b;
-            max-width: 36rem;
-        }
-        .dash-preview__live {
+        .stress-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 100px;
-            border: 1px solid rgba(0, 255, 204, 0.22);
-            background: rgba(0, 255, 204, 0.05);
-            color: #00ffcc;
-            font-size: 0.68rem;
+            background: transparent;
+            color: var(--mint);
+            border: 1px solid var(--mint);
+            padding: 10px 16px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .stress-btn:hover {
+            background: rgba(0, 255, 204, 0.08);
+        }
+        #command-center {
+            scroll-margin-top: 24px;
+            margin-top: 32px;
+            background: var(--slate);
+            border: 1px solid var(--border);
+            padding: 28px;
+        }
+        .console-kicker {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--mint);
+            margin-bottom: 8px;
+        }
+        .console-title {
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            white-space: nowrap;
+            margin-bottom: 22px;
         }
-        .dash-industry-select {
-            width: 100%;
-            margin: 0 0 1.35rem;
-            padding: 0.95rem 1.05rem;
-            border-radius: 12px;
-            border: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.55);
+        .profile-block {
+            margin-bottom: 24px;
         }
-        .dash-industry-select__label {
+        .profile-block label {
             display: block;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: #94a3b8;
-            margin-bottom: 0.55rem;
+            color: var(--steel);
+            margin-bottom: 8px;
         }
-        .dash-industry-select__control {
+        #agri-profile-router {
             width: 100%;
             appearance: none;
             -webkit-appearance: none;
             background:
-                linear-gradient(45deg, transparent 50%, #00ffcc 50%) calc(100% - 18px) calc(50% - 3px) / 6px 6px no-repeat,
-                linear-gradient(135deg, #00ffcc 50%, transparent 50%) calc(100% - 12px) calc(50% - 3px) / 6px 6px no-repeat,
-                #0b0f19;
-            border: 1px solid #1e293b;
-            border-radius: 10px;
-            color: #f3f4f6;
+                linear-gradient(45deg, transparent 50%, var(--mint) 50%) calc(100% - 18px) calc(50% - 3px) / 6px 6px no-repeat,
+                linear-gradient(135deg, var(--mint) 50%, transparent 50%) calc(100% - 12px) calc(50% - 3px) / 6px 6px no-repeat,
+                var(--obsidian);
+            border: 1px solid var(--border);
+            color: var(--white);
             font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 0.01em;
-            padding: 0.85rem 2.4rem 0.85rem 0.95rem;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 14px 40px 14px 14px;
             outline: none;
             cursor: pointer;
-            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .dash-industry-select__control:hover,
-        .dash-industry-select__control:focus {
-            border-color: rgba(0, 255, 204, 0.45);
-            box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.08);
+        #agri-profile-router:focus,
+        #agri-profile-router.router--armed {
+            border-color: var(--mint);
+            box-shadow: 0 0 0 1px var(--mint);
         }
-        .dash-industry-select__control option {
-            background: #0b0f19;
-            color: #f3f4f6;
+        #agri-profile-router option {
+            background: var(--obsidian);
+            color: var(--white);
         }
-        .dash-metrics-grid {
+        .metric-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.9rem;
-            margin-bottom: 1.5rem;
+            gap: 12px;
+            margin-bottom: 24px;
         }
-        .dash-metric-card {
-            background: linear-gradient(160deg, rgba(15, 23, 42, 0.95), rgba(11, 15, 25, 0.98));
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            padding: 1.1rem 1.15rem;
-            min-width: 0;
+        .metric {
+            background: var(--obsidian);
+            border: 1px solid var(--border);
+            padding: 16px 18px;
         }
-        .dash-metric-card__label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
+        .metric__label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: #64748b;
-            margin-bottom: 0.55rem;
+            color: var(--steel);
+            margin-bottom: 10px;
         }
-        .dash-metric-card__value {
-            font-size: 1.55rem;
-            font-weight: 800;
+        .metric__value {
+            font-family: var(--mono);
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--mint);
             letter-spacing: -0.02em;
-            color: #ffffff;
-            font-variant-numeric: tabular-nums;
-            line-height: 1.15;
         }
-        .dash-metric-card__value--mint {
-            color: #00ffcc;
-            text-shadow: 0 0 18px rgba(0, 255, 204, 0.25);
+        .metric__hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--steel);
         }
-        .dash-metric-card__hint {
-            margin-top: 0.45rem;
-            font-size: 0.72rem;
-            color: #475569;
-            line-height: 1.35;
-        }
-        .dash-controls {
+        .slider-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.1rem;
-            padding: 1.15rem;
-            border-radius: 12px;
-            border: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.45);
+            gap: 16px;
         }
-        .dash-control {
-            display: flex;
-            flex-direction: column;
-            gap: 0.65rem;
-            min-width: 0;
+        .slider-unit {
+            border: 1px solid var(--border);
+            background: var(--obsidian);
+            padding: 16px;
         }
-        .dash-control__top {
+        .slider-unit__top {
             display: flex;
-            align-items: baseline;
             justify-content: space-between;
-            gap: 0.75rem;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 12px;
         }
-        .dash-control__label {
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
+        .slider-unit__top label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: #cbd5e1;
+            color: var(--white);
         }
-        .dash-control__readout {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #00ffcc;
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
+        .slider-unit__readout {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--mint);
+            font-weight: 500;
         }
-        .dash-control__range {
+        input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 6px;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #1e293b, #334155);
+            height: 2px;
+            background: var(--border);
             outline: none;
             cursor: pointer;
         }
-        .dash-control__range::-webkit-slider-thumb {
+        input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #00ffcc;
-            border: 2px solid #0b0f19;
-            box-shadow: 0 0 12px rgba(0, 255, 204, 0.55);
+            width: 14px;
+            height: 14px;
+            background: var(--mint);
+            border: 0;
             cursor: pointer;
         }
-        .dash-control__range::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #00ffcc;
-            border: 2px solid #0b0f19;
-            box-shadow: 0 0 12px rgba(0, 255, 204, 0.55);
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--mint);
+            border: 0;
             cursor: pointer;
         }
-        .dash-control__meta {
+        input[type="range"]:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .slider-unit__meta {
             display: flex;
             justify-content: space-between;
-            font-size: 0.68rem;
-            color: #475569;
-            letter-spacing: 0.02em;
+            margin-top: 8px;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--steel);
         }
-        .dash-preview__footer {
-            margin-top: 1rem;
-            font-size: 0.72rem;
-            color: #475569;
-            letter-spacing: 0.02em;
+        .console-note {
+            margin-top: 16px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--steel);
         }
-        /* Bottom Disclosure Footer Layer */
-        footer {
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            padding-top: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
+        .protocols {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
-        .footer-copyright {
-            font-size: 0.8rem;
-            color: #475569;
-            font-weight: 500;
-        }
-        .footer-compliance-block {
-            font-size: 0.82rem;
-            color: #64748b;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-        .footer-abn-string {
+        .protocols__header {
+            font-family: var(--mono);
+            font-size: 12px;
             font-weight: 600;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: 18px;
         }
-        .footer-anchor-link {
-            color: #94a3b8;
+        .protocol-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .protocol {
+            border: 1px solid var(--border);
+            padding: 18px;
+        }
+        .protocol__index {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--mint);
+            margin-bottom: 8px;
+        }
+        .protocol h3 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .protocol p {
+            font-size: 13px;
+            color: var(--steel);
+        }
+        footer.disclosure {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 36px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--steel);
+        }
+        footer.disclosure a {
+            color: var(--steel);
             text-decoration: none;
-            transition: color 0.2s ease;
-            font-weight: 500;
         }
-        .footer-anchor-link:hover {
-            color: #00ffcc;
+        footer.disclosure a:hover {
+            color: var(--mint);
         }
-        /* Adaptive Media Queries for Mobile Responsiveness */
-        @media (max-width: 840px) {
-            .app-columns-layout {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                padding-top: 2rem;
-                margin-bottom: 3rem;
-            }
-            .poster-header-title {
-                font-size: 1.85rem;
-            }
-            .poster-header-title span {
-                font-size: 1.1rem;
-            }
-            .central-rate-badge {
-                padding: 1.2rem 3rem;
-            }
-            .rate-main-text {
-                font-size: 1.8rem;
-            }
-            .poster-marketing-subline {
-                font-size: 1rem;
-                margin-bottom: 2.5rem;
-            }
-            .main-app-content {
-                margin: 2rem auto;
-            }
-            .dash-metrics-grid,
-            .dash-controls {
+        @media (max-width: 900px) {
+            .metric-row,
+            .slider-grid,
+            .protocol-grid {
                 grid-template-columns: 1fr;
             }
-            #live-dashboard-preview {
-                padding: 1.25rem;
-            }
         }
-        @media (max-width: 600px) {
-            .header-actions-group {
-                gap: 0.5rem;
-                flex-wrap: wrap;
-                justify-content: flex-end;
-            }
-            .header-dashboard-link {
-                padding: 0.35rem 0.75rem;
-                font-size: 0.62rem;
-            }
-            .header-demo-badge {
-                padding: 0.28rem 0.55rem;
-                font-size: 0.58rem;
-            }
-            footer {
+        @media (max-width: 720px) {
+            .shell { padding: 20px 16px 32px; }
+            header.masthead {
                 flex-direction: column;
-                text-align: center;
-                gap: 1rem;
+                align-items: flex-start;
             }
-            .footer-compliance-block {
-                flex-direction: column;
-                gap: 0.6rem;
-            }
+            .console-title { font-size: 16px; }
+            .metric__value { font-size: 22px; }
         }
     </style>
 </head>
 <body>
-    <!-- FinTech Interface Grid Layer -->
-    <div class="grid-overlay"></div>
-    <!-- Active Global Wrapper Container -->
-    <div class="wrapper">
-        <header>
-            <a href="#" class="brand-logo-container">
-                <div class="logo-geometric-icon">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="50,15 85,35 85,75 50,95 15,75 15,35" stroke="#00ffcc" stroke-width="4" stroke-linejoin="round" fill="none"/>
-                        <line x1="50" y1="15" x2="50" y2="95" stroke="#00ffcc" stroke-width="2" stroke-dasharray="2 2"/>
-                        <line x1="15" y1="35" x2="85" y2="75" stroke="#00ffcc" stroke-width="2" stroke-dasharray="2 2"/>
-                        <polyline points="35,45 50,35 65,45" stroke="#00ffcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <polyline points="30,60 50,75 70,60" stroke="#00ffcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="brand-text-block">
-                    <span class="brand-title">Obsidian Treasury</span>
-                    <span class="brand-subtitle">Capital Efficiency Architecture</span>
-                </div>
+    <div class="shell">
+        <header class="masthead">
+            <a class="wordmark" href="#">
+                <span class="wordmark__primary">Obsidian Treasury</span>
+                <span class="wordmark__secondary">Capital Efficiency Architecture</span>
             </a>
-            <div class="header-actions-group">
-                <div class="live-status-pill">
-                    <span class="pulse-core"></span>Active Onboarding
-                </div>
-                <a href="#live-dashboard-preview" class="header-dashboard-link">Command Centre</a>
-                <a href="#live-dashboard-preview" class="header-demo-badge">Target Enterprise Demo</a>
-            </div>
+            <nav class="masthead__actions" aria-label="Primary">
+                <a class="nav-link" href="#command-center">Command Centre</a>
+                <a class="stress-btn" href="#command-center" id="runStressTest">Run Agribusiness Stress-Test</a>
+            </nav>
         </header>
-        <!-- Main Dynamic Content -->
-        <main class="main-app-content">
-            <h2 class="poster-header-title">
-                Supplier Finance: <span>Unlock Your Working Capital</span>
-            </h2>
-            <div class="central-rate-badge">
-                <div class="rate-main-text">Flat 0.5% Rate</div>
-                <div class="rate-sub-tag">50 Bps</div>
-            </div>
-            <div class="poster-marketing-subline">No Debt, No Hassle, No Hidden Fees.</div>
-            <div class="app-columns-layout">
-                <div class="column-block">
-                    <div class="column-header-group">
-                        <div class="column-icon-frame">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <h3 class="column-main-heading">Fast Track Funding</h3>
-                    </div>
-                    <ul class="bullet-list-container">
-                        <li class="bullet-item-row"><span class="bullet-prefix-dash">-</span> Decision within 24 hours.</li>
-                        <li class="bullet-item-row"><span class="bullet-prefix-dash">-</span> Fast invoice-to-cash conversion.</li>
-                        <li class="bullet-item-row"><span class="bullet-prefix-dash">-</span> Boost your cash flow instantly.</li>
-                    </ul>
-                </div>
-                <div class="column-block">
-                    <div class="column-header-group">
-                        <div class="column-icon-frame">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <h3 class="column-main-heading">Simple & Transparent</h3>
-                    </div>
-                    <ul class="bullet-list-container">
-                        <li class="bullet-item-row"><span class="bullet-prefix-dash">-</span> One simple flat fee.</li>
-                        <li class="bullet-item-row"><span class="bullet-prefix-dash">-</span> No complex loan structures.</li>
-                        <li class="bullet-item-row"><span class="bullet-prefix-dash">-</span> Keep your balance sheet clean.</li>
-                    </ul>
-                </div>
-            </div>
-            <section id="live-dashboard-preview" aria-label="Working Capital Dashboard Demo">
-                <div class="dash-preview__header">
-                    <div>
-                        <div class="dash-preview__eyebrow">Working Capital Dashboard</div>
-                        <h3 class="dash-preview__title">Live Ledger Calibration Demo</h3>
-                        <p class="dash-preview__subtitle">Drag DSO and payable terms to simulate trapped cash release, unlocked liquidity, and runway extension in real time.</p>
-                    </div>
-                    <div class="dash-preview__live"><span class="pulse-core"></span>Live Console</div>
-                </div>
 
-                <div class="dash-industry-select">
-                    <label class="dash-industry-select__label" for="industryBenchmarkSelect">Select Industry Benchmark Profile:</label>
-                    <select id="industryBenchmarkSelect" class="dash-industry-select__control" aria-label="Select Industry Benchmark Profile">
-                        <option value="agribusiness" selected>General Agribusiness Profile</option>
-                        <option value="poultry">Poultry &amp; Protein Operations</option>
-                        <option value="produce">Fresh Produce Logistics</option>
-                        <option value="grain">Bulk Grain &amp; Wholesale Trade</option>
-                    </select>
-                </div>
+        <section id="command-center">
+            <div class="console-kicker">Obsidian Runtime Console</div>
+            <h1 class="console-title">Obsidian Runtime Console // System Stress-Test Engine</h1>
 
-                <div class="dash-metrics-grid">
-                    <article class="dash-metric-card">
-                        <div class="dash-metric-card__label">Trapped Cash</div>
-                        <div class="dash-metric-card__value" id="metricTrappedCash">$750K</div>
-                        <div class="dash-metric-card__hint" id="metricTrappedHint">Days overdue × $15,000 baseline</div>
+            <div class="profile-block">
+                <label for="agri-profile-router">Select Industry Benchmark Profile:</label>
+                <select id="agri-profile-router">
+                    <option value="" selected>Select Industry Benchmark Profile...</option>
+                    <option value="poultry">Poultry &amp; Livestock Processing (Inghams, AACo, Craig Mostyn)</option>
+                    <option value="produce">Fresh Produce &amp; Aquaculture Logistics (Costa, SunRice, Tassal)</option>
+                    <option value="grain">Bulk Grain &amp; High-Volume Wholesale (GrainCorp, Melba Fresh)</option>
+                    <option value="fmcg">Packaged FMCG &amp; Contract Manufacturing (Sanitarium, Bickford's, GWF)</option>
+                </select>
+            </div>
+
+            <div class="metric-row">
+                <article class="metric">
+                    <div class="metric__label">Trapped Cash</div>
+                    <div class="metric__value" id="metricTrappedCash">—</div>
+                    <div class="metric__hint" id="metricTrappedHint">Days overdue × sector multiplier base</div>
+                </article>
+                <article class="metric">
+                    <div class="metric__label">Available Working Capital</div>
+                    <div class="metric__value" id="metricAvailableWC">—</div>
+                    <div class="metric__hint">Base cash reserves + recovered liquidity</div>
+                </article>
+                <article class="metric">
+                    <div class="metric__label">Runway Extension Days</div>
+                    <div class="metric__value" id="metricRunwayDays">—</div>
+                    <div class="metric__hint">Calculated liquidity index</div>
+                </article>
+            </div>
+
+            <div class="slider-grid">
+                <div class="slider-unit">
+                    <div class="slider-unit__top">
+                        <label for="sliderDso">Days Sales Outstanding (DSO)</label>
+                        <span class="slider-unit__readout" id="readoutDso">—</span>
+                    </div>
+                    <input type="range" id="sliderDso" min="15" max="90" value="55" step="1" disabled>
+                    <div class="slider-unit__meta"><span>15 days</span><span>90 days</span></div>
+                </div>
+                <div class="slider-unit">
+                    <div class="slider-unit__top">
+                        <label for="sliderDpo">Accounts Payable Extension (DPO)</label>
+                        <span class="slider-unit__readout" id="readoutDpo">—</span>
+                    </div>
+                    <input type="range" id="sliderDpo" min="30" max="90" value="45" step="1" disabled>
+                    <div class="slider-unit__meta"><span>30 days</span><span>90 days</span></div>
+                </div>
+            </div>
+            <p class="console-note" id="consoleStatus">Awaiting industry profile selection to arm ledger coefficients.</p>
+
+            <div class="protocols">
+                <h2 class="protocols__header">Operational Protocols // Margin Extension Boundaries</h2>
+                <div class="protocol-grid">
+                    <article class="protocol">
+                        <div class="protocol__index">Column 01</div>
+                        <h3>Cost Interception</h3>
+                        <p>Turning highly volatile trade receivables, delayed invoice structures, and distribution overhead into tightly controlled, predictable capital flow.</p>
                     </article>
-                    <article class="dash-metric-card">
-                        <div class="dash-metric-card__label">Available Working Capital</div>
-                        <div class="dash-metric-card__value dash-metric-card__value--mint" id="metricAvailableWC">$420K</div>
-                        <div class="dash-metric-card__hint">Cash buffer + unlocked capital</div>
+                    <article class="protocol">
+                        <div class="protocol__index">Column 02</div>
+                        <h3>Preemptive Runway Extension</h3>
+                        <p>Moving corporate finance teams away from historical, retroactive bookkeeping and into real-time, forward-looking ledger visibility.</p>
                     </article>
-                    <article class="dash-metric-card">
-                        <div class="dash-metric-card__label">Runway Extension</div>
-                        <div class="dash-metric-card__value" id="metricRunwayDays">+18 Days</div>
-                        <div class="dash-metric-card__hint">Liquidity days recovered</div>
+                    <article class="protocol">
+                        <div class="protocol__index">Column 03</div>
+                        <h3>Ecosystem Resilience</h3>
+                        <p>Anchoring capital stability across complex supply chains, major supermarket vendor agreements, and heavy retail processing environments.</p>
                     </article>
                 </div>
+            </div>
+        </section>
 
-                <div class="dash-controls">
-                    <div class="dash-control">
-                        <div class="dash-control__top">
-                            <label class="dash-control__label" for="sliderDso">Days Sales Outstanding (DSO)</label>
-                            <span class="dash-control__readout" id="readoutDso">65 days</span>
-                        </div>
-                        <input
-                            type="range"
-                            id="sliderDso"
-                            class="dash-control__range"
-                            min="15"
-                            max="90"
-                            value="65"
-                            step="1"
-                            aria-valuemin="15"
-                            aria-valuemax="90"
-                            aria-valuenow="65"
-                        >
-                        <div class="dash-control__meta"><span>15 days</span><span>90 days</span></div>
-                    </div>
-                    <div class="dash-control">
-                        <div class="dash-control__top">
-                            <label class="dash-control__label" for="sliderAp">Accounts Payable Extension</label>
-                            <span class="dash-control__readout" id="readoutAp">45 days</span>
-                        </div>
-                        <input
-                            type="range"
-                            id="sliderAp"
-                            class="dash-control__range"
-                            min="30"
-                            max="90"
-                            value="45"
-                            step="1"
-                            aria-valuemin="30"
-                            aria-valuemax="90"
-                            aria-valuenow="45"
-                        >
-                        <div class="dash-control__meta"><span>30 days</span><span>90 days</span></div>
-                    </div>
-                </div>
-                <p class="dash-preview__footer">Illustrative simulation only · ledger parameters recalibrate on each slider input</p>
-            </section>
-        </main>
-        <footer>
-            <div class="footer-copyright">
-                &copy; 2026 Obsidian Treasury. All rights reserved.
-            </div>
-            <div class="footer-compliance-block">
-                <span class="footer-abn-string">ABN: 94 203 108 486</span>
-                <a href="mailto:wafa@obsidiantreasury.com.au" class="footer-anchor-link">wafa@obsidiantreasury.com.au</a>
-            </div>
+        <footer class="disclosure">
+            <span>&copy; 2026 Obsidian Treasury. All rights reserved.</span>
+            <span>ABN: 94 203 108 486 · <a href="mailto:wafa@obsidiantreasury.com.au">wafa@obsidiantreasury.com.au</a></span>
         </footer>
     </div>
+
     <script>
-        (function initWorkingCapitalDemo() {
-            const INDUSTRY_PROFILES = {
-                agribusiness: {
-                    dso: 65,
-                    ap: 45,
-                    trappedPerDay: 15000,
-                    cashBuffer: 250000,
-                    targetDso: 30,
-                    baseAp: 30,
-                    dailyBurn: 14000,
-                    unlockDsoRate: 5500,
-                    unlockApRate: 8000,
-                    hint: 'Days overdue × $15,000 baseline',
-                },
+        (function () {
+            const TARGET_DSO = 30;
+            const PROFILES = {
                 poultry: {
                     dso: 55,
-                    ap: 40,
-                    trappedPerDay: 28000,
-                    cashBuffer: 320000,
-                    targetDso: 28,
-                    baseAp: 30,
-                    dailyBurn: 18500,
-                    unlockDsoRate: 7200,
-                    unlockApRate: 9100,
-                    hint: 'High-volume protein scale × $28,000 / overdue day',
+                    ap: 45,
+                    volume: 12000000,
+                    label: 'Poultry & Livestock Processing'
                 },
                 produce: {
-                    dso: 42,
-                    ap: 65,
-                    trappedPerDay: 12000,
-                    cashBuffer: 210000,
-                    targetDso: 21,
-                    baseAp: 30,
-                    dailyBurn: 16000,
-                    unlockDsoRate: 6800,
-                    unlockApRate: 10500,
-                    hint: 'Fresh logistics velocity × $12,000 / overdue day',
+                    dso: 75,
+                    ap: 60,
+                    volume: 8500000,
+                    label: 'Fresh Produce & Aquaculture Logistics'
                 },
                 grain: {
-                    dso: 75,
-                    ap: 55,
-                    trappedPerDay: 22000,
-                    cashBuffer: 480000,
-                    targetDso: 35,
-                    baseAp: 35,
-                    dailyBurn: 21000,
-                    unlockDsoRate: 6400,
-                    unlockApRate: 9800,
-                    hint: 'Macro wholesale ledger × $22,000 / overdue day',
+                    dso: 45,
+                    ap: 30,
+                    volume: 24000000,
+                    label: 'Bulk Grain & High-Volume Wholesale'
                 },
+                fmcg: {
+                    dso: 65,
+                    ap: 50,
+                    volume: 16000000,
+                    label: 'Packaged FMCG & Contract Manufacturing'
+                }
             };
 
+            const router = document.getElementById('agri-profile-router');
             const dsoSlider = document.getElementById('sliderDso');
-            const apSlider = document.getElementById('sliderAp');
-            const industrySelect = document.getElementById('industryBenchmarkSelect');
+            const dpoSlider = document.getElementById('sliderDpo');
             const readoutDso = document.getElementById('readoutDso');
-            const readoutAp = document.getElementById('readoutAp');
+            const readoutDpo = document.getElementById('readoutDpo');
             const metricTrapped = document.getElementById('metricTrappedCash');
             const metricAvailable = document.getElementById('metricAvailableWC');
             const metricRunway = document.getElementById('metricRunwayDays');
-            const metricTrappedHint = document.getElementById('metricTrappedHint');
+            const metricHint = document.getElementById('metricTrappedHint');
+            const status = document.getElementById('consoleStatus');
+            const stressBtn = document.getElementById('runStressTest');
 
-            if (!dsoSlider || !apSlider || !industrySelect) return;
+            let active = null;
 
-            let activeProfile = INDUSTRY_PROFILES.agribusiness;
-
-            function formatCurrency(amount) {
-                const abs = Math.abs(amount);
-                if (abs >= 1e6) return (amount < 0 ? '-' : '') + '$' + (abs / 1e6).toFixed(1) + 'M';
-                if (abs >= 1e3) return (amount < 0 ? '-' : '') + '$' + Math.round(abs / 1e3) + 'K';
-                return new Intl.NumberFormat('en-AU', {
-                    style: 'currency',
-                    currency: 'AUD',
-                    maximumFractionDigits: 0,
-                }).format(amount).replace('A$', '$');
+            function formatMoney(n) {
+                const abs = Math.abs(n);
+                const sign = n < 0 ? '-' : '';
+                if (abs >= 1e6) return sign + '$' + (abs / 1e6).toFixed(2) + 'M';
+                if (abs >= 1e3) return sign + '$' + Math.round(abs / 1e3).toLocaleString('en-AU') + 'K';
+                return sign + '$' + Math.round(abs).toLocaleString('en-AU');
             }
 
-            function recalibrateLedger() {
+            function runLedger() {
+                if (!active) {
+                    metricTrapped.textContent = '—';
+                    metricAvailable.textContent = '—';
+                    metricRunway.textContent = '—';
+                    readoutDso.textContent = '—';
+                    readoutDpo.textContent = '—';
+                    return;
+                }
+
                 const dso = Number(dsoSlider.value);
-                const ap = Number(apSlider.value);
-                const profile = activeProfile;
+                const dpo = Number(dpoSlider.value);
+                const sectorMultiplier = active.volume / 365;
+                const daysOverdue = Math.max(0, dso - TARGET_DSO);
+                const trappedCash = daysOverdue * sectorMultiplier;
+                const baseReserves = active.volume * 0.065;
+                const recoveredFromDso = (active.dso - dso) * sectorMultiplier;
+                const recoveredFromDpo = (dpo - active.ap) * sectorMultiplier * 0.72;
+                const recoveredLiquidity = recoveredFromDso + recoveredFromDpo;
+                const availableWC = baseReserves + recoveredLiquidity;
+                const runwayDays = Math.round(recoveredLiquidity / sectorMultiplier);
 
-                const daysOverdue = Math.max(0, dso - profile.targetDso);
-                const trappedCash = daysOverdue * profile.trappedPerDay;
-                const unlockedFromDso = Math.max(0, 90 - dso) * profile.unlockDsoRate;
-                const unlockedFromAp = Math.max(0, ap - profile.baseAp) * profile.unlockApRate;
-                const unlockedCapital = unlockedFromDso + unlockedFromAp;
-                const availableWC = profile.cashBuffer + unlockedCapital;
-                const runwayDays = Math.max(
-                    0,
-                    Math.round(unlockedCapital / profile.dailyBurn) + Math.max(0, ap - profile.ap) + Math.max(0, profile.dso - dso)
-                );
-
-                readoutDso.textContent = dso + ' days';
-                readoutAp.textContent = ap + ' days';
-                dsoSlider.setAttribute('aria-valuenow', String(dso));
-                apSlider.setAttribute('aria-valuenow', String(ap));
-
-                metricTrapped.textContent = formatCurrency(trappedCash);
-                metricAvailable.textContent = formatCurrency(availableWC);
-                metricRunway.textContent = '+' + runwayDays + ' Days';
-                if (metricTrappedHint) metricTrappedHint.textContent = profile.hint;
+                readoutDso.textContent = dso + ' DAYS';
+                readoutDpo.textContent = dpo + ' DAYS';
+                metricTrapped.textContent = formatMoney(trappedCash);
+                metricAvailable.textContent = formatMoney(availableWC);
+                metricRunway.textContent = (runwayDays >= 0 ? '+' : '') + runwayDays + ' DAYS';
+                metricHint.textContent = 'Days overdue × ' + formatMoney(sectorMultiplier) + ' / day  ·  volume ' + formatMoney(active.volume);
+                status.textContent = active.label + ' armed  ·  coefficients live  ·  DSO/DPO inputs unlocked';
             }
 
-            function applyIndustryProfile(profileKey) {
-                const profile = INDUSTRY_PROFILES[profileKey] || INDUSTRY_PROFILES.agribusiness;
-                activeProfile = profile;
+            function armProfile(key) {
+                const profile = PROFILES[key];
+                if (!profile) {
+                    active = null;
+                    dsoSlider.disabled = true;
+                    dpoSlider.disabled = true;
+                    status.textContent = 'Awaiting industry profile selection to arm ledger coefficients.';
+                    metricHint.textContent = 'Days overdue × sector multiplier base';
+                    runLedger();
+                    return;
+                }
+                active = profile;
+                dsoSlider.disabled = false;
+                dpoSlider.disabled = false;
                 dsoSlider.value = String(profile.dso);
-                apSlider.value = String(profile.ap);
-                recalibrateLedger();
+                dpoSlider.value = String(profile.ap);
+                runLedger();
             }
 
-            ['input', 'change'].forEach((evt) => {
-                dsoSlider.addEventListener(evt, recalibrateLedger);
-                apSlider.addEventListener(evt, recalibrateLedger);
+            router.addEventListener('change', function () {
+                armProfile(router.value);
             });
 
-            industrySelect.addEventListener('change', () => {
-                applyIndustryProfile(industrySelect.value);
+            ['input', 'change'].forEach(function (evt) {
+                dsoSlider.addEventListener(evt, runLedger);
+                dpoSlider.addEventListener(evt, runLedger);
             });
 
-            applyIndustryProfile(industrySelect.value || 'agribusiness');
+            stressBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                const consoleEl = document.getElementById('command-center');
+                if (consoleEl) consoleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                router.classList.add('router--armed');
+                router.focus();
+                window.setTimeout(function () {
+                    router.classList.remove('router--armed');
+                }, 2200);
+            });
         })();
     </script>
 </body>
