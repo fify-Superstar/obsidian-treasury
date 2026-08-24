@@ -18,14 +18,8 @@
             --font: "IBM Plex Sans", "Segoe UI", sans-serif;
             --mono: "IBM Plex Mono", ui-monospace, monospace;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             min-height: 100vh;
             background: var(--obsidian);
@@ -46,10 +40,7 @@
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border);
         }
-        .wordmark {
-            text-decoration: none;
-            color: var(--white);
-        }
+        .wordmark { text-decoration: none; color: var(--white); }
         .wordmark__primary {
             display: block;
             font-size: 13px;
@@ -69,44 +60,33 @@
         .masthead__actions {
             display: flex;
             align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .nav-link {
             color: var(--white);
             text-decoration: none;
             font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             padding: 10px 4px;
             border-bottom: 1px solid transparent;
         }
-        .nav-link:hover {
+        .nav-link:hover { color: var(--mint); border-bottom-color: var(--mint); }
+        .nav-link--accent {
+            border: 1px solid var(--mint);
             color: var(--mint);
+            padding: 10px 14px;
+        }
+        .nav-link--accent:hover {
+            background: rgba(0, 255, 204, 0.08);
             border-bottom-color: var(--mint);
         }
-        .stress-btn {
-            display: inline-flex;
-            align-items: center;
-            background: transparent;
-            color: var(--mint);
-            border: 1px solid var(--mint);
-            padding: 10px 16px;
-            font-family: inherit;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .stress-btn:hover {
-            background: rgba(0, 255, 204, 0.08);
-        }
-        #command-center {
+        .suite {
             scroll-margin-top: 24px;
-            margin-top: 32px;
+            margin-top: 28px;
             background: var(--slate);
             border: 1px solid var(--border);
             padding: 28px;
@@ -121,15 +101,13 @@
             margin-bottom: 8px;
         }
         .console-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             margin-bottom: 22px;
         }
-        .profile-block {
-            margin-bottom: 24px;
-        }
+        .profile-block { margin-bottom: 24px; }
         .profile-block label {
             display: block;
             font-size: 11px;
@@ -155,17 +133,9 @@
             padding: 14px 40px 14px 14px;
             outline: none;
             cursor: pointer;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        #agri-profile-router:focus,
-        #agri-profile-router.router--armed {
-            border-color: var(--mint);
-            box-shadow: 0 0 0 1px var(--mint);
-        }
-        #agri-profile-router option {
-            background: var(--obsidian);
-            color: var(--white);
-        }
+        #agri-profile-router:focus { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+        #agri-profile-router option { background: var(--obsidian); color: var(--white); }
         .metric-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -177,13 +147,21 @@
             border: 1px solid var(--border);
             padding: 16px 18px;
         }
-        .metric__label {
+        .metric__eyebrow {
             font-size: 10px;
             font-weight: 600;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             color: var(--steel);
-            margin-bottom: 10px;
+            margin-bottom: 4px;
+        }
+        .metric__label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: 12px;
         }
         .metric__value {
             font-family: var(--mono);
@@ -196,6 +174,13 @@
             margin-top: 8px;
             font-size: 12px;
             color: var(--steel);
+        }
+        .metric__delta {
+            display: inline-block;
+            margin-left: 8px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--mint);
         }
         .slider-grid {
             display: grid;
@@ -252,10 +237,7 @@
             border: 0;
             cursor: pointer;
         }
-        input[type="range"]:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
+        input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
         .slider-unit__meta {
             display: flex;
             justify-content: space-between;
@@ -270,30 +252,57 @@
             font-size: 11px;
             color: var(--steel);
         }
-        .protocols {
-            margin-top: 28px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
+        .view-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 22px;
         }
-        .protocols__header {
-            font-family: var(--mono);
-            font-size: 12px;
+        .view-pill {
+            background: var(--obsidian);
+            border: 1px solid var(--border);
+            color: var(--steel);
+            font-family: inherit;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: var(--white);
-            margin-bottom: 18px;
+            padding: 10px 14px;
+            cursor: pointer;
         }
-        .protocol-grid {
+        .view-pill:hover { color: var(--white); border-color: var(--steel); }
+        .view-pill--active {
+            color: var(--mint);
+            border-color: var(--mint);
+        }
+        .tech-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        .compliance-track {
+            margin-top: 12px;
+            height: 4px;
+            background: var(--border);
+        }
+        .compliance-track span {
+            display: block;
+            height: 100%;
+            width: 97.1%;
+            background: var(--mint);
+        }
+        .ops-track {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 12px;
         }
-        .protocol {
+        .ops-col {
             border: 1px solid var(--border);
-            padding: 18px;
+            background: var(--obsidian);
+            padding: 16px;
         }
-        .protocol__index {
+        .ops-col__index {
             font-family: var(--mono);
             font-size: 10px;
             letter-spacing: 0.16em;
@@ -301,17 +310,14 @@
             color: var(--mint);
             margin-bottom: 8px;
         }
-        .protocol h3 {
-            font-size: 14px;
+        .ops-col h3 {
+            font-size: 13px;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
-        .protocol p {
-            font-size: 13px;
-            color: var(--steel);
-        }
+        .ops-col p { font-size: 12px; color: var(--steel); }
         footer.disclosure {
             display: flex;
             justify-content: space-between;
@@ -324,28 +330,20 @@
             font-size: 12px;
             color: var(--steel);
         }
-        footer.disclosure a {
-            color: var(--steel);
-            text-decoration: none;
-        }
-        footer.disclosure a:hover {
-            color: var(--mint);
+        footer.disclosure a { color: var(--steel); text-decoration: none; }
+        footer.disclosure a:hover { color: var(--mint); }
+        @media (max-width: 1080px) {
+            .tech-metrics { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 900px) {
-            .metric-row,
-            .slider-grid,
-            .protocol-grid {
-                grid-template-columns: 1fr;
-            }
+            .metric-row, .slider-grid, .ops-track { grid-template-columns: 1fr; }
         }
         @media (max-width: 720px) {
             .shell { padding: 20px 16px 32px; }
-            header.masthead {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .console-title { font-size: 16px; }
+            header.masthead { flex-direction: column; align-items: flex-start; }
+            .console-title { font-size: 15px; }
             .metric__value { font-size: 22px; }
+            .tech-metrics { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -357,40 +355,40 @@
                 <span class="wordmark__secondary">Capital Efficiency Architecture</span>
             </a>
             <nav class="masthead__actions" aria-label="Primary">
-                <a class="nav-link" href="#command-center">Command Centre</a>
-                <a class="stress-btn" href="#command-center" id="runStressTest">Run Agribusiness Stress-Test</a>
+                <a class="nav-link" href="#agri-audit-suite">Agribusiness Audit Console</a>
+                <a class="nav-link nav-link--accent" href="#tech-runtime-suite">Cloud &amp; Tech Command Center</a>
             </nav>
         </header>
 
-        <section id="command-center">
-            <div class="console-kicker">Obsidian Runtime Console</div>
-            <h1 class="console-title">Obsidian Runtime Console // System Stress-Test Engine</h1>
+        <section class="suite" id="agri-audit-suite">
+            <div class="console-kicker">Agribusiness Audit Suite</div>
+            <h1 class="console-title">Agribusiness Audit Console // Ledger Calibration Engine</h1>
 
             <div class="profile-block">
                 <label for="agri-profile-router">Select Industry Benchmark Profile:</label>
                 <select id="agri-profile-router">
                     <option value="" selected>Select Industry Benchmark Profile...</option>
-                    <option value="poultry">Poultry &amp; Livestock Processing (Inghams, AACo, Craig Mostyn)</option>
-                    <option value="produce">Fresh Produce &amp; Aquaculture Logistics (Costa, SunRice, Tassal)</option>
-                    <option value="grain">Bulk Grain &amp; High-Volume Wholesale (GrainCorp, Melba Fresh)</option>
-                    <option value="fmcg">Packaged FMCG &amp; Contract Manufacturing (Sanitarium, Bickford's, GWF)</option>
+                    <option value="poultry">Poultry &amp; Livestock Processing</option>
+                    <option value="produce">Fresh Produce Logistics</option>
+                    <option value="grain">Bulk Grain &amp; Wholesale</option>
+                    <option value="fmcg">Packaged FMCG &amp; Manufacturing</option>
                 </select>
             </div>
 
             <div class="metric-row">
                 <article class="metric">
                     <div class="metric__label">Trapped Cash</div>
-                    <div class="metric__value" id="metricTrappedCash">—</div>
-                    <div class="metric__hint" id="metricTrappedHint">Days overdue × sector multiplier base</div>
+                    <div class="metric__value" id="agriTrappedCash">—</div>
+                    <div class="metric__hint" id="agriTrappedHint">Days overdue × sector multiplier base</div>
                 </article>
                 <article class="metric">
                     <div class="metric__label">Available Working Capital</div>
-                    <div class="metric__value" id="metricAvailableWC">—</div>
+                    <div class="metric__value" id="agriAvailableWC">—</div>
                     <div class="metric__hint">Base cash reserves + recovered liquidity</div>
                 </article>
                 <article class="metric">
                     <div class="metric__label">Runway Extension Days</div>
-                    <div class="metric__value" id="metricRunwayDays">—</div>
+                    <div class="metric__value" id="agriRunwayDays">—</div>
                     <div class="metric__hint">Calculated liquidity index</div>
                 </article>
             </div>
@@ -398,42 +396,81 @@
             <div class="slider-grid">
                 <div class="slider-unit">
                     <div class="slider-unit__top">
-                        <label for="sliderDso">Days Sales Outstanding (DSO)</label>
-                        <span class="slider-unit__readout" id="readoutDso">—</span>
+                        <label for="agriSliderDso">Days Sales Outstanding (DSO)</label>
+                        <span class="slider-unit__readout" id="agriReadoutDso">—</span>
                     </div>
-                    <input type="range" id="sliderDso" min="15" max="90" value="55" step="1" disabled>
+                    <input type="range" id="agriSliderDso" min="15" max="90" value="55" step="1" disabled>
                     <div class="slider-unit__meta"><span>15 days</span><span>90 days</span></div>
                 </div>
                 <div class="slider-unit">
                     <div class="slider-unit__top">
-                        <label for="sliderDpo">Accounts Payable Extension (DPO)</label>
-                        <span class="slider-unit__readout" id="readoutDpo">—</span>
+                        <label for="agriSliderDpo">Accounts Payable Extension (AP)</label>
+                        <span class="slider-unit__readout" id="agriReadoutDpo">—</span>
                     </div>
-                    <input type="range" id="sliderDpo" min="30" max="90" value="45" step="1" disabled>
+                    <input type="range" id="agriSliderDpo" min="30" max="90" value="45" step="1" disabled>
                     <div class="slider-unit__meta"><span>30 days</span><span>90 days</span></div>
                 </div>
             </div>
-            <p class="console-note" id="consoleStatus">Awaiting industry profile selection to arm ledger coefficients.</p>
+            <p class="console-note" id="agriStatus">Awaiting industry profile selection to arm ledger coefficients.</p>
+        </section>
 
-            <div class="protocols">
-                <h2 class="protocols__header">Operational Protocols // Margin Extension Boundaries</h2>
-                <div class="protocol-grid">
-                    <article class="protocol">
-                        <div class="protocol__index">Column 01</div>
-                        <h3>Cost Interception</h3>
-                        <p>Turning highly volatile trade receivables, delayed invoice structures, and distribution overhead into tightly controlled, predictable capital flow.</p>
-                    </article>
-                    <article class="protocol">
-                        <div class="protocol__index">Column 02</div>
-                        <h3>Preemptive Runway Extension</h3>
-                        <p>Moving corporate finance teams away from historical, retroactive bookkeeping and into real-time, forward-looking ledger visibility.</p>
-                    </article>
-                    <article class="protocol">
-                        <div class="protocol__index">Column 03</div>
-                        <h3>Ecosystem Resilience</h3>
-                        <p>Anchoring capital stability across complex supply chains, major supermarket vendor agreements, and heavy retail processing environments.</p>
-                    </article>
-                </div>
+        <section class="suite" id="tech-runtime-suite">
+            <div class="console-kicker">Cloud Liquidity Override Protocols</div>
+            <h1 class="console-title">Executive Command Center // Cloud Liquidity Override Protocols</h1>
+
+            <div class="view-row" role="tablist" aria-label="Industry views">
+                <button type="button" class="view-pill" data-tech-view="logistics">Logistics &amp; 3PL</button>
+                <button type="button" class="view-pill" data-tech-view="healthcare">Healthcare &amp; Care Ops</button>
+                <button type="button" class="view-pill" data-tech-view="ecommerce">E-commerce &amp; Retail</button>
+                <button type="button" class="view-pill view-pill--active" data-tech-view="tech">Tech, AI &amp; Cloud SaaS</button>
+            </div>
+
+            <div class="tech-metrics">
+                <article class="metric">
+                    <div class="metric__eyebrow" id="techCashEyebrow">Cloud Treasury Position</div>
+                    <div class="metric__label" id="techCashLabel">AWS/Azure Cloud Compute</div>
+                    <div class="metric__value">
+                        <span id="techCashValue">$25.0M</span>
+                        <span class="metric__delta" id="techCashDelta">+12.4%</span>
+                    </div>
+                    <div class="metric__hint" id="techCashHint">Sparkline marker · live treasury</div>
+                </article>
+                <article class="metric">
+                    <div class="metric__eyebrow" id="techRunwayEyebrow">Inference Runway</div>
+                    <div class="metric__label" id="techRunwayLabel">LLM API Usage OpenAI/Anthropic</div>
+                    <div class="metric__value" id="techRunwayValue">18.2 mo</div>
+                    <div class="metric__hint" id="techRunwayHint">Model burn $1.36M/mo</div>
+                </article>
+                <article class="metric">
+                    <div class="metric__eyebrow" id="techSavingsEyebrow">Autonomous FinOps Savings</div>
+                    <div class="metric__label" id="techSavingsLabel">CI/CD &amp; DevOps Stack</div>
+                    <div class="metric__value" id="techSavingsValue">$850K</div>
+                    <div class="metric__hint"><span id="techActionsValue">144</span> pipeline movements</div>
+                </article>
+                <article class="metric">
+                    <div class="metric__eyebrow" id="techComplianceEyebrow">SaaS Control Plane</div>
+                    <div class="metric__label" id="techComplianceLabel">SOC2 Spend Compliance</div>
+                    <div class="metric__value" id="techComplianceValue">97.1%</div>
+                    <div class="compliance-track" aria-hidden="true"><span id="techComplianceBar"></span></div>
+                </article>
+            </div>
+
+            <div class="ops-track">
+                <article class="ops-col">
+                    <div class="ops-col__index">01. Compute &amp; Infra</div>
+                    <h3 id="techTrack0">AWS/Azure Cloud Compute</h3>
+                    <p>Infrastructure spend guardrail and idle-capacity intercept.</p>
+                </article>
+                <article class="ops-col">
+                    <div class="ops-col__index">02. Model Inference</div>
+                    <h3 id="techTrack1">LLM API Usage</h3>
+                    <p>Token burn and model-runway telemetry for AI workloads.</p>
+                </article>
+                <article class="ops-col">
+                    <div class="ops-col__index">03. Delivery Systems</div>
+                    <h3 id="techTrack2">CI/CD &amp; DevOps Stack</h3>
+                    <p>Pipeline actions, zombie seats, and FinOps recovery.</p>
+                </article>
             </div>
         </section>
 
@@ -444,46 +481,26 @@
     </div>
 
     <script>
-        (function () {
+        (function initAgriAuditSuite() {
             const TARGET_DSO = 30;
             const PROFILES = {
-                poultry: {
-                    dso: 55,
-                    ap: 45,
-                    volume: 12000000,
-                    label: 'Poultry & Livestock Processing'
-                },
-                produce: {
-                    dso: 75,
-                    ap: 60,
-                    volume: 8500000,
-                    label: 'Fresh Produce & Aquaculture Logistics'
-                },
-                grain: {
-                    dso: 45,
-                    ap: 30,
-                    volume: 24000000,
-                    label: 'Bulk Grain & High-Volume Wholesale'
-                },
-                fmcg: {
-                    dso: 65,
-                    ap: 50,
-                    volume: 16000000,
-                    label: 'Packaged FMCG & Contract Manufacturing'
-                }
+                poultry: { dso: 55, ap: 45, volume: 12000000, label: 'Poultry & Livestock Processing' },
+                produce: { dso: 75, ap: 60, volume: 8500000, label: 'Fresh Produce Logistics' },
+                grain: { dso: 45, ap: 30, volume: 24000000, label: 'Bulk Grain & Wholesale' },
+                fmcg: { dso: 65, ap: 50, volume: 16000000, label: 'Packaged FMCG & Manufacturing' }
             };
 
             const router = document.getElementById('agri-profile-router');
-            const dsoSlider = document.getElementById('sliderDso');
-            const dpoSlider = document.getElementById('sliderDpo');
-            const readoutDso = document.getElementById('readoutDso');
-            const readoutDpo = document.getElementById('readoutDpo');
-            const metricTrapped = document.getElementById('metricTrappedCash');
-            const metricAvailable = document.getElementById('metricAvailableWC');
-            const metricRunway = document.getElementById('metricRunwayDays');
-            const metricHint = document.getElementById('metricTrappedHint');
-            const status = document.getElementById('consoleStatus');
-            const stressBtn = document.getElementById('runStressTest');
+            const dsoSlider = document.getElementById('agriSliderDso');
+            const dpoSlider = document.getElementById('agriSliderDpo');
+            const readoutDso = document.getElementById('agriReadoutDso');
+            const readoutDpo = document.getElementById('agriReadoutDpo');
+            const metricTrapped = document.getElementById('agriTrappedCash');
+            const metricAvailable = document.getElementById('agriAvailableWC');
+            const metricRunway = document.getElementById('agriRunwayDays');
+            const metricHint = document.getElementById('agriTrappedHint');
+            const status = document.getElementById('agriStatus');
+            if (!router || !dsoSlider || !dpoSlider) return;
 
             let active = null;
 
@@ -504,16 +521,15 @@
                     readoutDpo.textContent = '—';
                     return;
                 }
-
                 const dso = Number(dsoSlider.value);
                 const dpo = Number(dpoSlider.value);
                 const sectorMultiplier = active.volume / 365;
                 const daysOverdue = Math.max(0, dso - TARGET_DSO);
                 const trappedCash = daysOverdue * sectorMultiplier;
                 const baseReserves = active.volume * 0.065;
-                const recoveredFromDso = (active.dso - dso) * sectorMultiplier;
-                const recoveredFromDpo = (dpo - active.ap) * sectorMultiplier * 0.72;
-                const recoveredLiquidity = recoveredFromDso + recoveredFromDpo;
+                const recoveredLiquidity =
+                    (active.dso - dso) * sectorMultiplier +
+                    (dpo - active.ap) * sectorMultiplier * 0.72;
                 const availableWC = baseReserves + recoveredLiquidity;
                 const runwayDays = Math.round(recoveredLiquidity / sectorMultiplier);
 
@@ -522,12 +538,12 @@
                 metricTrapped.textContent = formatMoney(trappedCash);
                 metricAvailable.textContent = formatMoney(availableWC);
                 metricRunway.textContent = (runwayDays >= 0 ? '+' : '') + runwayDays + ' DAYS';
-                metricHint.textContent = 'Days overdue × ' + formatMoney(sectorMultiplier) + ' / day  ·  volume ' + formatMoney(active.volume);
-                status.textContent = active.label + ' armed  ·  coefficients live  ·  DSO/DPO inputs unlocked';
+                metricHint.textContent = 'Days overdue × ' + formatMoney(sectorMultiplier) + ' / day · volume ' + formatMoney(active.volume);
+                status.textContent = active.label + ' armed · agri coefficients live';
             }
 
-            function armProfile(key) {
-                const profile = PROFILES[key];
+            router.addEventListener('change', function () {
+                const profile = PROFILES[router.value];
                 if (!profile) {
                     active = null;
                     dsoSlider.disabled = true;
@@ -543,27 +559,130 @@
                 dsoSlider.value = String(profile.dso);
                 dpoSlider.value = String(profile.ap);
                 runLedger();
+            });
+
+            dsoSlider.addEventListener('input', runLedger);
+            dpoSlider.addEventListener('input', runLedger);
+        })();
+
+        (function initTechRuntimeSuite() {
+            const VIEWS = {
+                logistics: {
+                    cashEyebrow: 'Fleet Working Capital',
+                    cashLabel: 'WMS & Fleet Telematics',
+                    cash: '$18.4M',
+                    cashDelta: '+9.8%',
+                    cashHint: 'Carrier settlement buffer · live',
+                    runwayEyebrow: 'Carrier Runway',
+                    runwayLabel: 'Route Optimization Tools',
+                    runway: '14.6 mo',
+                    runwayHint: 'Fleet burn $2.1M/mo',
+                    savingsEyebrow: 'Lane Optimization Savings',
+                    savingsLabel: 'Cold-Chain Supply Tracking',
+                    savings: '$612K',
+                    actions: '96',
+                    complianceEyebrow: 'Carrier Control Tower',
+                    complianceLabel: 'Chain-of-Custody Compliance',
+                    compliance: 91.4,
+                    tracks: ['WMS & Fleet Telematics', 'Route Optimization Tools', 'Cold-Chain Supply Tracking']
+                },
+                healthcare: {
+                    cashEyebrow: 'Provider Cash Position',
+                    cashLabel: 'NDIS Compliance Software',
+                    cash: '$11.2M',
+                    cashDelta: '+6.2%',
+                    cashHint: 'Claim-cycle treasury · live',
+                    runwayEyebrow: 'Care Delivery Runway',
+                    runwayLabel: 'Roster & Care Platforms',
+                    runway: '16.8 mo',
+                    runwayHint: 'Care burn $1.9M/mo',
+                    savingsEyebrow: 'Claim Recovery Savings',
+                    savingsLabel: 'Patient Data Management',
+                    savings: '$428K',
+                    actions: '118',
+                    complianceEyebrow: 'NDIS Control Plane',
+                    complianceLabel: 'Plan Management Compliance',
+                    compliance: 98.6,
+                    tracks: ['NDIS Compliance Software', 'Roster & Care Platforms', 'Patient Data Management']
+                },
+                ecommerce: {
+                    cashEyebrow: 'Merchant Cash Position',
+                    cashLabel: 'Shopify Plugins & Apps',
+                    cash: '$21.7M',
+                    cashDelta: '+14.1%',
+                    cashHint: 'GMV settlement buffer · live',
+                    runwayEyebrow: 'Contribution Runway',
+                    runwayLabel: 'Ad Attribution Software',
+                    runway: '12.4 mo',
+                    runwayHint: 'Growth burn $2.4M/mo',
+                    savingsEyebrow: 'CAC Efficiency Savings',
+                    savingsLabel: 'Logistics & Shipping Tech',
+                    savings: '$731K',
+                    actions: '162',
+                    complianceEyebrow: 'Channel Control Plane',
+                    complianceLabel: 'Marketplace Fee Compliance',
+                    compliance: 88.9,
+                    tracks: ['Shopify Plugins & Apps', 'Ad Attribution Software', 'Logistics & Shipping Tech']
+                },
+                tech: {
+                    cashEyebrow: 'Cloud Treasury Position',
+                    cashLabel: 'AWS/Azure Cloud Compute',
+                    cash: '$25.0M',
+                    cashDelta: '+12.4%',
+                    cashHint: 'Sparkline marker · live treasury',
+                    runwayEyebrow: 'Inference Runway',
+                    runwayLabel: 'LLM API Usage OpenAI/Anthropic',
+                    runway: '18.2 mo',
+                    runwayHint: 'Model burn $1.36M/mo',
+                    savingsEyebrow: 'Autonomous FinOps Savings',
+                    savingsLabel: 'CI/CD & DevOps Stack',
+                    savings: '$850K',
+                    actions: '144',
+                    complianceEyebrow: 'SaaS Control Plane',
+                    complianceLabel: 'SOC2 Spend Compliance',
+                    compliance: 97.1,
+                    tracks: ['AWS/Azure Cloud Compute', 'LLM API Usage', 'CI/CD & DevOps Stack']
+                }
+            };
+
+            const pills = document.querySelectorAll('[data-tech-view]');
+            const bar = document.getElementById('techComplianceBar');
+
+            function applyView(id) {
+                const view = VIEWS[id];
+                if (!view) return;
+                pills.forEach(function (pill) {
+                    pill.classList.toggle('view-pill--active', pill.getAttribute('data-tech-view') === id);
+                });
+                document.getElementById('techCashEyebrow').textContent = view.cashEyebrow;
+                document.getElementById('techCashLabel').textContent = view.cashLabel;
+                document.getElementById('techCashValue').textContent = view.cash;
+                document.getElementById('techCashDelta').textContent = view.cashDelta;
+                document.getElementById('techCashHint').textContent = view.cashHint;
+                document.getElementById('techRunwayEyebrow').textContent = view.runwayEyebrow;
+                document.getElementById('techRunwayLabel').textContent = view.runwayLabel;
+                document.getElementById('techRunwayValue').textContent = view.runway;
+                document.getElementById('techRunwayHint').textContent = view.runwayHint;
+                document.getElementById('techSavingsEyebrow').textContent = view.savingsEyebrow;
+                document.getElementById('techSavingsLabel').textContent = view.savingsLabel;
+                document.getElementById('techSavingsValue').textContent = view.savings;
+                document.getElementById('techActionsValue').textContent = view.actions;
+                document.getElementById('techComplianceEyebrow').textContent = view.complianceEyebrow;
+                document.getElementById('techComplianceLabel').textContent = view.complianceLabel;
+                document.getElementById('techComplianceValue').textContent = view.compliance.toFixed(1) + '%';
+                if (bar) bar.style.width = view.compliance + '%';
+                document.getElementById('techTrack0').textContent = view.tracks[0];
+                document.getElementById('techTrack1').textContent = view.tracks[1];
+                document.getElementById('techTrack2').textContent = view.tracks[2];
             }
 
-            router.addEventListener('change', function () {
-                armProfile(router.value);
+            pills.forEach(function (pill) {
+                pill.addEventListener('click', function () {
+                    applyView(pill.getAttribute('data-tech-view'));
+                });
             });
 
-            ['input', 'change'].forEach(function (evt) {
-                dsoSlider.addEventListener(evt, runLedger);
-                dpoSlider.addEventListener(evt, runLedger);
-            });
-
-            stressBtn.addEventListener('click', function (event) {
-                event.preventDefault();
-                const consoleEl = document.getElementById('command-center');
-                if (consoleEl) consoleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                router.classList.add('router--armed');
-                router.focus();
-                window.setTimeout(function () {
-                    router.classList.remove('router--armed');
-                }, 2200);
-            });
+            applyView('tech');
         })();
     </script>
 </body>
