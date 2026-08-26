@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --obsidian: #06080f;
@@ -345,6 +346,35 @@
             .metric__value { font-size: 22px; }
             .tech-metrics { grid-template-columns: 1fr; }
         }
+
+        /* Liquidity Suite — executive range polish */
+        #liquidity-suite input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 999px;
+        }
+        #liquidity-suite input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            background: #D4AF37;
+            box-shadow: 0px 0px 10px rgba(212, 175, 55, 0.4);
+            border: 2px solid #0F1115;
+            cursor: pointer;
+        }
+        #liquidity-suite input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            background: #D4AF37;
+            box-shadow: 0px 0px 10px rgba(212, 175, 55, 0.4);
+            border: 2px solid #0F1115;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -355,10 +385,116 @@
                 <span class="wordmark__secondary">Capital Efficiency Architecture</span>
             </a>
             <nav class="masthead__actions" aria-label="Primary">
+                <a class="nav-link" href="#liquidity-suite">Liquidity Suite</a>
                 <a class="nav-link" href="#agri-audit-suite">Agribusiness Audit Console</a>
                 <a class="nav-link nav-link--accent" href="#tech-runtime-suite">Cloud &amp; Tech Command Center</a>
             </nav>
         </header>
+
+        <!-- PASTE / LOCATED HERE: Working Capital & Cash Liquidity Suite (vanilla + Tailwind) -->
+        <section id="liquidity-suite" class="mt-8 scroll-mt-6 w-full bg-[#0F1115] text-slate-100 p-6 md:p-10 border border-slate-800">
+            <div class="w-full text-center mb-10">
+                <span class="text-[#D4AF37] tracking-[0.2em] text-xs font-bold uppercase">Obsidian Treasury Console</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-white">
+                    Working Capital &amp; Cash Liquidity Suite
+                </h2>
+                <p class="text-slate-400 mt-4 max-w-2xl mx-auto text-sm md:text-base">
+                    Audit your operational conversion cycle, pinpoint ledger liquidity friction points, and identify cash availability traps immediately.
+                </p>
+            </div>
+
+            <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-[#161920] border border-slate-800 rounded-xl p-6 shadow-2xl space-y-6">
+                    <h3 class="text-lg font-bold text-white tracking-wide border-b border-slate-800 pb-3">Operational Inputs</h3>
+
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-wider text-slate-400 font-semibold" for="liqRevenue">Annual Revenue (AUD)</label>
+                        <input
+                            id="liqRevenue"
+                            type="number"
+                            value="12000000"
+                            class="w-full bg-[#1C212C] border border-slate-700 rounded-lg py-2.5 px-4 text-white font-mono focus:outline-none focus:border-[#D4AF37] transition-all"
+                        >
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-wider text-slate-400 font-semibold" for="liqDso">Days Sales Outstanding (DSO)</label>
+                        <input id="liqDso" type="range" min="10" max="120" value="45" class="w-full accent-[#D4AF37]">
+                        <div class="flex justify-between text-xs font-mono text-slate-400">
+                            <span>10 Days</span>
+                            <span class="text-[#D4AF37] font-bold"><span id="liqDsoValue">45</span> Days</span>
+                            <span>120 Days</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-wider text-slate-400 font-semibold" for="liqDpo">Days Payable Outstanding (DPO)</label>
+                        <input id="liqDpo" type="range" min="10" max="120" value="30" class="w-full accent-[#D4AF37]">
+                        <div class="flex justify-between text-xs font-mono text-slate-400">
+                            <span>10 Days</span>
+                            <span class="text-[#D4AF37] font-bold"><span id="liqDpoValue">30</span> Days</span>
+                            <span>120 Days</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-wider text-slate-400 font-semibold" for="liqDio">Days Inventory Outstanding (DIO)</label>
+                        <input id="liqDio" type="range" min="0" max="90" value="25" class="w-full accent-[#D4AF37]">
+                        <div class="flex justify-between text-xs font-mono text-slate-400">
+                            <span>0 Days</span>
+                            <span class="text-[#D4AF37] font-bold"><span id="liqDioValue">25</span> Days</span>
+                            <span>90 Days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-[#161920] border-l-4 border-[#D4AF37] rounded-xl p-6 shadow-xl">
+                            <span class="text-xs tracking-wider text-slate-400 uppercase font-semibold">Trapped Ledger Capital</span>
+                            <div class="text-3xl font-black text-white font-mono mt-2" id="liqTrappedCash">$0</div>
+                            <p class="text-xs text-slate-400 mt-2">Liquid value tied up in outstanding receivables based on your current collection timeline.</p>
+                        </div>
+                        <div class="bg-[#161920] border-l-4 rounded-xl p-6 shadow-xl" id="liqGapCard" style="border-color:#D4AF37">
+                            <span class="text-xs tracking-wider text-slate-400 uppercase font-semibold">Operational Liquidity Gap</span>
+                            <div class="text-3xl font-black font-mono mt-2" id="liqFundingGap" style="color:#D4AF37">0 Days</div>
+                            <p class="text-xs text-slate-400 mt-2" id="liqGapCopy">OPTIMAL: Your supplier schedules are successfully buffering customer payment float.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#161920] border border-slate-800 rounded-xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-gradient-to-l from-[#d4af3715] to-transparent w-1/2 h-full pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <span class="bg-[#d4af371a] text-[#D4AF37] text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full uppercase">
+                                Premium Optimization Asset
+                            </span>
+                            <h3 class="text-xl font-bold text-white mt-4">Secure a Structured Treasury Audit</h3>
+                            <p class="text-slate-400 text-sm mt-2 max-w-xl" id="liqAuditPrompt">
+                                Your parameters indicate an optimal cash conversion metric. Request a 1-on-1 operational breakdown to unlock trapped working capital reserves.
+                            </p>
+
+                            <form id="liqAuditForm" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input type="text" required placeholder="Executive Name" id="liqExecName"
+                                    class="w-full bg-[#1C212C] border border-slate-700 rounded-lg py-2 px-4 text-sm text-white focus:outline-none focus:border-[#D4AF37]">
+                                <input type="email" required placeholder="Corporate Email" id="liqExecEmail"
+                                    class="w-full bg-[#1C212C] border border-slate-700 rounded-lg py-2 px-4 text-sm text-white focus:outline-none focus:border-[#D4AF37]">
+                                <input type="text" required placeholder="Company Name" id="liqCompanyName"
+                                    class="w-full bg-[#1C212C] border border-slate-700 rounded-lg py-2 px-4 text-sm text-white md:col-span-2 focus:outline-none focus:border-[#D4AF37]">
+                                <button type="submit"
+                                    class="w-full bg-gradient-to-r from-[#B89025] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#F3CD59] text-[#0F1115] font-bold text-sm tracking-wide py-2.5 px-6 rounded-lg md:col-span-2 shadow-lg shadow-[#d4af3720] transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                                    Initiate Private Portfolio Audit
+                                </button>
+                            </form>
+
+                            <div id="liqAuditSuccess" class="mt-6 p-4 bg-[#d4af3710] border border-[#D4AF37] rounded-lg text-center" hidden>
+                                <p class="text-[#D4AF37] font-bold text-sm">Audit Request Transmitted Successfully.</p>
+                                <p class="text-xs text-slate-400 mt-1">Our lead treasury officer will review your working capital structure profile within 1 business day.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <section class="suite" id="agri-audit-suite">
             <div class="console-kicker">Agribusiness Audit Suite</div>
@@ -481,6 +617,81 @@
     </div>
 
     <script>
+        (function initLiquiditySuite() {
+            const revenueEl = document.getElementById('liqRevenue');
+            const dsoEl = document.getElementById('liqDso');
+            const dpoEl = document.getElementById('liqDpo');
+            const dioEl = document.getElementById('liqDio');
+            const form = document.getElementById('liqAuditForm');
+            if (!revenueEl || !dsoEl || !dpoEl || !dioEl || !form) return;
+
+            function calculateMetrics() {
+                const revenue = Number(revenueEl.value) || 0;
+                const dso = Number(dsoEl.value);
+                const dpo = Number(dpoEl.value);
+                const inventoryDays = Number(dioEl.value);
+                const dailyRevenue = revenue / 365;
+                const trappedCash = Math.max(0, dailyRevenue * dso);
+                const fundingGapDays = dso - dpo;
+                const cashConversionCycle = (dso + inventoryDays) - dpo;
+
+                let efficiencyIndex = 'OPTIMAL';
+                let indexColor = '#D4AF37';
+                if (cashConversionCycle > 40 || fundingGapDays > 10) {
+                    efficiencyIndex = 'CRITICAL';
+                    indexColor = '#EF4444';
+                } else if (cashConversionCycle > 15 || fundingGapDays > 0) {
+                    efficiencyIndex = 'WARNING';
+                    indexColor = '#F59E0B';
+                }
+
+                return { trappedCash, fundingGapDays, efficiencyIndex, indexColor };
+            }
+
+            function render() {
+                const metrics = calculateMetrics();
+                document.getElementById('liqDsoValue').textContent = dsoEl.value;
+                document.getElementById('liqDpoValue').textContent = dpoEl.value;
+                document.getElementById('liqDioValue').textContent = dioEl.value;
+                document.getElementById('liqTrappedCash').textContent =
+                    '$' + metrics.trappedCash.toLocaleString('en-AU', { maximumFractionDigits: 0 });
+
+                const gapLabel = (metrics.fundingGapDays > 0 ? '+' : '') + metrics.fundingGapDays + ' Days';
+                const gapEl = document.getElementById('liqFundingGap');
+                const gapCard = document.getElementById('liqGapCard');
+                gapEl.textContent = gapLabel;
+                gapEl.style.color = metrics.indexColor;
+                gapCard.style.borderColor = metrics.indexColor;
+
+                document.getElementById('liqGapCopy').textContent = metrics.fundingGapDays > 0
+                    ? 'CRITICAL: You are currently acting as an interest-free bank line for your clients.'
+                    : 'OPTIMAL: Your supplier schedules are successfully buffering customer payment float.';
+
+                document.getElementById('liqAuditPrompt').textContent =
+                    'Your parameters indicate a ' + metrics.efficiencyIndex.toLowerCase() +
+                    ' cash conversion metric. Request a 1-on-1 operational breakdown to unlock trapped working capital reserves.';
+            }
+
+            ['input', 'change'].forEach(function (evt) {
+                revenueEl.addEventListener(evt, render);
+                dsoEl.addEventListener(evt, render);
+                dpoEl.addEventListener(evt, render);
+                dioEl.addEventListener(evt, render);
+            });
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const name = document.getElementById('liqExecName').value.trim();
+                const email = document.getElementById('liqExecEmail').value.trim();
+                const company = document.getElementById('liqCompanyName').value.trim();
+                if (!name || !email || !company) return;
+                form.hidden = true;
+                document.getElementById('liqAuditSuccess').hidden = false;
+            });
+
+            render();
+        })();
+
         (function initAgriAuditSuite() {
             const TARGET_DSO = 30;
             const PROFILES = {
