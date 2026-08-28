@@ -48,6 +48,7 @@
   /* Layout */
   --sidebar-width: 240px;
   --header-height: 72px;
+  --content-max: 1340px;
 
   /* Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -71,7 +72,9 @@ body {
   font-family: var(--font-sans);
   background: var(--bg-base);
   color: var(--text-primary);
-  line-height: 1.5;
+  font-size: 18px;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -273,7 +276,7 @@ body {
   flex: 1;
   margin-left: var(--sidebar-width);
   padding: 0 32px 48px;
-  max-width: 1440px;
+  max-width: var(--content-max);
 }
 
 /* Header */
@@ -3670,4 +3673,72 @@ body {
 input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0px 0px 10px rgba(212, 175, 55, 0.4);
   border: 2px solid #0F1115;
+}
+
+/* ==========================================================================
+   OBSIDIAN TREASURY - EXECUTIVE READABILITY & CONTAINER OVERRIDES
+   ========================================================================== */
+/* Priority 4: Widen Main Site Margins to Eliminate Empty Black Side Space */
+.shell,
+.container,
+.wrapper,
+#main-content,
+main,
+.legal-header {
+    max-width: 1340px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    box-sizing: border-box !important;
+}
+/* Priority 1: Senior Executive Font & Readability Enhancements */
+body,
+p,
+li,
+span,
+input,
+textarea {
+    font-size: 18px !important; /* Optimised for 50+ age bracket scannability */
+    line-height: 1.65 !important; /* Increased breathing room between text rows */
+    letter-spacing: -0.01em !important;
+}
+/* Premium Typography Scaling for Headers */
+h1, .hero-title {
+    font-size: 3.25rem !important; /* Commanding executive boardroom presence */
+    line-height: 1.15 !important;
+    margin-bottom: 1.5rem !important;
+}
+h2, .section-title {
+    font-size: 2.25rem !important; /* High-scannability section anchors */
+    line-height: 1.25 !important;
+    margin-top: 2rem !important;
+    margin-bottom: 1.25rem !important;
+}
+h3, .subsection-title {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
+}
+/* Responsive Scaling: Ensure Mobile Layouts Stay Fluid */
+@media (max-width: 768px) {
+    .shell,
+    .container,
+    .wrapper,
+    #main-content,
+    main,
+    .legal-header {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    body, p, li, span {
+        font-size: 16px !important; /* Perfectly readable on smartphone interfaces */
+    }
+    h1, .hero-title {
+        font-size: 2.25rem !important;
+    }
+    h2, .section-title {
+        font-size: 1.75rem !important;
+    }
 }

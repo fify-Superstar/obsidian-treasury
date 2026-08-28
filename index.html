@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -26,12 +27,14 @@
             background: var(--obsidian);
             color: var(--white);
             font-family: var(--font);
-            line-height: 1.45;
+            line-height: 1.65;
         }
         .shell {
-            max-width: 1180px;
+            max-width: var(--content-max, 1340px);
+            width: 100%;
             margin: 0 auto;
-            padding: 28px 28px 40px;
+            padding: 28px 2rem 40px;
+            box-sizing: border-box;
         }
         header.masthead {
             display: flex;
@@ -340,9 +343,7 @@
             .metric-row, .slider-grid, .ops-track { grid-template-columns: 1fr; }
         }
         @media (max-width: 720px) {
-            .shell { padding: 20px 16px 32px; }
             header.masthead { flex-direction: column; align-items: flex-start; }
-            .console-title { font-size: 15px; }
             .metric__value { font-size: 22px; }
             .tech-metrics { grid-template-columns: 1fr; }
         }
@@ -378,7 +379,7 @@
     </style>
 </head>
 <body>
-    <div class="shell">
+    <main id="main-content" class="shell">
         <header class="masthead">
             <a class="wordmark" href="#">
                 <span class="wordmark__primary">Obsidian Treasury</span>
@@ -614,7 +615,7 @@
             <span>&copy; 2026 Obsidian Treasury. All rights reserved.</span>
             <span>ABN: 94 203 108 486 · <a href="mailto:wafa@obsidiantreasury.com.au">wafa@obsidiantreasury.com.au</a></span>
         </footer>
-    </div>
+    </main>
 
     <script>
         (function initLiquiditySuite() {
