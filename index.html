@@ -322,13 +322,38 @@
             margin-bottom: 6px;
         }
         .ops-col p { font-size: 12px; color: var(--steel); }
+        .legal-strip {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 28px;
+            margin-top: 40px;
+            padding: 4px 0 2px;
+        }
+        .legal-strip__link {
+            color: var(--steel);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            border-bottom: 1px solid transparent;
+            padding: 4px 0;
+            transition: color 200ms ease, border-color 200ms ease;
+        }
+        .legal-strip__link:hover,
+        .legal-strip__link:focus-visible {
+            color: var(--mint);
+            border-bottom-color: var(--mint);
+            outline: none;
+        }
         footer.disclosure {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 16px;
             flex-wrap: wrap;
-            margin-top: 36px;
+            margin-top: 14px;
             padding-top: 18px;
             border-top: 1px solid var(--border);
             font-size: 12px;
@@ -336,6 +361,130 @@
         }
         footer.disclosure a { color: var(--steel); text-decoration: none; }
         footer.disclosure a:hover { color: var(--mint); }
+        .policy-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1), visibility 280ms linear;
+        }
+        .policy-modal.is-open {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+        .policy-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(6, 8, 15, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .policy-modal__panel {
+            position: relative;
+            z-index: 1;
+            width: min(720px, 100%);
+            max-height: min(82vh, 840px);
+            display: flex;
+            flex-direction: column;
+            background: var(--slate);
+            border: 1px solid var(--border);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+            transform: translateY(14px);
+            transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .policy-modal.is-open .policy-modal__panel {
+            transform: translateY(0);
+        }
+        .policy-modal__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 22px 26px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .policy-modal__kicker {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--mint);
+            margin-bottom: 6px;
+        }
+        .policy-modal__title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--white);
+        }
+        .policy-modal__updated {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--steel);
+        }
+        .policy-modal__close {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--steel);
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+        .policy-modal__close:hover,
+        .policy-modal__close:focus-visible {
+            color: var(--mint);
+            border-color: var(--mint);
+            background: rgba(0, 255, 204, 0.06);
+            outline: none;
+        }
+        .policy-modal__body {
+            overflow-y: auto;
+            padding: 22px 26px 28px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .policy-modal__article[hidden] { display: none; }
+        .policy-modal__article h3 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white);
+            margin: 22px 0 8px;
+        }
+        .policy-modal__article h3:first-child { margin-top: 0; }
+        .policy-modal__article p,
+        .policy-modal__article li {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--steel);
+        }
+        .policy-modal__article p + p { margin-top: 10px; }
+        .policy-modal__article ul {
+            margin: 8px 0 0 1.15em;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .policy-modal__article strong { color: var(--white); font-weight: 600; }
+        .policy-modal__article a { color: var(--mint); text-decoration: none; }
+        .policy-modal__article a:hover { text-decoration: underline; text-underline-offset: 3px; }
+        body.policy-modal-open { overflow: hidden; }
         @media (max-width: 1080px) {
             .tech-metrics { grid-template-columns: 1fr 1fr; }
         }
@@ -611,11 +760,145 @@
             </div>
         </section>
 
+        <nav class="legal-strip" aria-label="Corporate policies">
+            <a class="legal-strip__link" href="privacy.html" data-policy="privacy">Privacy Policy</a>
+            <a class="legal-strip__link" href="terms.html" data-policy="terms">Terms of Use</a>
+        </nav>
+
         <footer class="disclosure">
             <span>&copy; 2026 Obsidian Treasury. All rights reserved.</span>
             <span>ABN: 94 203 108 486 · <a href="mailto:wafa@obsidiantreasury.com.au">wafa@obsidiantreasury.com.au</a></span>
         </footer>
     </main>
+
+    <div class="policy-modal" id="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
+        <div class="policy-modal__backdrop" data-policy-close></div>
+        <div class="policy-modal__panel">
+            <header class="policy-modal__header">
+                <div>
+                    <p class="policy-modal__kicker">Corporate Policy</p>
+                    <h2 class="policy-modal__title" id="policy-modal-title">Privacy Policy</h2>
+                    <p class="policy-modal__updated" id="policy-modal-updated">Last updated: July 28, 2026</p>
+                </div>
+                <button type="button" class="policy-modal__close" data-policy-close aria-label="Close policy">&times;</button>
+            </header>
+            <div class="policy-modal__body">
+                <article class="policy-modal__article" id="policy-privacy" data-policy-panel="privacy">
+                    <h3>1. Overview</h3>
+                    <p>
+                        Obsidian Treasury (“we”, “us”, or “our”) respects your privacy. This Privacy Policy
+                        explains what information we collect when you use our website, Founder's Circle
+                        checkout, waitlist, and related services, and how we use it.
+                    </p>
+                    <h3>2. Information we collect</h3>
+                    <ul>
+                        <li><strong>Contact details</strong> — email address when you join the waitlist or complete a purchase.</li>
+                        <li><strong>Payment information</strong> — processed by Stripe. We do not store full card numbers on our servers.</li>
+                        <li><strong>Transaction metadata</strong> — checkout session details used to send confirmation emails.</li>
+                        <li><strong>Technical data</strong> — basic logs related to site hosting and serverless functions (e.g. request timestamps).</li>
+                    </ul>
+                    <h3>3. How we use information</h3>
+                    <ul>
+                        <li>To process Founder's Circle purchases and deliver confirmation emails.</li>
+                        <li>To manage waitlist communications about product updates.</li>
+                        <li>To operate, secure, and improve our website and services.</li>
+                        <li>To respond to support or legal requests when required.</li>
+                    </ul>
+                    <h3>4. Service providers</h3>
+                    <p>We use trusted third parties to operate core flows:</p>
+                    <ul>
+                        <li><strong>Stripe</strong> — payment processing.</li>
+                        <li><strong>Resend</strong> — transactional email delivery.</li>
+                        <li><strong>Formspree</strong> — waitlist form submissions.</li>
+                        <li><strong>Netlify</strong> — hosting and serverless functions.</li>
+                    </ul>
+                    <p>These providers process data under their own privacy policies and our contractual arrangements with them.</p>
+                    <h3>5. Data retention &amp; security</h3>
+                    <p>
+                        We retain personal data only as long as needed for the purposes described above,
+                        or as required by law. Secrets and payment credentials are stored in environment
+                        variables / provider vaults, not in client-side code. Transmission uses HTTPS.
+                    </p>
+                    <h3>6. AI &amp; training</h3>
+                    <p>
+                        Customer financial data is not used to train public or general-purpose AI models.
+                        Any future aggregated insights would require explicit opt-in and anonymization.
+                    </p>
+                    <h3>7. Your choices</h3>
+                    <p>
+                        You may request access, correction, or deletion of your personal data by contacting
+                        us. Waitlist subscribers may unsubscribe via the instructions in our emails.
+                    </p>
+                    <h3>8. Contact</h3>
+                    <p>
+                        For privacy questions, contact us at
+                        <a href="mailto:privacy@obsidiantreasury.com">privacy@obsidiantreasury.com</a>.
+                    </p>
+                </article>
+                <article class="policy-modal__article" id="policy-terms" data-policy-panel="terms" hidden>
+                    <h3>1. Agreement</h3>
+                    <p>
+                        By accessing Obsidian Treasury’s website, joining the waitlist, or purchasing
+                        Founder's Circle access, you agree to these Terms of Use. If you do not agree,
+                        do not use our services.
+                    </p>
+                    <h3>2. The product</h3>
+                    <p>
+                        Obsidian Treasury provides an executive financial command-center experience and
+                        related early-access offerings. Features shown in demos or on the dashboard may
+                        evolve during beta. Founder's Circle provides lifetime priority access and a fixed
+                        rate as described at checkout at the time of purchase.
+                    </p>
+                    <h3>3. Founder's Circle purchase</h3>
+                    <ul>
+                        <li>Payments are processed by Stripe.</li>
+                        <li>Pricing and included benefits are those stated on the purchase page / Payment Link at checkout.</li>
+                        <li>Unless required by law, Founder's Circle purchases are generally non-refundable once access confirmation has been issued.</li>
+                        <li>We may update product features while preserving the lifetime priority / rate commitment described at purchase.</li>
+                    </ul>
+                    <h3>4. Acceptable use</h3>
+                    <p>You agree not to:</p>
+                    <ul>
+                        <li>Misuse the site, APIs, or payment flows.</li>
+                        <li>Attempt unauthorized access to systems or other users’ data.</li>
+                        <li>Use the service for unlawful, fraudulent, or harmful purposes.</li>
+                        <li>Reverse engineer or redistribute proprietary materials except as allowed by law.</li>
+                    </ul>
+                    <h3>5. AI decision support</h3>
+                    <p>
+                        Any AI-generated insights are decision-support tools only. They do not replace
+                        professional financial, legal, or tax advice. You remain responsible for fiduciary
+                        and financial decisions. High-impact actions (including money movement) should be
+                        reviewed by a human before execution.
+                    </p>
+                    <h3>6. Disclaimers</h3>
+                    <p>
+                        The service is provided “as is” and “as available.” To the fullest extent permitted
+                        by law, we disclaim warranties of merchantability, fitness for a particular purpose,
+                        and non-infringement. We do not guarantee uninterrupted availability or error-free
+                        operation during early / beta stages.
+                    </p>
+                    <h3>7. Limitation of liability</h3>
+                    <p>
+                        To the fullest extent permitted by law, Obsidian Treasury and its operators shall
+                        not be liable for indirect, incidental, special, consequential, or punitive damages,
+                        or for lost profits, data, or business opportunities arising from use of the service.
+                    </p>
+                    <h3>8. Changes</h3>
+                    <p>
+                        We may update these Terms from time to time. Continued use after changes are posted
+                        constitutes acceptance of the revised Terms. Material changes affecting Founder's
+                        Circle purchasers will be communicated where reasonably practicable.
+                    </p>
+                    <h3>9. Contact</h3>
+                    <p>
+                        Questions about these Terms:
+                        <a href="mailto:legal@obsidiantreasury.com">legal@obsidiantreasury.com</a>.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </div>
 
     <script>
         (function initLiquiditySuite() {
@@ -895,6 +1178,68 @@
             });
 
             applyView('tech');
+        })();
+
+        (function initPolicyModal() {
+            const modal = document.getElementById('policy-modal');
+            const titleEl = document.getElementById('policy-modal-title');
+            const closeEls = modal ? modal.querySelectorAll('[data-policy-close]') : [];
+            const links = document.querySelectorAll('[data-policy]');
+            if (!modal || !titleEl || !links.length) return;
+
+            const POLICIES = {
+                privacy: { title: 'Privacy Policy' },
+                terms: { title: 'Terms of Use' }
+            };
+
+            let lastFocus = null;
+
+            function showPanel(id) {
+                const policy = POLICIES[id] || POLICIES.privacy;
+                titleEl.textContent = policy.title;
+                modal.querySelectorAll('[data-policy-panel]').forEach(function (panel) {
+                    panel.hidden = panel.getAttribute('data-policy-panel') !== id;
+                });
+            }
+
+            function openModal(id) {
+                lastFocus = document.activeElement;
+                showPanel(id);
+                modal.hidden = false;
+                document.body.classList.add('policy-modal-open');
+                requestAnimationFrame(function () {
+                    modal.classList.add('is-open');
+                    var closeBtn = modal.querySelector('.policy-modal__close');
+                    if (closeBtn) closeBtn.focus();
+                });
+            }
+
+            function closeModal() {
+                modal.classList.remove('is-open');
+                document.body.classList.remove('policy-modal-open');
+                function onEnd(e) {
+                    if (e.target !== modal) return;
+                    modal.removeEventListener('transitionend', onEnd);
+                    if (!modal.classList.contains('is-open')) modal.hidden = true;
+                }
+                modal.addEventListener('transitionend', onEnd);
+                if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+            }
+
+            links.forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    openModal(link.getAttribute('data-policy'));
+                });
+            });
+
+            closeEls.forEach(function (el) {
+                el.addEventListener('click', closeModal);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+            });
         })();
     </script>
 </body>
