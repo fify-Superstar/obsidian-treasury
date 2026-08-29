@@ -326,9 +326,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 28px;
-            margin-top: 40px;
-            padding: 4px 0 2px;
+            flex-wrap: wrap;
+            gap: 0 4px;
+            margin-top: 48px;
+            padding: 2px 0 10px;
         }
         .legal-strip__link {
             color: var(--steel);
@@ -338,7 +339,7 @@
             letter-spacing: 0.16em;
             text-transform: uppercase;
             border-bottom: 1px solid transparent;
-            padding: 4px 0;
+            padding: 6px 8px;
             transition: color 200ms ease, border-color 200ms ease;
         }
         .legal-strip__link:hover,
@@ -346,6 +347,14 @@
             color: var(--mint);
             border-bottom-color: var(--mint);
             outline: none;
+        }
+        .legal-strip__sep {
+            color: var(--steel);
+            opacity: 0.45;
+            font-size: 11px;
+            line-height: 1;
+            padding: 0 10px;
+            user-select: none;
         }
         footer.disclosure {
             display: flex;
@@ -485,6 +494,12 @@
         .policy-modal__article a { color: var(--mint); text-decoration: none; }
         .policy-modal__article a:hover { text-decoration: underline; text-underline-offset: 3px; }
         body.policy-modal-open { overflow: hidden; }
+        @media (prefers-reduced-motion: reduce) {
+            .policy-modal,
+            .policy-modal__panel {
+                transition: none;
+            }
+        }
         @media (max-width: 1080px) {
             .tech-metrics { grid-template-columns: 1fr 1fr; }
         }
@@ -761,8 +776,9 @@
         </section>
 
         <nav class="legal-strip" aria-label="Corporate policies">
-            <a class="legal-strip__link" href="privacy.html" data-policy="privacy">Privacy Policy</a>
-            <a class="legal-strip__link" href="terms.html" data-policy="terms">Terms of Use</a>
+            <a class="legal-strip__link" href="privacy.html" data-policy="privacy" aria-haspopup="dialog" aria-controls="policy-modal" aria-expanded="false">Privacy Policy</a>
+            <span class="legal-strip__sep" aria-hidden="true">·</span>
+            <a class="legal-strip__link" href="terms.html" data-policy="terms" aria-haspopup="dialog" aria-controls="policy-modal" aria-expanded="false">Terms of Use</a>
         </nav>
 
         <footer class="disclosure">
@@ -771,7 +787,7 @@
         </footer>
     </main>
 
-    <div class="policy-modal" id="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
+    <div class="policy-modal" id="policy-modal" hidden role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="policy-modal-title">
         <div class="policy-modal__backdrop" data-policy-close></div>
         <div class="policy-modal__panel">
             <header class="policy-modal__header">
@@ -1193,19 +1209,43 @@
             };
 
             let lastFocus = null;
+            let activePolicy = null;
+            let hideTimer = null;
+
+            function getFocusable() {
+                return Array.prototype.slice.call(
+                    modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+                ).filter(function (el) {
+                    return !el.hidden && !el.closest('[hidden]');
+                });
+            }
+
+            function setExpanded(id) {
+                links.forEach(function (link) {
+                    link.setAttribute('aria-expanded', link.getAttribute('data-policy') === id ? 'true' : 'false');
+                });
+            }
 
             function showPanel(id) {
                 const policy = POLICIES[id] || POLICIES.privacy;
                 titleEl.textContent = policy.title;
+                activePolicy = id;
                 modal.querySelectorAll('[data-policy-panel]').forEach(function (panel) {
                     panel.hidden = panel.getAttribute('data-policy-panel') !== id;
                 });
             }
 
             function openModal(id) {
-                lastFocus = document.activeElement;
+                if (modal.classList.contains('is-open') && activePolicy === id) {
+                    closeModal();
+                    return;
+                }
+                const alreadyOpen = modal.classList.contains('is-open');
+                if (!alreadyOpen) lastFocus = document.activeElement;
                 showPanel(id);
+                setExpanded(id);
                 modal.hidden = false;
+                modal.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('policy-modal-open');
                 requestAnimationFrame(function () {
                     modal.classList.add('is-open');
@@ -1217,12 +1257,20 @@
             function closeModal() {
                 modal.classList.remove('is-open');
                 document.body.classList.remove('policy-modal-open');
+                modal.setAttribute('aria-hidden', 'true');
+                activePolicy = null;
+                setExpanded(null);
+                function finishHide() {
+                    if (!modal.classList.contains('is-open')) modal.hidden = true;
+                }
                 function onEnd(e) {
                     if (e.target !== modal) return;
                     modal.removeEventListener('transitionend', onEnd);
-                    if (!modal.classList.contains('is-open')) modal.hidden = true;
+                    window.clearTimeout(hideTimer);
+                    finishHide();
                 }
                 modal.addEventListener('transitionend', onEnd);
+                hideTimer = window.setTimeout(finishHide, 360);
                 if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
             }
 
@@ -1238,7 +1286,23 @@
             });
 
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+                if (!modal.classList.contains('is-open')) return;
+                if (e.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                if (e.key !== 'Tab') return;
+                const focusable = getFocusable();
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
             });
         })();
     </script>
