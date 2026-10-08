@@ -44,22 +44,19 @@
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border);
         }
-        .wordmark { text-decoration: none; color: var(--white); }
-        .wordmark__primary {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
+        .wordmark {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--white);
+            flex-shrink: 0;
         }
-        .wordmark__secondary {
+        .wordmark img {
             display: block;
-            margin-top: 6px;
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--mint);
+            width: auto;
+            height: auto;
+            max-height: 48px;
+            object-fit: contain;
         }
         .masthead__actions {
             display: flex;
@@ -546,8 +543,7 @@
     <main id="main-content" class="shell">
         <header class="masthead">
             <a class="wordmark" href="#">
-                <span class="wordmark__primary">Obsidian Treasury</span>
-                <span class="wordmark__secondary">Capital Efficiency Architecture</span>
+                <img src="/images/obsidian-treasury-logo.png" alt="Obsidian Treasury Sovereign Infrastructure Logo" class="max-h-12 h-auto w-auto object-contain">
             </a>
             <nav class="masthead__actions" aria-label="Primary">
                 <a class="nav-link" href="#liquidity-suite">Liquidity Suite</a>
@@ -782,6 +778,9 @@
         </nav>
 
         <footer class="disclosure">
+            <a class="wordmark" href="#">
+                <img src="/images/obsidian-treasury-logo.png" alt="Obsidian Treasury Sovereign Infrastructure Logo" class="max-h-12 h-auto w-auto object-contain">
+            </a>
             <span>
                 &copy; 2026 Obsidian Treasury. All rights reserved.
                 <span aria-hidden="true"> | </span>

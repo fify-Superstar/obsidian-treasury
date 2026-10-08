@@ -55,6 +55,11 @@ export default function LiquiditySuite() {
     <div className="min-h-screen bg-[#0F1115] text-slate-100 font-sans p-6 md:p-12 flex flex-col items-center">
       {/* Premium Institutional Header */}
       <div className="w-full max-w-5xl text-center mb-12">
+        <img
+          src="/images/obsidian-treasury-logo.png"
+          alt="Obsidian Treasury Sovereign Infrastructure Logo"
+          className="max-h-12 h-auto w-auto object-contain mx-auto mb-4"
+        />
         <span className="text-[#D4AF37] tracking-[0.2em] text-xs font-bold uppercase">Obsidian Treasury Console</span>
         <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mt-2 text-white">
           Working Capital & Cash Liquidity Suite

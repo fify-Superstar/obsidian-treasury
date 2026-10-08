@@ -116,7 +116,8 @@ body {
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: 40px;
+  max-height: 48px;
+  object-fit: contain;
 }
 
 .hub-switcher {
@@ -2537,6 +2538,26 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.site-legal-footer__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  text-decoration: none;
+}
+
+.site-legal-footer__logo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-height: 48px;
+  object-fit: contain;
+}
+
+.max-h-12 {
+  max-height: 48px;
+}
+
 .site-legal-footer__nav {
   display: inline-flex;
   align-items: center;
@@ -2595,7 +2616,8 @@ body {
   width: auto;
   max-width: 180px;
   height: auto;
-  max-height: 40px;
+  max-height: 48px;
+  object-fit: contain;
 }
 
 .legal-header__back {
